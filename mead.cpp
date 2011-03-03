@@ -47,7 +47,7 @@ double r_min, i_min, ha_min, r_max, i_max, ha_max;
 Uniform U;
 Normal Z;
 VariLogNormal VLN;
-
+gsl_rng* rng_handle;
 
 //--------------------------------
 // MAIN 
@@ -225,14 +225,14 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		previous_rel[i][2]=log(previous_rel[i][0])-pow(previous_rel[i][3],2)/2;
 	}
 
-	previous_internal_rel[0][0]=log(previous_rel[0][0]);//previous_rel[0][0];//
+	previous_internal_rel[0][0]=previous_rel[0][0];//log(previous_rel[0][0]);//
 	previous_internal_rel[0][1]=previous_rel[0][1];
 		
-	//previous_hyperprior_prob+=-previous_internal_rel[0][0];//-log(previous_internal_rel[0][0]);//
+	previous_hyperprior_prob+=-2*log(previous_internal_rel[0][0]);//-previous_internal_rel[0][0];//
 	//previous_hyperprior_prob+=-1*log(previous_internal_rel[0][1]);//-previous_internal_rel[0][1];//
 	for (int i=1; i<150; i++)
 	{
-		previous_internal_rel[i][0]=log(previous_rel[i][0]-previous_rel[i-1][0]);//previous_rel[i][0]-previous_rel[i-1][0];//
+		previous_internal_rel[i][0]=previous_rel[i][0]-previous_rel[i-1][0];//log(previous_rel[i][0]-previous_rel[i-1][0]);//
 		previous_internal_rel[i][1]=previous_rel[i][1];
 		
 	//	previous_hyperprior_prob+=-previous_internal_rel[i][0];//-log(previous_internal_rel[i][0]);//
@@ -298,22 +298,21 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 		for (int it=0; it<150; it++)
 		{	
-		//	internal_rel[it][0]=VLN.Next(previous_internal_rel[it][0], proposal_sd[it][0]*previous_internal_rel[it][0]);
-			internal_rel[it][0]=previous_internal_rel[it][0]+Z.Next()*proposal_sd[it][0];//*previous_internal_rel[it][0]);
-		//	while (internal_rel[it][0]<0){internal_rel[it][0]=previous_internal_rel[it][0]+Z.Next()*proposal_sd[it][0];}
+			cout << log(1) << " " << log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 << endl;
+			internal_rel[it][0]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);
 			internal_rel[it][1]=0.2;//VLN.Next(previous_internal_rel[it][1], proposal_sd[it][1]*previous_internal_rel[it][1]); //
 			
-		//	current_hyperprior_prob+=-internal_rel[it][0];//-log(internal_rel[it][0]);//
+			current_hyperprior_prob+=-2*log(internal_rel[it][0]);//-internal_rel[it][0];//
 		//	current_hyperprior_prob+=-1*log(internal_rel[it][1]);//-internal_rel[it][1];//
 		}
 
-		new_rel[0][0]=exp(internal_rel[0][0]);//internal_rel[0][0];//
+		new_rel[0][0]=internal_rel[0][0];//exp(internal_rel[0][0]);//
 		new_rel[0][1]=internal_rel[0][1];
 		new_rel[0][3]=sqrt(log(1+pow(new_rel[0][1]/new_rel[0][0],2)));
 		new_rel[0][2]=log(new_rel[0][0])-pow(new_rel[0][3],2)/2;
 		for (int it=1; it<150; it++)
 		{
-			new_rel[it][0]=exp(internal_rel[it][0])+new_rel[it-1][0];//internal_rel[it][0]+new_rel[it-1][0];//
+			new_rel[it][0]=internal_rel[it][0]+new_rel[it-1][0];//exp(internal_rel[it][0])+new_rel[it-1][0];//
 			new_rel[it][1]=internal_rel[it][1];
 			new_rel[it][3]=sqrt(log(1+pow(new_rel[it][1]/new_rel[it][0],2)));
 			new_rel[it][2]=log(new_rel[it][0])-pow(new_rel[it][3],2)/2;
@@ -335,43 +334,21 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		{
 		// From new to old
 		// mean_A
-		//	sigma2_LN=log(1+pow(proposal_sd[it][0],2));
-		//	mu_LN=log(internal_rel[it][0])-sigma2_LN/2;
-		//	global_transition_prob+=-log(previous_internal_rel[it][0]) - pow(log(previous_internal_rel[it][0])-mu_LN,2)/(2*sigma2_LN);
-	//		cout << mu_LN << " " << sigma2_LN << " " << internal_rel[it][0] << " " << it << " " <<-log(previous_internal_rel[it][0]) - pow(log(previous_internal_rel[it][0])-mu_LN,2)/(2*sigma2_LN)<< endl;
-		// mean_A - normal sampler
-		//	global_transition_prob+=-log(1-cdf_normal_fast(0, internal_rel[it][0], proposal_sd[it][0]));
-		// sigma
-		//	sigma2_LN=log(1+pow(proposal_sd[it][1],2));
-		//	mu_LN=log(new_rel[it][1])-sigma2_LN/2;
-		//	global_transition_prob+=-log(previous_rel[it][1]) - pow(log(previous_rel[it][1])-mu_LN,2)/(2*sigma2_LN);
-
-			global_transition_prob+=-pow(internal_rel[it][0]-previous_internal_rel[it][0],2)/(2*pow(proposal_sd[it][0],2));
+			global_transition_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][0], log(internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
 
 		// From old to new
 		// mean_A
-		//	sigma2_LN=log(1+pow(proposal_sd[it][0],2));
-		//	mu_LN=log(previous_internal_rel[it][0])-sigma2_LN/2;
-		//	global_transition_prob-=-log(internal_rel[it][0]) - pow(log(internal_rel[it][0])-mu_LN,2)/(2*sigma2_LN);
-		// mean_A - normal sampler
-		//	global_transition_prob-=-log(1-cdf_normal_fast(0, previous_internal_rel[it][0], proposal_sd[it][0]));
-		// sigma
-		//	sigma2_LN=log(1+pow(proposal_sd[it][1],2));
-		//	mu_LN=log(previous_rel[it][1])-sigma2_LN/2;
-		//	global_transition_prob-=-log(new_rel[it][1] ) - pow(log(new_rel[it][1])-mu_LN,2)/(2*sigma2_LN);	
-
-			global_transition_prob-=-pow(previous_rel[it][0]-previous_rel[it-1][0]-previous_internal_rel[it][0],2)/(2*pow(proposal_sd[it][0],2));
+			global_transition_prob-=log(gsl_ran_lognormal_pdf(internal_rel[it][0], log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
 		}	
 
 // Accept or reject
 	
-
 	
 		if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob>0)		// New parameter set better => Accept
 		{
 			global_A_chain.push_back(new_rel);
 			previous_rel=new_rel;
-		//	previous_internal_rel=internal_rel;
+			previous_internal_rel=internal_rel;
 			global_previous_prob=global_current_prob;
 			previous_hyperprior_prob=current_hyperprior_prob;
 			without_change=0;
@@ -385,7 +362,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		{
 			global_A_chain.push_back(new_rel);
 			previous_rel=new_rel;
-		//	previous_internal_rel=internal_rel;
+			previous_internal_rel=internal_rel;
 			global_previous_prob=global_current_prob;
 			previous_hyperprior_prob=current_hyperprior_prob;
 			without_change=0;
