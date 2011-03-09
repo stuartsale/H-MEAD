@@ -78,7 +78,9 @@ int main(int argc, char* argv[])
 	gsl_rng* rng_handle = gsl_rng_alloc (gsl_rng_taus2);
 
 	//seed the random no generator
-	gsl_rng_set(rng_handle, time(0));
+	//gsl_rng_set(rng_handle, time(0));
+
+	//cout << "TEST " << gsl_ran_lognormal(rng_handle,1, 0.1)<<endl;
 
 
 // set default MIN vals
@@ -193,13 +195,25 @@ double real_prob(vector<iphas_obj> &stars, vector<iso_obj> &isochrones, vector<i
 vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double l, double b, vector <bin_obj2> backup_A_mean, double ri_min, double ri_max)
 {
 
+	//initialize up random number generator
+    	//gsl_rng_env_setup ();
+	gsl_rng* rng_handle = gsl_rng_alloc (gsl_rng_taus2);
+
+	//seed the random no generator
+	gsl_rng_set(rng_handle, time(0));
+
+	cout << "TEST " << gsl_ran_lognormal(rng_handle,1, 0.1)<<endl;
+
+
+
+
 	vector <bin_obj2> first_bins(150);
 
-	double sigma_fac=0.02;
+	double sigma_fac=0.01, accepted=0;
 // Set up
 
 	int without_change=0;
-	int thin=100;
+	int thin=200;
 
 	vector <vector <vector <double> > > global_A_chain;
 
@@ -212,6 +226,9 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	vector < vector <double> > previous_rel (150, vector <double> (4));
 	vector < vector <double> > internal_rel (150, vector <double> (2));
 	vector < vector <double> > previous_internal_rel (150, vector <double> (2));
+
+	vector <double> initial_dists;
+	int rel_length=150;
 
 // Start from backup_A_mean
 
@@ -228,7 +245,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	previous_internal_rel[0][0]=previous_rel[0][0];//log(previous_rel[0][0]);//
 	previous_internal_rel[0][1]=previous_rel[0][1];
 		
-	previous_hyperprior_prob+=-2*log(previous_internal_rel[0][0]);//-previous_internal_rel[0][0];//
+	previous_hyperprior_prob+=-1*log(previous_internal_rel[0][0]);//-previous_internal_rel[0][0];//
 	//previous_hyperprior_prob+=-1*log(previous_internal_rel[0][1]);//-previous_internal_rel[0][1];//
 	for (int i=1; i<150; i++)
 	{
@@ -259,8 +276,20 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	while (it_stars<stars.size())
 	{
 		stars[it_stars].initial_guess(isochrones, guess_set, previous_rel);
-		if (stars[it_stars].last_A>0 && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0> ri_min  && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0<ri_max){it_stars++;}
+		if (stars[it_stars].last_A>0 && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0> ri_min  && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0<ri_max){it_stars++;initial_dists.push_back(stars[it_stars].last_dist_mod);}
 		else {stars.erase(stars.begin()+it_stars);}
+	}
+
+	sort(initial_dists.begin(), initial_dists.end());
+
+	cout << "10th furthest dist is: " << pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1) << " kpc away" << endl;
+
+	if (pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1)<15000)
+	{
+		rel_length=floor(pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1)/100);
+		previous_rel.resize(rel_length);
+		previous_internal_rel.resize(rel_length);
+		first_bins.resize(rel_length);
 	}
 
 	for (int star_it=0; star_it<stars.size(); star_it++){global_previous_prob+=stars[star_it].last_prob;}
@@ -269,7 +298,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	vector <double> proposed_probs(stars.size());
 
-	while ((global_A_chain.size()<150000 /*|| accepted1<2000 || accepted2<2000 || accepted3<2000*/) && without_change<4000)
+	while ((global_A_chain.size()<150000 /*|| accepted1<2000 || accepted2<2000 || accepted3<2000) && without_change<4000*/))
 	{
 		global_current_prob=0;
 		global_transition_prob=0;
@@ -287,22 +316,21 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 		for (int it=0; it<stars.size(); it++){global_previous_prob+=stars[it].last_prob;}
 
-		vector < vector <double> > new_rel(150,vector <double> (4));
+		vector < vector <double> > new_rel(rel_length,vector <double> (4));
 
-		for (int it=0; it<150; it++)
+		for (int it=0; it<rel_length; it++)
 		{
 			proposal_sd[it][0]=sigma_fac;
 			proposal_sd[it][1]=sigma_fac;
 		}
 		
 
-		for (int it=0; it<150; it++)
+		for (int it=0; it<rel_length; it++)
 		{	
-			cout << log(1) << " " << log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 << endl;
 			internal_rel[it][0]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);
 			internal_rel[it][1]=0.2;//VLN.Next(previous_internal_rel[it][1], proposal_sd[it][1]*previous_internal_rel[it][1]); //
 			
-			current_hyperprior_prob+=-2*log(internal_rel[it][0]);//-internal_rel[it][0];//
+			current_hyperprior_prob+=-1.*log(internal_rel[it][0]);//-internal_rel[it][0];//
 		//	current_hyperprior_prob+=-1*log(internal_rel[it][1]);//-internal_rel[it][1];//
 		}
 
@@ -310,7 +338,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		new_rel[0][1]=internal_rel[0][1];
 		new_rel[0][3]=sqrt(log(1+pow(new_rel[0][1]/new_rel[0][0],2)));
 		new_rel[0][2]=log(new_rel[0][0])-pow(new_rel[0][3],2)/2;
-		for (int it=1; it<150; it++)
+		for (int it=1; it<rel_length; it++)
 		{
 			new_rel[it][0]=internal_rel[it][0]+new_rel[it-1][0];//exp(internal_rel[it][0])+new_rel[it-1][0];//
 			new_rel[it][1]=internal_rel[it][1];
@@ -330,7 +358,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 		global_transition_prob=0;
 
-		for (int it=1; it<150; it++)
+		for (int it=1; it<rel_length; it++)
 		{
 		// From new to old
 		// mean_A
@@ -352,10 +380,11 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 			global_previous_prob=global_current_prob;
 			previous_hyperprior_prob=current_hyperprior_prob;
 			without_change=0;
+			accepted++;
 
 			for (int stars_it=0; stars_it<stars.size(); stars_it++){stars[stars_it].last_prob=proposed_probs[stars_it];}
 		
-			cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][1] << " " << new_rel[149][0] << " " << current_hyperprior_prob << endl;
+			cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << endl;
 		}
 
 		else if (exp(global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob)>U.Next())	// New set worse => accept with P=P(new)/P(old)
@@ -366,8 +395,9 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 			global_previous_prob=global_current_prob;
 			previous_hyperprior_prob=current_hyperprior_prob;
 			without_change=0;
+			accepted++;
 
-			cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][1] << " " << new_rel[149][0] << " " << current_hyperprior_prob <<  endl;
+			cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() <<  endl;
 		}
 		else 
 		{
@@ -379,7 +409,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	for (int star_it=0; star_it<stars.size(); star_it++){stars[star_it].mean_intervals();}
 
-	for (int it=0; it<150; it++)
+	for (int it=0; it<rel_length; it++)
 	{
 		double A_sum=0., sigma_sum=0.;
 		for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
@@ -566,7 +596,7 @@ void output_write(string filename, vector<bin_obj2> A_mean, vector<iphas_obj> co
 	for (int y=0; y<colours.size(); y++)
 	{
 		
-		output << colours[y].r << "\t" << colours[y].i << "\t" << colours[y].ha << "\t"<< colours[y].r_i0 << "\t" << colours[y].dist << "\t" << colours[y].A << "\t" << colours[y].distbin << "\t" << colours[y].d_A << "\t" << colours[y].d_r_i0 << "\t" << colours[y].d_dist << "\t" << colours[y].d_r << "\t" << colours[y].d_i << "\t" << colours[y].d_ha << "\t" << colours[y].mag_weight  << "\t" << colours[y].last_prob << "\n";
+		output << colours[y].r << "\t" << colours[y].i << "\t" << colours[y].ha << "\t"<< colours[y].r_i0 << "\t" << colours[y].dist << "\t" << colours[y].A << "\t" << colours[y].distbin << "\t" << colours[y].d_A << "\t" << colours[y].d_r_i0 << "\t" << colours[y].d_dist << "\t" << colours[y].d_r << "\t" << colours[y].d_i << "\t" << colours[y].d_ha << "\t" << colours[y].last_iso.Mi  << "\t" << colours[y].last_prob << "\n";
 	}
 	output.close();//*/
 
@@ -704,7 +734,7 @@ vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
 		{
          		//cout << "d/100=" << d/100 << " A=" << A_6250 << " " << backup_A_mean.size() << endl; 
 										// also make backup_A_mean at this point
-			backup_A_mean[int((d-50)/100)].mean_A=d/10000.;//A_6250;
+			backup_A_mean[int((d-50)/100)].mean_A=0.0001*d;//A_6250;
 			backup_A_mean[int((d-50)/100)].sigma=0.1*A_6250;
 			backup_A_mean[int((d-50)/100)].d_mean=0.1;
 		}
