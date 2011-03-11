@@ -34,11 +34,11 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 	l=l_input;
 	b=b_input;
 
-	feh_sd=0.00000001;//0.008;
+	feh_sd=0.008;
 	//Mi_sd=0.001;
 	//logAge_sd=0.08;
-	A_sd=0.000000001;//sqrt(d_r*d_r+d_i*d_i);
-	dist_mod_sd=0.00000001;//2*d_r;
+	A_sd=sqrt(d_r*d_r+d_i*d_i);
+	dist_mod_sd=2*d_r;
 
 	no_accept=0;
 
@@ -111,7 +111,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	// Correction to prior to account for incompletness due to mag limits
 
-	/*		A_max=test_A+(r_max-r)/test_iso.v;
+			A_max=test_A+(r_max-r)/test_iso.v;
 			A_min=test_A-(r-r_min)/test_iso.v;
 	
 			if (A_min>0){A_prob=-log(cdf_normal_fast(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3])-cdf_normal_fast(log(A_min),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
@@ -121,7 +121,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 				A_prob=-cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]);
 				//cout << A_max << " " << A_min << " " << cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]) << " " << A_mean[floor(test_dist/100)][0] << endl;
 			}
-	*/	}
+		}
 		else
 		{
 			A_prob=0;
@@ -129,7 +129,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	// Correction to prior to account for incompletness due to mag limits
 
-	/*		A_max=test_A+(r_max-r)/test_iso.v;
+			A_max=test_A+(r_max-r)/test_iso.v;
 			A_min=test_A-(r-r_min)/test_iso.v;
 	
 			if (A_min>0){A_prob=-log(cdf_normal_fast(log(A_max),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3])-cdf_normal_fast(log(A_min),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
@@ -139,7 +139,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 				A_prob=-cdf_normal_smallx(log(A_max),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]);
 				//cout << A_max << " " << A_min << " " << cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]) << " " << A_mean[floor(test_dist/100)][0] << endl;
 			}
-	*/	}
+		}
 	//cout<< current_prob1 <<endl;
 	return current_prob1;
 } 
@@ -153,8 +153,8 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 			last_Mi=(((r-ha)-guess_set[it].redline(r-i))*guess_set[it-1].Mi + (guess_set[it-1].redline(r-i)-(r-ha))*guess_set[it].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
 			try{last_logAge=max_age(last_Mi, isochrones)-log(2);} catch (int e){last_logAge=8.5;}
 			last_iso=iso_get(0.,last_Mi, last_logAge, isochrones);
-			logAge_sd=0.00000001;//last_logAge/10.;
-			Mi_sd = 0.000000001;//0.025*sqrt(d_r*d_r+d_ha*d_ha)*(guess_set[it].Mi-guess_set[it-1].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
+			logAge_sd=last_logAge/10.;
+			Mi_sd = 0.025*sqrt(d_r*d_r+d_ha*d_ha)*(guess_set[it].Mi-guess_set[it-1].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
 			break;
 		}
 	}
@@ -162,9 +162,9 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 	last_dist_mod=r-(last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)-last_iso.r0;
 //	last_dist=pow(10,last_dist_mod/5+1);
 
-	last_iso=iso_get(0.,real_Mi, 7.08, isochrones);
-	last_A=real_A;
-	last_dist_mod=5*log10(real_dist/10);
+//	last_iso=iso_get(0.,real_Mi, 7.08, isochrones);
+//	last_A=real_A;
+//	last_dist_mod=5*log10(real_dist/10);
 
 
 
@@ -462,7 +462,7 @@ void iphas_obj::mean_intervals(void)
 	r_i0 =  r_i0_sum_in/ceil(0.5*iso_obj_chain.size());
 
 	d_A=sqrt(A_sum2_in/ceil(0.5*A_chain.size()) - pow(A_sum_in/ceil(0.5*A_chain.size()),2));
-	d_dist=iso_obj_chain.size();//sqrt(d_sum2_in/ceil(0.5*A_chain.size()) - pow(d_sum_in/ceil(0.5*dist_mod_chain.size()),2));
+	d_dist=(last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)+last_dist_mod+last_iso.r0;//no_accept;//sqrt(d_sum2_in/ceil(0.5*A_chain.size()) - pow(d_sum_in/ceil(0.5*dist_mod_chain.size()),2));
 //	d_dist=best_iso.r0;
 	d_r_i0 =sqrt(r_i0_sum2_in/ceil(0.5*A_chain.size()) - pow(r_i0_sum_in/ceil(0.5*A_chain.size()),2));
 //	d_r_i0=best_iso.logAge-max_age(best_iso.Mi, isochrones);

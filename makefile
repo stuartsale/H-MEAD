@@ -2,7 +2,7 @@
 # Written by Stuart Sale 17/11/10
 RUN_DIR=../../
 flags= -g
-linking_flags= -lgsl -lgslcblas -lm
+linking_flags= -lgsl -lgslcblas -lm -lprofiler -fopenmp
 
 MEAD: bin_obj.o iso_obj.o helper.o iphas_obj.o mead.o
 	g++ -o H-MEAD bin_obj.o iso_obj.o helper.o iphas_obj.o mead.o newran03/newran1.o newran03/newran2.o newran03/myexcept.o newran03/simpstr.o newran03/extreal.o $(linking_flags)
