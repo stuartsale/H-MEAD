@@ -79,12 +79,12 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 	// Find p(x) - includes A(dist), IMF, SFH, disc density & metallicity profiles - remember dist^2 term
 
 		// IMF - Scalo type?
-	//	current_prob1+=log(test_iso.IMF());
+		current_prob1+=log(test_iso.IMF());
 
 
 		double test_dist=pow(10,test_dist_mod/5+1);
 
-	/*	double cosb=1, sinb=0, cosl=-1, R_gal;
+		double cosb=1, sinb=0, cosl=-1, R_gal;
 		R_gal=sqrt(test_dist*test_dist*cosb*cosb + 64000000-16000*test_dist*cosl*cosb);
 
 		// density profile
@@ -153,7 +153,7 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 			last_Mi=(((r-ha)-guess_set[it].redline(r-i))*guess_set[it-1].Mi + (guess_set[it-1].redline(r-i)-(r-ha))*guess_set[it].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
 			try{last_logAge=max_age(last_Mi, isochrones)-log(2);} catch (int e){last_logAge=8.5;}
 			last_iso=iso_get(0.,last_Mi, last_logAge, isochrones);
-			logAge_sd=last_logAge/10.;
+			logAge_sd=last_logAge/5.;
 			Mi_sd = 0.025*sqrt(d_r*d_r+d_ha*d_ha)*(guess_set[it].Mi-guess_set[it-1].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
 			break;
 		}
@@ -316,7 +316,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 		last_A=test_A;
 		last_prob=current_prob;
 
-		no_accept++;
+	//	no_accept++;
 
 		if (no_accept/200.==floor(no_accept/200.))
 		{
@@ -343,7 +343,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 		last_A=test_A;
 		last_prob=current_prob;
 
-		no_accept++;
+	//	no_accept++;
 
 		if (no_accept/200.==floor(no_accept/200.))
 		{
@@ -385,7 +385,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 		last_dist_mod=test_dist_mod;
 		last_prob=current_prob;
 
-		no_accept++;
+	//	no_accept++;
 
 		if (no_accept/200.==floor(no_accept/200.))
 		{
@@ -411,7 +411,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 		last_dist_mod=test_dist_mod;
 		last_prob=current_prob;
 
-		no_accept++;
+	//	no_accept++;
 
 		if (no_accept/200.==floor(no_accept/200.))
 		{
@@ -462,9 +462,9 @@ void iphas_obj::mean_intervals(void)
 	r_i0 =  r_i0_sum_in/ceil(0.5*iso_obj_chain.size());
 
 	d_A=sqrt(A_sum2_in/ceil(0.5*A_chain.size()) - pow(A_sum_in/ceil(0.5*A_chain.size()),2));
-	d_dist=(last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)+last_dist_mod+last_iso.r0;//no_accept;//sqrt(d_sum2_in/ceil(0.5*A_chain.size()) - pow(d_sum_in/ceil(0.5*dist_mod_chain.size()),2));
+	d_dist=no_accept;//last_logAge;//(last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)+last_dist_mod+last_iso.r0;//sqrt(d_sum2_in/ceil(0.5*A_chain.size()) - pow(d_sum_in/ceil(0.5*dist_mod_chain.size()),2));
 //	d_dist=best_iso.r0;
-	d_r_i0 =sqrt(r_i0_sum2_in/ceil(0.5*A_chain.size()) - pow(r_i0_sum_in/ceil(0.5*A_chain.size()),2));
+	d_r_i0 =last_logAge;//sqrt(r_i0_sum2_in/ceil(0.5*A_chain.size()) - pow(r_i0_sum_in/ceil(0.5*A_chain.size()),2));
 //	d_r_i0=best_iso.logAge-max_age(best_iso.Mi, isochrones);
 
 	

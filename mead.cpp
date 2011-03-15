@@ -6,12 +6,12 @@
 #include <algorithm>
 #include <cstdlib> 
 #include <sstream>
-#include <time.h>
 #include <ctime>
 #include "helper.h"
 #include "bin_obj.h"
 #include "iso_obj.h"
 #include "iphas_obj.h"
+#include "omp.h"
 using namespace std;
 
 #ifndef PI
@@ -97,9 +97,9 @@ int main(int argc, char* argv[])
 	vector<iso_obj> isochrones=iso_read("padova-iso_reg.dat");
 
 	vector<iso_obj> guess_set;
-	guess_set.push_back(iso_get(0., 0.738, 8.5, isochrones));
-	while (1.0648*guess_set[guess_set.size()-1].Mi<2.015){guess_set.push_back(iso_get(0., 1.0648*guess_set[guess_set.size()-1].Mi, 8.5, isochrones));}
-	guess_set.push_back(iso_get(0., 2.015, 8.5, isochrones));
+	guess_set.push_back(iso_get(0., 0.709, 8.5, isochrones));
+	while (1.0648*guess_set[guess_set.size()-1].Mi<2.060){guess_set.push_back(iso_get(0., 1.0648*guess_set[guess_set.size()-1].Mi, 8.5, isochrones));}
+	guess_set.push_back(iso_get(0., 2.060, 8.5, isochrones));
 
    // Read in IPHAS data
 	string iphas_filename=argv[1];		
@@ -119,14 +119,22 @@ int main(int argc, char* argv[])
   
    // governs how aggresively objects near mag limits 
    // are downweighted - see section 4.6 in my thesis
-	double x_value=2.0;				
-
+	//double x_value=2.0;	
+			
 // first run through
+
 
 	cout << "backup size:" << backup_A_mean.size() << endl;
 
 	cout << "Real: " << real_prob(colours, isochrones, guess_set, atof(argv[2]), atof(argv[3]), backup_A_mean, -0.0272, 0.53) << endl;
+
+
+	clock_t start;
+	start=time(NULL);
+
 	A_mean=dist_redMCMC(colours, isochrones, guess_set, atof(argv[2]), atof(argv[3]), backup_A_mean, -0.0272, 0.53);			// }
+
+	cout << "total time: " << (time(NULL)-start) <<"s\n";
    	
 // Write results to file
 	output_write(iphas_filename, A_mean, colours);
@@ -277,20 +285,22 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	{
 		stars[it_stars].initial_guess(isochrones, guess_set, previous_rel);
 		if (stars[it_stars].last_A>0 && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0> ri_min  && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0<ri_max){it_stars++;initial_dists.push_back(stars[it_stars].last_dist_mod);}
-		else {stars.erase(stars.begin()+it_stars);}
+		//else {stars.erase(stars.begin()+it_stars);}
+		else if (stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0> ri_min  && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0<ri_max){it_stars++;initial_dists.push_back(stars[it_stars].last_dist_mod);stars[it_stars].last_A = 0.02;} 
 	}
 
 	sort(initial_dists.begin(), initial_dists.end());
 
-	cout << "10th furthest dist is: " << pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1) << " kpc away" << endl;
+	cout << "95th percentile on dist is: " << pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1) << " kpc away" << endl;
+	cout << "5th percentile on dist is: " << pow(10,initial_dists[int(initial_dists.size()*0.05)]/5+1) << " kpc away" << endl;
 
-	if (pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1)<15000)
+	/*if (pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1)<15000)
 	{
 		rel_length=floor(pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1)/100);
 		previous_rel.resize(rel_length);
 		previous_internal_rel.resize(rel_length);
 		first_bins.resize(rel_length);
-	}
+	}*/
 
 	for (int star_it=0; star_it<stars.size(); star_it++){global_previous_prob+=stars[star_it].last_prob;}
 	
@@ -310,11 +320,15 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	//	total++;
 // First vary parameters for each star
 
-		for (int it=0; it<stars.size(); it++){if (U.Next()>0.75){stars[it].star_try1(isochrones, l, b, previous_rel);};}
+		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
+		for (int it=0; it<stars.size(); it++)
+		{
+			if (U.Next()>0.75){stars[it].star_try1(isochrones, l, b, previous_rel);};
+		//	#pragma omp atomic
+			global_previous_prob+=stars[it].last_prob;
+		}
 
 // Now vary hyper-parameters
-
-		for (int it=0; it<stars.size(); it++){global_previous_prob+=stars[it].last_prob;}
 
 		vector < vector <double> > new_rel(rel_length,vector <double> (4));
 
@@ -348,9 +362,12 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 // Find probability of this parameter set
 
+
+		#pragma omp parallel for  num_threads(3) reduction(+:global_current_prob)
 		for (int it=0; it<stars.size(); it++)
 		{
 			proposed_probs[it]=stars[it].prob_eval(stars[it].last_iso, stars[it].last_A, stars[it].last_dist_mod, new_rel);
+		//	#pragma omp atomic
 			global_current_prob+= proposed_probs[it];
 		}
 
