@@ -217,7 +217,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	vector <bin_obj2> first_bins(150);
 
-	double sigma_fac=0.01, accepted=0;
+	double sigma_fac=0.005, accepted=0;
 // Set up
 
 	int without_change=0;
@@ -248,6 +248,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		previous_rel[i][1]=0.2;//backup_A_mean[i].sigma;//0.2;//
 		previous_rel[i][3]=sqrt(log(1+pow(previous_rel[i][1]/previous_rel[i][0],2)));
 		previous_rel[i][2]=log(previous_rel[i][0])-pow(previous_rel[i][3],2)/2;
+	//	previous_hyperprior_prob+=-3*log(previous_rel[i][3]);
 	}
 
 	previous_internal_rel[0][0]=previous_rel[0][0];//log(previous_rel[0][0]);//
@@ -260,8 +261,10 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		previous_internal_rel[i][0]=previous_rel[i][0]-previous_rel[i-1][0];//log(previous_rel[i][0]-previous_rel[i-1][0]);//
 		previous_internal_rel[i][1]=previous_rel[i][1];
 		
-		previous_hyperprior_prob+=-1*log(previous_internal_rel[i][0]);//-log(previous_internal_rel[i][0]);//
+	//	previous_hyperprior_prob+=-1*log(previous_internal_rel[i][0]);//-log(previous_internal_rel[i][0]);//
 	//	previous_hyperprior_prob+=-1*log(previous_internal_rel[i][1]);//-previous_internal_rel[i][1];//
+		previous_hyperprior_prob+=log(previous_internal_rel[i][1]/(2 * sqrt(log(1+pow(previous_internal_rel[i][1]/previous_internal_rel[i][0],2))) *
+								  pow(1+pow(previous_internal_rel[i][1]/previous_internal_rel[i][0],2),2) * pow(previous_internal_rel[i][0],3)));
 	}
 
 	global_A_chain.push_back(previous_rel);
@@ -342,10 +345,12 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		for (int it=0; it<rel_length; it++)
 		{	
 			internal_rel[it][0]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);
-			internal_rel[it][1]=0.2;//VLN.Next(previous_internal_rel[it][1], proposal_sd[it][1]*previous_internal_rel[it][1]); //
+			internal_rel[it][1]=VLN.Next(previous_internal_rel[it][1], proposal_sd[it][1]*previous_internal_rel[it][1]); //
 			
-			current_hyperprior_prob+=-1.*log(internal_rel[it][0]);//-internal_rel[it][0];//
+	//		current_hyperprior_prob+=-1.*log(internal_rel[it][0]);//-internal_rel[it][0];//
 	//		current_hyperprior_prob+=-1*log(internal_rel[it][1]);//-internal_rel[it][1];//
+			current_hyperprior_prob+=log(internal_rel[it][1]/(2 * sqrt(log(1+pow(internal_rel[it][1]/internal_rel[it][0],2))) *
+									  pow(1+pow(internal_rel[it][1]/internal_rel[it][0],2),2) * pow(internal_rel[it][0],3)));
 		}
 
 		new_rel[0][0]=internal_rel[0][0];//exp(internal_rel[0][0]);//
@@ -358,6 +363,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 			new_rel[it][1]=internal_rel[it][1];
 			new_rel[it][3]=sqrt(log(1+pow(new_rel[it][1]/new_rel[it][0],2)));
 			new_rel[it][2]=log(new_rel[it][0])-pow(new_rel[it][3],2)/2;
+		//	current_hyperprior_prob+=-3*log(new_rel[it][3]);
 		}
 
 // Find probability of this parameter set
@@ -432,16 +438,16 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	for (int it=0; it<rel_length; it++)
 	{
 		double A_sum=0., sigma_sum=0.;
-		for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
+		for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)
 		{
 			A_sum+=global_A_chain[m][it][0];
 			sigma_sum+=log(global_A_chain[m][it][1]);
 		}
-		first_bins[it].mean_A=A_sum/ceil(0.50*global_A_chain.size());
-		first_bins[it].sigma=exp(sigma_sum/ceil(0.50*global_A_chain.size()));
+		first_bins[it].mean_A=A_sum/ceil(0.30*global_A_chain.size());
+		first_bins[it].sigma=exp(sigma_sum/ceil(0.30*global_A_chain.size()));
 
 		vector <double> A_diffs, sigma_diffs;
-		for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
+		for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)
 		{
 			A_diffs.push_back(abs(global_A_chain[m][it][0]-first_bins[it].mean_A));
 			sigma_diffs.push_back(abs(global_A_chain[m][it][1]-first_bins[it].sigma));
