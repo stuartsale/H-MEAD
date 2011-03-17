@@ -111,7 +111,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	// Correction to prior to account for incompletness due to mag limits
 
-		/*	A_max=test_A+(r_max-r)/test_iso.v;
+			A_max=test_A+(r_max-r)/test_iso.v;
 			A_min=test_A-(r-r_min)/test_iso.v;
 	
 			if (A_min>0){A_prob=-log(cdf_normal_fast(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3])-cdf_normal_fast(log(A_min),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
@@ -120,7 +120,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 			{
 				A_prob=-cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]);
 				//cout << A_max << " " << A_min << " " << cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]) << " " << A_mean[floor(test_dist/100)][0] << endl;
-			}*/
+			}
 		}
 		else
 		{
@@ -129,7 +129,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	// Correction to prior to account for incompletness due to mag limits
 
-		/*	A_max=test_A+(r_max-r)/test_iso.v;
+			A_max=test_A+(r_max-r)/test_iso.v;
 			A_min=test_A-(r-r_min)/test_iso.v;
 	
 			if (A_min>0){A_prob=-log(cdf_normal_fast(log(A_max),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3])-cdf_normal_fast(log(A_min),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
@@ -138,7 +138,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 			{
 				A_prob=-cdf_normal_smallx(log(A_max),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]);
 				//cout << A_max << " " << A_min << " " << cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]) << " " << A_mean[floor(test_dist/100)][0] << endl;
-			}*/
+			}
 		}
 	//cout<< current_prob1 <<endl;
 	return current_prob1;

@@ -363,7 +363,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 			new_rel[it][1]=internal_rel[it][1];
 			new_rel[it][3]=sqrt(log(1+pow(new_rel[it][1]/new_rel[it][0],2)));
 			new_rel[it][2]=log(new_rel[it][0])-pow(new_rel[it][3],2)/2;
-		//	current_hyperprior_prob+=-3*log(new_rel[it][3]);
+	//		current_hyperprior_prob+=-3*log(new_rel[it][3]);
 		}
 
 // Find probability of this parameter set
@@ -381,6 +381,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 		global_transition_prob=0;
 
+		#pragma omp parallel for  num_threads(3) reduction(+:global_transition_prob)
 		for (int it=1; it<rel_length; it++)
 		{
 		// From new to old
@@ -432,9 +433,17 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		}
 		if (global_A_chain.size()/1000.==floor(global_A_chain.size()/1000.)){cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << endl;}
 	}
-
+	
+	#pragma omp parallel for  num_threads(3)
 	for (int star_it=0; star_it<stars.size(); star_it++){stars[star_it].mean_intervals();}
 
+	if (pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1)<15000)
+	{
+		rel_length=floor(pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1)/100);
+		first_bins.resize(rel_length);
+	}
+
+	#pragma omp parallel for  num_threads(3)
 	for (int it=0; it<rel_length; it++)
 	{
 		double A_sum=0., sigma_sum=0.;
