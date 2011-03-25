@@ -80,7 +80,8 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 		// IMF - Scalo type?
 		current_prob1+=log(test_iso.IMF());
-		current_prob1+=-log(test_A);
+	//	current_prob1+=-log(test_A);
+		current_prob1+=test_iso.logAge;
 
 		double test_dist=pow(10,test_dist_mod/5+1);
 
@@ -111,7 +112,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	// Correction to prior to account for incompletness due to mag limits
 
-			A_max=test_A+(r_max-r)/test_iso.v;
+		/*	A_max=test_A+(r_max-r)/test_iso.v;
 			A_min=test_A-(r-r_min)/test_iso.v;
 	
 			if (A_min>0){A_prob=-log(cdf_normal_fast(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3])-cdf_normal_fast(log(A_min),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
@@ -120,7 +121,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 			{
 				A_prob=-cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]);
 				//cout << A_max << " " << A_min << " " << cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]) << " " << A_mean[floor(test_dist/100)][0] << endl;
-			}
+			}*/
 		}
 		else
 		{
@@ -129,7 +130,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	// Correction to prior to account for incompletness due to mag limits
 
-			A_max=test_A+(r_max-r)/test_iso.v;
+	/*		A_max=test_A+(r_max-r)/test_iso.v;
 			A_min=test_A-(r-r_min)/test_iso.v;
 	
 			if (A_min>0){A_prob=-log(cdf_normal_fast(log(A_max),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3])-cdf_normal_fast(log(A_min),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
@@ -138,7 +139,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 			{
 				A_prob=-cdf_normal_smallx(log(A_max),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]);
 				//cout << A_max << " " << A_min << " " << cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]) << " " << A_mean[floor(test_dist/100)][0] << endl;
-			}
+			}*/
 		}
 	//cout<< current_prob1 <<endl;
 	return current_prob1;
@@ -153,8 +154,8 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 			last_Mi=(((r-ha)-guess_set[it].redline(r-i))*guess_set[it-1].Mi + (guess_set[it-1].redline(r-i)-(r-ha))*guess_set[it].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
 			try{last_logAge=max_age(last_Mi, isochrones)-log(2);} catch (int e){last_logAge=8.5;}
 			last_iso=iso_get(0.,last_Mi, last_logAge, isochrones);
-			logAge_sd=last_logAge/5.;
-			Mi_sd = 0.025*sqrt(d_r*d_r+d_ha*d_ha)*(guess_set[it].Mi-guess_set[it-1].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
+			logAge_sd=d_r*last_logAge/3;
+			Mi_sd = 0.075*pow(last_Mi,3)*sqrt(d_r*d_r+d_ha*d_ha)*(guess_set[it].Mi-guess_set[it-1].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
 			break;
 		}
 	}
@@ -271,7 +272,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 	{
 		//without_change++;
 		/* if (without_change>100){cout << "fail: " << without_change << " "  << current_prob << " " << previous_prob << " " << transition_prob << endl;}*/
-		no_accept++;
+		//no_accept++;
 
 		if (no_accept/200.==floor(no_accept/200.))
 		{
@@ -359,7 +360,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 	{
 		//without_change++;
 		/* if (without_change>100){cout << "fail: " << without_change << " "  << current_prob << " " << previous_prob << " " << transition_prob << endl;}*/
-		no_accept++;
+	//	no_accept++;
 
 		if (no_accept/200.==floor(no_accept/200.))
 		{
@@ -426,7 +427,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 	{
 		//without_change++;
 		/* if (without_change>100){cout << "fail: " << without_change << " "  << current_prob << " " << previous_prob << " " << transition_prob << endl;}*/
-		no_accept++;
+	//	no_accept++;
 
 		if (no_accept/200.==floor(no_accept/200.))
 		{
@@ -444,6 +445,7 @@ void iphas_obj::mean_intervals(void)
 //	cout << "out: " << dist_mod_1/A_chain.size() << " " << A_1/A_chain.size() << " " << feh_1/A_chain.size() << " " << Mi_1/A_chain.size() << " " << A_chain.size() << endl;
 
 	double A_sum_in=0, A_sum2_in=0, d_sum_in=0, d_sum2_in=0, r_i0_sum_in=0, r_i0_sum2_in=0;
+	double Mi_sum=0, Mi_sum2=0, logAge_sum=0, logAge_sum2=0, feh_sum=0, feh_sum2=0;
 	for (int n=floor(0.5*A_chain.size()); n<A_chain.size(); n++)
 	{
 		A_sum_in+=A_chain[n];
@@ -452,6 +454,13 @@ void iphas_obj::mean_intervals(void)
 		d_sum2_in+=pow(pow(10,dist_mod_chain[n]/5 +1),2);
 		r_i0_sum_in+=iso_obj_chain[n].r0 - iso_obj_chain[n].i0;
 		r_i0_sum2_in+=pow(iso_obj_chain[n].r0 - iso_obj_chain[n].i0,2);
+
+		Mi_sum+=iso_obj_chain[n].Mi;
+		Mi_sum2+=pow(iso_obj_chain[n].Mi,2);
+		logAge_sum+=iso_obj_chain[n].logAge;
+		logAge_sum2+=pow(iso_obj_chain[n].logAge,2);
+		feh_sum+=iso_obj_chain[n].feh;
+		feh_sum2+=pow(iso_obj_chain[n].feh,2);
 	}
 
 //	A =best_A;//A_chain.back();
@@ -461,12 +470,19 @@ void iphas_obj::mean_intervals(void)
 //	r_i0 =best_iso.r0-best_iso.i0;//iso_obj_chain.back().r0 - iso_obj_chain.back().i0;//
 	r_i0 =  r_i0_sum_in/ceil(0.5*iso_obj_chain.size());
 
+	Mi=Mi_sum/ceil(0.5*iso_obj_chain.size());
+	logAge=logAge_sum/ceil(0.5*iso_obj_chain.size());
+	feh=feh_sum/ceil(0.5*iso_obj_chain.size());
+
 	d_A=sqrt(A_sum2_in/ceil(0.5*A_chain.size()) - pow(A_sum_in/ceil(0.5*A_chain.size()),2));
 	d_dist=no_accept;//last_logAge;//(last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)+last_dist_mod+last_iso.r0;//sqrt(d_sum2_in/ceil(0.5*A_chain.size()) - pow(d_sum_in/ceil(0.5*dist_mod_chain.size()),2));
 //	d_dist=best_iso.r0;
 	d_r_i0 =last_logAge;//sqrt(r_i0_sum2_in/ceil(0.5*A_chain.size()) - pow(r_i0_sum_in/ceil(0.5*A_chain.size()),2));
 //	d_r_i0=best_iso.logAge-max_age(best_iso.Mi, isochrones);
 
+	d_Mi=sqrt(Mi_sum2/ceil(0.5*iso_obj_chain.size())-pow(Mi,2));
+	d_logAge=sqrt(logAge_sum2/ceil(0.5*iso_obj_chain.size())-pow(logAge,2));
+	d_feh=sqrt(feh_sum2/ceil(0.5*iso_obj_chain.size())-pow(feh,2));
 	
 	distbin=floor(dist/100);
 }

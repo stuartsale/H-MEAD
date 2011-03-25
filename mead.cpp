@@ -217,7 +217,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	vector <bin_obj2> first_bins(150);
 
-	double sigma_fac=0.005, accepted=0;
+	double sigma_fac=0.02, accepted=0;
 // Set up
 
 	int without_change=0;
@@ -234,6 +234,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	vector < vector <double> > previous_rel (150, vector <double> (4));
 	vector < vector <double> > internal_rel (150, vector <double> (2));
 	vector < vector <double> > previous_internal_rel (150, vector <double> (2));
+	vector < vector <double> > first_internal_rel (150, vector <double> (2));
 
 	vector <double> initial_dists;
 	int rel_length=150;
@@ -244,28 +245,35 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	for (int i=0; i<150; i++)
 	{
+
 		previous_rel[i][0]=backup_A_mean[i].mean_A;
-		previous_rel[i][1]=0.2;//backup_A_mean[i].sigma;//0.2;//
+		if (i==0) {previous_rel[i][1]=previous_rel[i][0];}
+		else {previous_rel[i][1]=sqrt(pow(previous_rel[i-1][1],2)+pow(previous_rel[i][0]-previous_rel[i-1][0],2));}
 		previous_rel[i][3]=sqrt(log(1+pow(previous_rel[i][1]/previous_rel[i][0],2)));
 		previous_rel[i][2]=log(previous_rel[i][0])-pow(previous_rel[i][3],2)/2;
 	//	previous_hyperprior_prob+=-3*log(previous_rel[i][3]);
 	}
 
 	previous_internal_rel[0][0]=previous_rel[0][0];//log(previous_rel[0][0]);//
-	previous_internal_rel[0][1]=previous_rel[0][1];
+	previous_internal_rel[0][1]=previous_rel[0][1]/previous_internal_rel[0][0];
 		
-	previous_hyperprior_prob+=-1*log(previous_internal_rel[0][0]);//-previous_internal_rel[0][0];//
+//	previous_hyperprior_prob+=-1*log(previous_internal_rel[0][0]);//-previous_internal_rel[0][0];//
 //	previous_hyperprior_prob+=-1*log(previous_internal_rel[0][1]);//-previous_internal_rel[0][1];//
 	for (int i=1; i<150; i++)
 	{
 		previous_internal_rel[i][0]=previous_rel[i][0]-previous_rel[i-1][0];//log(previous_rel[i][0]-previous_rel[i-1][0]);//
-		previous_internal_rel[i][1]=previous_rel[i][1];
+		previous_internal_rel[i][1]=sqrt(pow(previous_rel[i][1],2)-pow(previous_rel[i-1][1],2))/previous_internal_rel[i][0];
 		
 	//	previous_hyperprior_prob+=-1*log(previous_internal_rel[i][0]);//-log(previous_internal_rel[i][0]);//
 	//	previous_hyperprior_prob+=-1*log(previous_internal_rel[i][1]);//-previous_internal_rel[i][1];//
-		previous_hyperprior_prob+=log(previous_internal_rel[i][1]/(2 * sqrt(log(1+pow(previous_internal_rel[i][1]/previous_internal_rel[i][0],2))) *
-								  pow(1+pow(previous_internal_rel[i][1]/previous_internal_rel[i][0],2),2) * pow(previous_internal_rel[i][0],3)));
+	//	previous_hyperprior_prob+=log(previous_internal_rel[i][1]/(2 * sqrt(log(1+pow(previous_internal_rel[i][1]/previous_internal_rel[i][0],2))) *
+	//							  pow(1+pow(previous_internal_rel[i][1]/previous_internal_rel[i][0],2),2) * pow(previous_internal_rel[i][0],3)));
+	//	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(sqrt(pow(previous_internal_rel[i][1]/previous_internal_rel[i-1][1],2)*(i+1)/i-1.)*previous_rel[i-1][0]/previous_internal_rel[i][0],1.38629, 1.6651));
+		previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][1],0.34657359,  0.832554611)); 
+	//	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0]/previous_internal_rel[i-1][0], log(previous_internal_rel[i][0]/previous_internal_rel[i-1][0])-0.00005, 0.01));
 	}
+
+	first_internal_rel=previous_internal_rel;
 
 	global_A_chain.push_back(previous_rel);
 
@@ -311,7 +319,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	vector <double> proposed_probs(stars.size());
 
-	while ((global_A_chain.size()<150000 /*|| accepted1<2000 || accepted2<2000 || accepted3<2000) && without_change<4000*/))
+	while ((global_A_chain.size()<230000 /*|| accepted1<2000 || accepted2<2000 || accepted3<2000) && without_change<4000*/))
 	{
 		global_current_prob=0;
 		global_transition_prob=0;
@@ -326,7 +334,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
 		for (int it=0; it<stars.size(); it++)
 		{
-			if (U.Next()>0.75){stars[it].star_try1(isochrones, l, b, previous_rel);};
+			if (U.Next()>0.875){stars[it].star_try1(isochrones, l, b, previous_rel);};
 		//	#pragma omp atomic
 			global_previous_prob+=stars[it].last_prob;
 		}
@@ -345,25 +353,41 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		for (int it=0; it<rel_length; it++)
 		{	
 			internal_rel[it][0]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);
-			internal_rel[it][1]=VLN.Next(previous_internal_rel[it][1], proposal_sd[it][1]*previous_internal_rel[it][1]); //
+			internal_rel[it][1]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2,proposal_sd[it][0]);
+	//		internal_rel[it][1]=VLN.Next(0.34657359,  0.832554611);
 			
 	//		current_hyperprior_prob+=-1.*log(internal_rel[it][0]);//-internal_rel[it][0];//
 	//		current_hyperprior_prob+=-1*log(internal_rel[it][1]);//-internal_rel[it][1];//
-			current_hyperprior_prob+=log(internal_rel[it][1]/(2 * sqrt(log(1+pow(internal_rel[it][1]/internal_rel[it][0],2))) *
-									  pow(1+pow(internal_rel[it][1]/internal_rel[it][0],2),2) * pow(internal_rel[it][0],3)));
+	//		current_hyperprior_prob+=log(internal_rel[it][1]/(2 * sqrt(log(1+pow(internal_rel[it][1]/internal_rel[it][0],2))) *
+	//								  pow(1+pow(internal_rel[it][1]/internal_rel[it][0],2),2) * pow(internal_rel[it][0],3)));
 		}
 
 		new_rel[0][0]=internal_rel[0][0];//exp(internal_rel[0][0]);//
-		new_rel[0][1]=internal_rel[0][1];
+		//new_rel[0][1]=internal_rel[0][1];
+		new_rel[0][1]=internal_rel[0][1]*internal_rel[0][0];
 		new_rel[0][3]=sqrt(log(1+pow(new_rel[0][1]/new_rel[0][0],2)));
 		new_rel[0][2]=log(new_rel[0][0])-pow(new_rel[0][3],2)/2;
 		for (int it=1; it<rel_length; it++)
-		{
+		{			
+
+			//while (internal_rel[it][1]/internal_rel[it-1][1]<1.)		// Condition on maximum rate of decline of 
+			//{
+			//	internal_rel[it][1]=VLN.Next(previous_internal_rel[it][1], proposal_sd[it][1]*previous_internal_rel[it][1]);
+			//}
+
 			new_rel[it][0]=internal_rel[it][0]+new_rel[it-1][0];//exp(internal_rel[it][0])+new_rel[it-1][0];//
-			new_rel[it][1]=internal_rel[it][1];
+			//new_rel[it][1]=internal_rel[it][1];
+			new_rel[it][1]=sqrt(pow(internal_rel[it][1]*internal_rel[it][0],2)+pow(new_rel[it-1][1],2));
 			new_rel[it][3]=sqrt(log(1+pow(new_rel[it][1]/new_rel[it][0],2)));
 			new_rel[it][2]=log(new_rel[it][0])-pow(new_rel[it][3],2)/2;
+
 	//		current_hyperprior_prob+=-3*log(new_rel[it][3]);
+	//		current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(sqrt(pow(internal_rel[it][1]/internal_rel[it-1][1],2)*(it+1)/it-1.)*new_rel[it-1][0]/internal_rel[it][0],1.38629,  1.6651));
+	//		current_hyperprior_prob+=log(gsl_ran_lognormal_pdf((pow(internal_rel[it][1],2)-pow(internal_rel[it-1][1],2))*1/internal_rel[it][0],0.34657359,  0.832554611)); 
+			current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][1],0.34657359,  0.832554611));
+//			current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0]/internal_rel[it-1][0], log(first_internal_rel[it][0]/first_internal_rel[it-1][0])-0.00005, 0.01));
+
+	//		cout << internal_rel[it][1] << " " << internal_rel[it][1] << " " << current_hyperprior_prob <<  endl;
 		}
 
 // Find probability of this parameter set
@@ -387,12 +411,11 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		// From new to old
 		// mean_A
 			global_transition_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][0], log(internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
-	//		global_transition_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][1], log(internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
-
+			global_transition_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][1], log(internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
 		// From old to new
 		// mean_A
 			global_transition_prob-=log(gsl_ran_lognormal_pdf(internal_rel[it][0], log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
-	//		global_transition_prob-=log(gsl_ran_lognormal_pdf(internal_rel[it][1], log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
+			global_transition_prob-=log(gsl_ran_lognormal_pdf(internal_rel[it][1], log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
 		}	
 
 // Accept or reject
@@ -428,7 +451,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		else 
 		{
 			without_change++;
-		/*	cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << stars.size() << endl;*/
+		//	cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << stars.size() << endl;//*/
 			global_A_chain.push_back(previous_rel);
 		}
 		if (global_A_chain.size()/1000.==floor(global_A_chain.size()/1000.)){cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << endl;}
@@ -473,8 +496,11 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	//vector<double> sizes (150,0);
 	for (int it=0; it<stars.size(); it++)
 	{	
-//		first_bins[stars[it].distbin].size++;
-//		first_bins[stars[it].distbin].sum+=stars[it].A/pow(stars[it].d_A,2);
+		if (stars[it].distbin<rel_length)
+		{
+			first_bins[stars[it].distbin].size++;
+//			first_bins[stars[it].distbin].sum+=stars[it].A/pow(stars[it].d_A,2);
+		}
 	}
 	return first_bins;
 	
@@ -627,11 +653,12 @@ void output_write(string filename, vector<bin_obj2> A_mean, vector<iphas_obj> co
 	ofstream output;
 	dummy_string=filename+"-090.dat";
 	output.open(dummy_string.c_str(), ios::trunc);
-	output << "#\tr\ti\tha\tr_i0\tdist\tA\tdistbin\td_A\td_r_i0\td_dist\td_r\td_i\td_ha\tmag_weight\tprob\n" ;
+	output << "#\tr\ti\tha\tr_i0\tdist\tA\tdistbin\td_A\td_r_i0\td_dist\td_r\td_i\td_ha\tmag_weight\tprob\tMi\tlogAge\tfeh\td_Mi\td_lagAge\td_feh\n" ;
 	for (int y=0; y<colours.size(); y++)
 	{
 		
-		output << colours[y].r << "\t" << colours[y].i << "\t" << colours[y].ha << "\t"<< colours[y].r_i0 << "\t" << colours[y].dist << "\t" << colours[y].A << "\t" << colours[y].distbin << "\t" << colours[y].d_A << "\t" << colours[y].d_r_i0 << "\t" << colours[y].d_dist << "\t" << colours[y].d_r << "\t" << colours[y].d_i << "\t" << colours[y].d_ha << "\t" << colours[y].last_iso.Mi  << "\t" << colours[y].last_prob << "\n";
+		output << colours[y].r << "\t" << colours[y].i << "\t" << colours[y].ha << "\t"<< colours[y].r_i0 << "\t" << colours[y].dist << "\t" << colours[y].A << "\t" << colours[y].distbin << "\t" << colours[y].d_A << "\t" << colours[y].d_r_i0 << "\t" << colours[y].d_dist << "\t"
+		 << colours[y].d_r << "\t" << colours[y].d_i << "\t" << colours[y].d_ha << "\t" << colours[y].last_iso.Mi  << "\t" << colours[y].last_prob  << "\t" << colours[y].Mi  << "\t" << colours[y].logAge  << "\t" << colours[y].feh  << "\t" << colours[y].d_Mi  << "\t" << colours[y].d_logAge  << "\t" << colours[y].d_feh << "\n";
 	}
 	output.close();//*/
 

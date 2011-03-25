@@ -62,6 +62,7 @@ class iphas_obj
    // The basic photometry of each object and its calculated parameters - with uncertainties
 	double r, i, ha, d_r, d_i, d_ha, l, b;	
 	double r_i0, A, dist, d_r_i0, d_A, d_dist, mag_weight;
+	double Mi, logAge, feh, d_Mi, d_logAge, d_feh;
 	int distbin;
 	double A_min, A_max, A_prob;
 
