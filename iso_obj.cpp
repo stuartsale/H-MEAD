@@ -52,7 +52,7 @@ iso_obj::iso_obj(void)
 
 double iso_obj::IMF(void)
 {
-	return pow(Mi, -2.7);
+	return pow(Mi, -2.3);
 }
 
 double iso_obj::redline(double r_i1)

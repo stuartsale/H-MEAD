@@ -74,6 +74,7 @@ class iphas_obj
 	iso_obj last_iso;
 	double last_dist_mod, last_A, last_Mi, last_logAge, last_dist;
 	double last_prob;
+	double last_rmag, last_ri;
 
 	double best_prob;
 	iso_obj best_iso;
