@@ -41,6 +41,7 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 	dist_mod_sd=0.5*d_r;
 
 	no_accept=0;
+	no_accept2=0;
 
 	real_dist=real_dist_in;
 	real_A=real_A_in;
@@ -80,7 +81,6 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 		// IMF - Scalo type?
 		current_prob1+=log(test_iso.IMF());
-	//	current_prob1+=-log(test_A);
 		current_prob1+=test_iso.logAge;
 
 		double test_dist=pow(10,test_dist_mod/5+1);
@@ -99,6 +99,8 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	//	// dist^2 term 
 		current_prob1+=2*log(test_dist);
+
+		current_prob1+=log(test_dist/(2*test_A*(test_iso.u-test_iso.u_i)+test_iso.v-test_iso.v_i));
 
 //*/
 
@@ -154,8 +156,8 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 			last_Mi=(((r-ha)-guess_set[it].redline(r-i))*guess_set[it-1].Mi + (guess_set[it-1].redline(r-i)-(r-ha))*guess_set[it].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
 			try{last_logAge=max_age(last_Mi, isochrones)-log(2);} catch (int e){last_logAge=8.5;}
 			last_iso=iso_get(0.,last_Mi, last_logAge, isochrones);
-			logAge_sd=d_r*last_logAge/1;
-			Mi_sd = 0.25*pow(last_Mi,3)*sqrt(d_r*d_r+d_ha*d_ha)*(guess_set[it].Mi-guess_set[it-1].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
+			logAge_sd=last_logAge/200;
+			Mi_sd =0.04;// 0.25*pow(last_Mi,1)*sqrt(d_r*d_r+d_ha*d_ha)*(guess_set[it].Mi-guess_set[it-1].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
 			break;
 		}
 	}
@@ -203,7 +205,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 //-----------------------------------------------------------------------------------------------------------
 // First isochrone posn.
 
-	test_feh=last_iso.feh;//+Z.Next()*feh_sd;
+	test_feh=last_iso.feh+Z.Next()*feh_sd;
 	test_Mi=VLN.Next(last_iso.Mi, Mi_sd);
 	test_logAge=last_iso.logAge+Z.Next()*logAge_sd;
 	try {test_iso=iso_get(test_feh, test_Mi, test_logAge, isochrones);}
@@ -212,7 +214,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 //	test_dist_mod=last_dist_mod + Z.Next()*dist_mod_sd;
 
 	test_rmag=last_rmag+Z.Next()*d_r/2;
-	test_ri=last_ri+Z.Next()*sqrt(d_r*d_r+d_i*d_i)/4;
+	test_ri=last_ri+Z.Next()*(d_r*d_r+d_i*d_i)/2;
 
 	test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.w-test_iso.w_i)+(test_iso.r0-test_iso.i0)-test_ri, +1);
 	test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;
@@ -260,7 +262,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 		last_prob=current_prob;
 		no_accept++;
 
-		if (no_accept/200.==floor(no_accept/200.))
+		if (no_accept/400.==floor(no_accept/400.))
 		{
 			iso_obj_chain.push_back(last_iso);
 		//	dist_mod_chain.push_back(last_dist_mod);
@@ -296,7 +298,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 
 		no_accept++;
 
-		if (no_accept/200.==floor(no_accept/200.))
+		if (no_accept/400.==floor(no_accept/400.))
 		{
 			iso_obj_chain.push_back(last_iso);
 		//	dist_mod_chain.push_back(last_dist_mod);
@@ -310,15 +312,108 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 	{
 		//without_change++;
 		/* if (without_change>100){cout << "fail: " << without_change << " "  << current_prob << " " << previous_prob << " " << transition_prob << endl;}*/
-		//no_accept++;
+		no_accept++;
 
-		if (no_accept/200.==floor(no_accept/200.))
+		if (no_accept/400.==floor(no_accept/400.))
 		{
 			iso_obj_chain.push_back(last_iso);
 			dist_mod_chain.push_back(last_dist_mod);
 			A_chain.push_back(last_A);
 		}
 	}
+
+
+	test_Mi=VLN.Next(last_iso.Mi, 0.4);
+
+	try {test_iso=iso_get(last_iso.feh, test_Mi, last_iso.logAge, isochrones);}
+	catch (int e){ return;}
+
+	test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.w-test_iso.w_i)+(test_iso.r0-test_iso.i0)-last_ri, +1);
+	test_dist_mod=last_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;
+
+	current_prob=prob_eval(test_iso, test_A, test_dist_mod, A_mean);
+
+	// From new to old
+	// Mi
+	sigma2_LN=log(1+pow(1/test_Mi,2));
+	mu_LN=log(test_Mi)-sigma2_LN/2;		
+	transition_prob+=-log(sigma2_LN)/2-log(last_iso.Mi) - pow(log(last_iso.Mi)-mu_LN,2)/(2*sigma2_LN);
+	// From old to new
+	// Mi
+	sigma2_LN=log(1+pow(1/last_iso.Mi,2));
+	mu_LN=log(last_iso.Mi)-sigma2_LN/2;		
+	transition_prob-=-log(sigma2_LN)/2-log(test_Mi) - pow(log(test_Mi)-mu_LN,2)/(2*sigma2_LN);
+
+	if (current_prob-last_prob+transition_prob>0)		// New parameter set better => Accept
+	{
+		last_iso=test_iso;
+		last_A=test_A;
+		last_dist_mod=test_dist_mod;
+
+		last_prob=current_prob;
+		no_accept2++;
+
+	/*	if (no_accept/200.==floor(no_accept/200.))
+		{
+			iso_obj_chain.push_back(last_iso);
+		//	dist_mod_chain.push_back(last_dist_mod);
+			dist_mod_chain.push_back(test_dist_mod);
+		//	A_chain.push_back(last_A);
+			A_chain.push_back(test_A);
+		}
+	
+		//without_change=0;
+
+		if (current_prob>best_prob)
+		{
+			best_prob=current_prob;
+			best_iso=test_iso;
+		//	best_A=last_A;
+			best_A=test_A;
+		//	best_dist_mod=last_dist_mod;
+			best_dist_mod=test_dist_mod;
+			best_it=A_chain.size();
+		}*/
+	}
+
+	else if (exp(current_prob-last_prob+transition_prob)>U.Next())	// New set worse => accept with P=P(new)/P(old)
+	{
+		last_iso=test_iso;
+		last_A=test_A;
+		last_dist_mod=test_dist_mod;
+
+		last_rmag=test_rmag;
+		last_ri=test_ri;
+
+		last_prob=current_prob;
+
+		no_accept2++;
+
+	/*	if (no_accept/200.==floor(no_accept/200.))
+		{
+			iso_obj_chain.push_back(last_iso);
+		//	dist_mod_chain.push_back(last_dist_mod);
+			dist_mod_chain.push_back(test_dist_mod);
+		//	A_chain.push_back(last_A);
+			A_chain.push_back(test_A);
+		}*/
+
+	}
+/*	else 
+	{
+		//without_change++;
+		/* if (without_change>100){cout << "fail: " << without_change << " "  << current_prob << " " << previous_prob << " " << transition_prob << endl;}*/
+		//no_accept++;
+
+	/*	last_iso.Miif (no_accept/200.==floor(no_accept/200.))
+		{
+			iso_obj_chain.push_back(last_iso);
+			dist_mod_chain.push_back(last_dist_mod);
+			A_chain.push_back(last_A);
+		}*/
+	//}
+
+
 
 //-----------------------------------------------------------------------------------------------------------
 // Now extinction

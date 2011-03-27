@@ -264,7 +264,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		previous_internal_rel[i][0]=previous_rel[i][0]-previous_rel[i-1][0];//log(previous_rel[i][0]-previous_rel[i-1][0]);//
 		previous_internal_rel[i][1]=sqrt(pow(previous_rel[i][1],2)-pow(previous_rel[i-1][1],2))/previous_internal_rel[i][0];
 		
-		previous_hyperprior_prob+=-1*log(previous_internal_rel[i][0]);//-log(previous_internal_rel[i][0]);//
+	//	previous_hyperprior_prob+=-1*log(previous_internal_rel[i][0]);//-log(previous_internal_rel[i][0]);//
 	//	previous_hyperprior_prob+=-1*log(previous_internal_rel[i][1]);//-previous_internal_rel[i][1];//
 	//	previous_hyperprior_prob+=log(previous_internal_rel[i][1]/(2 * sqrt(log(1+pow(previous_internal_rel[i][1]/previous_internal_rel[i][0],2))) *
 	//							  pow(1+pow(previous_internal_rel[i][1]/previous_internal_rel[i][0],2),2) * pow(previous_internal_rel[i][0],3)));
@@ -319,7 +319,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	vector <double> proposed_probs(stars.size());
 
-	while ((global_A_chain.size()<230000 /*|| accepted1<2000 || accepted2<2000 || accepted3<2000) && without_change<4000*/))
+	while ((global_A_chain.size()<180000 /*|| accepted1<2000 || accepted2<2000 || accepted3<2000) && without_change<4000*/))
 	{
 		global_current_prob=0;
 		global_transition_prob=0;
@@ -345,27 +345,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		//	#pragma omp atomic
 		//	global_previous_prob+=stars[it].last_prob;
 		}
-		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
-		for (int it=0; it<stars.size(); it++)
-		{
-			if (U.Next()>0.875){stars[it].star_try1(isochrones, l, b, previous_rel);};
-		//	#pragma omp atomic
-		//	global_previous_prob+=stars[it].last_prob;
-		}
-		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
-		for (int it=0; it<stars.size(); it++)
-		{
-			if (U.Next()>0.875){stars[it].star_try1(isochrones, l, b, previous_rel);};
-		//	#pragma omp atomic
-		//	global_previous_prob+=stars[it].last_prob;
-		}
-		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
-		for (int it=0; it<stars.size(); it++)
-		{
-			if (U.Next()>0.875){stars[it].star_try1(isochrones, l, b, previous_rel);};
-		//	#pragma omp atomic
-		//	global_previous_prob+=stars[it].last_prob;
-		}
+
 		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
 		for (int it=0; it<stars.size(); it++)
 		{
@@ -399,10 +379,11 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		for (int it=0; it<rel_length; it++)
 		{	
 			internal_rel[it][0]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);
+			while (internal_rel[it][0]>0.5){internal_rel[it][0]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);}
 			internal_rel[it][1]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2,proposal_sd[it][0]);
 	//		internal_rel[it][1]=VLN.Next(0.34657359,  0.832554611);
 			
-			current_hyperprior_prob+=-1.*log(internal_rel[it][0]);//-internal_rel[it][0];//
+	//		current_hyperprior_prob+=-1.*log(internal_rel[it][0]);//-internal_rel[it][0];//
 	//		current_hyperprior_prob+=-1*log(internal_rel[it][1]);//-internal_rel[it][1];//
 	//		current_hyperprior_prob+=log(internal_rel[it][1]/(2 * sqrt(log(1+pow(internal_rel[it][1]/internal_rel[it][0],2))) *
 	//								  pow(1+pow(internal_rel[it][1]/internal_rel[it][0],2),2) * pow(internal_rel[it][0],3)));

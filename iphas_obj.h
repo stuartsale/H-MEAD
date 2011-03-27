@@ -69,7 +69,7 @@ class iphas_obj
 	vector <iso_obj> iso_obj_chain;
 	vector <double> dist_mod_chain;
 	vector <double> A_chain;
-	int no_accept;
+	int no_accept, no_accept2;
 
 	iso_obj last_iso;
 	double last_dist_mod, last_A, last_Mi, last_logAge, last_dist;
