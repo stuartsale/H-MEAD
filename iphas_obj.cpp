@@ -157,7 +157,7 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 			try{last_logAge=max_age(last_Mi, isochrones)-log(2);} catch (int e){last_logAge=8.5;}
 			last_iso=iso_get(0.,last_Mi, last_logAge, isochrones);
 			logAge_sd=last_logAge/200;
-			Mi_sd =0.04;// 0.25*pow(last_Mi,1)*sqrt(d_r*d_r+d_ha*d_ha)*(guess_set[it].Mi-guess_set[it-1].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
+			Mi_sd =0.06;// 0.25*pow(last_Mi,1)*sqrt(d_r*d_r+d_ha*d_ha)*(guess_set[it].Mi-guess_set[it-1].Mi)/(guess_set[it-1].redline(r-i)-guess_set[it].redline(r-i));
 			break;
 		}
 	}
@@ -323,7 +323,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 	}
 
 
-	test_Mi=VLN.Next(last_iso.Mi, 0.4);
+	test_Mi=VLN.Next(last_iso.Mi, 0.5);
 
 	try {test_iso=iso_get(last_iso.feh, test_Mi, last_iso.logAge, isochrones);}
 	catch (int e){ return;}
@@ -335,12 +335,12 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 
 	// From new to old
 	// Mi
-	sigma2_LN=log(1+pow(1/test_Mi,2));
+	sigma2_LN=log(1+pow(0.5/test_Mi,2));
 	mu_LN=log(test_Mi)-sigma2_LN/2;		
 	transition_prob+=-log(sigma2_LN)/2-log(last_iso.Mi) - pow(log(last_iso.Mi)-mu_LN,2)/(2*sigma2_LN);
 	// From old to new
 	// Mi
-	sigma2_LN=log(1+pow(1/last_iso.Mi,2));
+	sigma2_LN=log(1+pow(0.5/last_iso.Mi,2));
 	mu_LN=log(last_iso.Mi)-sigma2_LN/2;		
 	transition_prob-=-log(sigma2_LN)/2-log(test_Mi) - pow(log(test_Mi)-mu_LN,2)/(2*sigma2_LN);
 

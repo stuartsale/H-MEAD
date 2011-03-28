@@ -270,7 +270,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	//							  pow(1+pow(previous_internal_rel[i][1]/previous_internal_rel[i][0],2),2) * pow(previous_internal_rel[i][0],3)));
 	//	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(sqrt(pow(previous_internal_rel[i][1]/previous_internal_rel[i-1][1],2)*(i+1)/i-1.)*previous_rel[i-1][0]/previous_internal_rel[i][0],1.38629, 1.6651));
 		previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][1],0.34657359,  0.832554611)); 
-	//	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0]/previous_internal_rel[i-1][0], log(previous_internal_rel[i][0]/previous_internal_rel[i-1][0])-0.00005, 0.01));
+	//	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0]/previous_internal_rel[i-1][0], log(previous_internal_rel[i][0]/previous_internal_rel[i-1][0])-0.02, 0.02));
 	}
 
 	first_internal_rel=previous_internal_rel;
@@ -319,7 +319,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	vector <double> proposed_probs(stars.size());
 
-	while ((global_A_chain.size()<180000 /*|| accepted1<2000 || accepted2<2000 || accepted3<2000) && without_change<4000*/))
+	while ((global_A_chain.size()<230000 /*|| accepted1<2000 || accepted2<2000 || accepted3<2000) && without_change<4000*/))
 	{
 		global_current_prob=0;
 		global_transition_prob=0;
@@ -412,7 +412,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	//		current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(sqrt(pow(internal_rel[it][1]/internal_rel[it-1][1],2)*(it+1)/it-1.)*new_rel[it-1][0]/internal_rel[it][0],1.38629,  1.6651));
 	//		current_hyperprior_prob+=log(gsl_ran_lognormal_pdf((pow(internal_rel[it][1],2)-pow(internal_rel[it-1][1],2))*1/internal_rel[it][0],0.34657359,  0.832554611)); 
 			current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][1],0.34657359,  0.832554611));
-//			current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0]/internal_rel[it-1][0], log(first_internal_rel[it][0]/first_internal_rel[it-1][0])-0.00005, 0.01));
+	//		current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0]/internal_rel[it-1][0], log(first_internal_rel[it][0]/first_internal_rel[it-1][0])-0.0002, 0.02));
 
 	//		cout << internal_rel[it][1] << " " << internal_rel[it][1] << " " << current_hyperprior_prob <<  endl;
 		}
