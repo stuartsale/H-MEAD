@@ -41,6 +41,7 @@ using namespace std;
 double quadratic(double a, double b, double c, int sign);	
 
 iso_obj iso_get(double targ_feh, double targ_Mi, double targ_logAge, vector<iso_obj> &isochrones);
+iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<iso_obj> &isochrones);
 double max_age(double targ_Mi, vector<iso_obj> &isochrones);
 
 // Setting up random number generators

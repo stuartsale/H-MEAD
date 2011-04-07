@@ -27,13 +27,13 @@ class bin_obj2;
 class iso_obj		// This is a class for holding isochrone points
 {
 	public:
-	iso_obj(double feh_in, double Mi_in, double age_in, double Teff_in, double logg_in, double r0_in, double i0_in, double ha0_in);
+	iso_obj(double feh_in, double Mi_in, double age_in, double Teff_in, double logg_in, double r0_in, double i0_in, double ha0_in, double Jac_in);
 	iso_obj(void);
 	double IMF();
 	double redline(double r_i1);
 	
 //	private:
-	double Mi, logAge, Teff, logg, feh, r0, i0, ha0;
+	double Mi, logAge, Teff, logg, feh, r0, i0, ha0, Jac;
 	double a,b,c, l,m,n, u,v,w, u_i,v_i,w_i, u_ha,v_ha,w_ha;	// terms governing response to extinction
 
 	

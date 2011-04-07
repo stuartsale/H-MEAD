@@ -1,7 +1,7 @@
 #include "iso_obj.h"
 
 // constructor
-iso_obj::iso_obj(double feh_in, double Mi_in, double age_in, double Teff_in, double logg_in, double r0_in, double i0_in, double ha0_in)
+iso_obj::iso_obj(double feh_in, double Mi_in, double age_in, double Teff_in, double logg_in, double r0_in, double i0_in, double ha0_in, double Jac_in)
 {
 	Mi=Mi_in;
 	logAge=age_in;
@@ -12,6 +12,8 @@ iso_obj::iso_obj(double feh_in, double Mi_in, double age_in, double Teff_in, dou
 	r0=r0_in;
 	i0=i0_in;
 	ha0=ha0_in;
+
+	Jac=Jac_in;
 	
    
 /*	a=((0.00051868526*(r0-i0)-0.0029977593)-(0.0001234*(r0-i0)-0.001616)) /1.08573;			// 2nd order on r-i	}
@@ -48,6 +50,8 @@ iso_obj::iso_obj(void)
 	r0=0;
 	i0=0;
 	ha0=0;
+
+	Jac=0;
 }
 
 double iso_obj::IMF(void)
