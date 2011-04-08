@@ -26,6 +26,7 @@ using namespace std;
 //vector<iphas_obj> iphas_read(string filename,double &i_min,double &r_min,double &ha_min);		
 vector<iphas_obj> iphas_read(string filename,double &r_min,double &i_min,double &ha_min,double &r_max, double &i_max, double &ha_max);		
 vector<iso_obj> iso_read(const string &filename);
+vector<iso_obj> iso_read_Tg(const string &filename);
 vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal);		
 
 // Gets stdout of a system cmd
@@ -94,12 +95,31 @@ int main(int argc, char* argv[])
 
       //Reading in isochrones data into a vector
 
-	vector<iso_obj> isochrones=iso_read("padova-iso_reg.dat");
+	//vector<iso_obj> isochrones=iso_read("padova-iso_reg.dat");
+	vector<iso_obj> isochrones=iso_read_Tg("padova-iso_tefflogg.dat");
 
 	vector<iso_obj> guess_set;
-	guess_set.push_back(iso_get(0., 0.709, 8.5, isochrones));
-	while (1.0648*guess_set[guess_set.size()-1].Mi<2.060){guess_set.push_back(iso_get(0., 1.0648*guess_set[guess_set.size()-1].Mi, 8.5, isochrones));}
-	guess_set.push_back(iso_get(0., 2.060, 8.5, isochrones));
+	guess_set.push_back(iso_get_Tg(0.,3.663 ,4.57 , isochrones));	//K4
+	guess_set.push_back(iso_get_Tg(0.,3.672 ,4.56 , isochrones));	//K3
+	guess_set.push_back(iso_get_Tg(0.,3.686 ,4.55 , isochrones));	//K2
+	guess_set.push_back(iso_get_Tg(0.,3.695 ,4.55 , isochrones));	//K1
+	guess_set.push_back(iso_get_Tg(0.,3.703 ,4.57 , isochrones));	//K0
+	guess_set.push_back(iso_get_Tg(0.,3.720 ,4.55 , isochrones));	//G8
+	guess_set.push_back(iso_get_Tg(0.,3.740 ,4.49 , isochrones));	//G5
+	guess_set.push_back(iso_get_Tg(0.,3.763 ,4.40 , isochrones));	//G2
+	guess_set.push_back(iso_get_Tg(0.,3.774 ,4.39 , isochrones));	//G0
+	guess_set.push_back(iso_get_Tg(0.,3.789 ,4.35 , isochrones));	//F8
+	guess_set.push_back(iso_get_Tg(0.,3.813 ,4.34 , isochrones));	//F5
+	guess_set.push_back(iso_get_Tg(0.,3.845 ,4.26 , isochrones));	//F2
+	guess_set.push_back(iso_get_Tg(0.,3.863 ,4.28 , isochrones));	//F0
+	guess_set.push_back(iso_get_Tg(0.,3.903 ,4.26 , isochrones));	//A7
+	guess_set.push_back(iso_get_Tg(0.,3.924 ,4.22 , isochrones));	//A5
+	guess_set.push_back(iso_get_Tg(0.,3.949 ,4.20 , isochrones));	//A3
+	guess_set.push_back(iso_get_Tg(0.,3.961 ,4.16 , isochrones));	//A2
+
+
+//	while (1.0648*guess_set[guess_set.size()-1].Mi<2.060){guess_set.push_back(iso_get(0., 1.0648*guess_set[guess_set.size()-1].Mi, 8.5, isochrones));}
+//	guess_set.push_back(iso_get(0., 2.060, 8.5, isochrones));
 
    // Read in IPHAS data
 	string iphas_filename=argv[1];		
@@ -126,7 +146,7 @@ int main(int argc, char* argv[])
 
 	cout << "backup size:" << backup_A_mean.size() << endl;
 
-	cout << "Real: " << real_prob(colours, isochrones, guess_set, atof(argv[2]), atof(argv[3]), backup_A_mean, -0.0272, 0.53) << endl;
+//	cout << "Real: " << real_prob(colours, isochrones, guess_set, atof(argv[2]), atof(argv[3]), backup_A_mean, -0.0272, 0.53) << endl;
 
 
 	clock_t start;
@@ -150,7 +170,7 @@ int main(int argc, char* argv[])
 //-------------------------------------------------------------------
 //-------------------------------------------------------------------
 
-double real_prob(vector<iphas_obj> &stars, vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double l, double b, vector <bin_obj2> backup_A_mean, double ri_min, double ri_max)
+/*double real_prob(vector<iphas_obj> &stars, vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double l, double b, vector <bin_obj2> backup_A_mean, double ri_min, double ri_max)
 {
 	vector < vector <double> > previous_rel (150, vector <double> (4));
 
@@ -198,7 +218,7 @@ double real_prob(vector<iphas_obj> &stars, vector<iso_obj> &isochrones, vector<i
 
 	return global_previous_prob;
 
-}
+}*/
 
 vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double l, double b, vector <bin_obj2> backup_A_mean, double ri_min, double ri_max)
 {
@@ -209,11 +229,6 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	//seed the random no generator
 	gsl_rng_set(rng_handle, time(0));
-
-	cout << "TEST " << gsl_ran_lognormal(rng_handle,1, 0.1)<<endl;
-
-
-
 
 	vector <bin_obj2> first_bins(150);
 
@@ -356,6 +371,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		new_rel[0][1]=internal_rel[0][1]*internal_rel[0][0];
 		new_rel[0][3]=sqrt(log(1+pow(new_rel[0][1]/new_rel[0][0],2)));
 		new_rel[0][2]=log(new_rel[0][0])-pow(new_rel[0][3],2)/2;
+		
 		for (int it=1; it<rel_length; it++)
 		{			
 
@@ -564,14 +580,14 @@ vector<iso_obj> iso_read_Tg(const string &filename)		// Function to read in cali
 			while (ss>>buf){			// Includes implicit conversion from string to double
 				fromfile.push_back(buf);	
 			}
-			if (fromfile.size()==13)		// check there's something in the line
+			if (fromfile.size()==14)		// check there's something in the line
 			{
 				if (fromfile[5]!=0 && fromfile[6]!=0 && fromfile[7]!=0 && fromfile[8]!=0)
 				{
 					jac=abs(fromfile[5]*fromfile[8]-fromfile[6]*fromfile[7]);
 				}
 				else {jac=0;}
-         			iso_obj objnew(fromfile[0], fromfile[1], fromfile[2], fromfile[3], fromfile[4], fromfile[5], fromfile[6], fromfile[7], jac);
+         			iso_obj objnew(fromfile[0], fromfile[1], fromfile[2], fromfile[3], fromfile[4], fromfile[9], fromfile[10], fromfile[11], jac);
 				totalfile.push_back(objnew);
 			}		
 		}

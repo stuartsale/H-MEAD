@@ -133,7 +133,7 @@ iso_obj iso_get(double targ_feh, double targ_Mi, double targ_logAge, vector<iso_
 	  + (feh_weight)*(age_weight)*(mass_weight) * isochrones[feh_line2+age_line2+mass_line+1].ha0;
 
 	if (r1<-10||i1<-10||ha1<-10){throw(7);}
-	iso_obj new_iso(targ_feh, targ_Mi, targ_logAge, 0., 0., r1, i1, ha1,0);
+	iso_obj new_iso(targ_feh, targ_Mi, targ_logAge, 0., 0., r1, i1, ha1,1);
 
 //*/
 	//if ((r1>15||i1>15||ha1>15)){cout <<targ_feh << " " << targ_Mi << " " << targ_logAge << " "<<feh_weight << " " <<(targ_feh+0.914)/0.136 << " " << age_weight  << " " << r1 << " " << i1 << " " << ha1 << endl;}
@@ -196,9 +196,9 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	else {throw(5);}
 
 
-	logT_line1=floor((targ_logT-3.5)/0.005);
+	logT_line1=floor((targ_logT-3.5)/0.005)*1200;
 	logT_line2=logT_line1+1200;
-	logT_weight=(logT_line2-targ_logT)/0.005;
+	logT_weight=(targ_logT-3.5)/0.005-logT_line1/1200;
 
 	logg_line=floor((targ_logg+0.5)/0.005);
 	logg_weight=(targ_logg+0.5)/0.005 - logg_line;

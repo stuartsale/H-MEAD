@@ -63,6 +63,7 @@ class iphas_obj
 	double r, i, ha, d_r, d_i, d_ha, l, b;	
 	double r_i0, A, dist, d_r_i0, d_A, d_dist, mag_weight;
 	double Mi, logAge, feh, d_Mi, d_logAge, d_feh;
+	double logT, logg;
 	int distbin;
 	double A_min, A_max, A_prob;
 
@@ -72,7 +73,7 @@ class iphas_obj
 	int no_accept, no_accept2;
 
 	iso_obj last_iso;
-	double last_dist_mod, last_A, last_Mi, last_logAge, last_dist;
+	double last_dist_mod, last_A, last_logT, last_logg, last_dist;
 	double last_prob;
 	double last_rmag, last_ri;
 
@@ -81,7 +82,7 @@ class iphas_obj
 	double best_A, best_dist_mod;
 	double best_it;
 	
-	double Mi_sd, logAge_sd, feh_sd, A_sd, dist_mod_sd;
+	double logT_sd, logg_sd, feh_sd, A_sd, dist_mod_sd;
 
 
 	double real_dist, real_A, real_Mi, real_logAge, real_feh;

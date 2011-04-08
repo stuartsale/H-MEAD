@@ -1,11 +1,11 @@
 #include "iso_obj.h"
 
 // constructor
-iso_obj::iso_obj(double feh_in, double Mi_in, double age_in, double Teff_in, double logg_in, double r0_in, double i0_in, double ha0_in, double Jac_in)
+iso_obj::iso_obj(double feh_in, double Mi_in, double age_in, double logT_in, double logg_in, double r0_in, double i0_in, double ha0_in, double Jac_in)
 {
 	Mi=Mi_in;
 	logAge=age_in;
-	Teff=Teff_in;
+	logT=logT_in;
 	logg=logg_in;
 	feh=feh_in;
 
@@ -43,7 +43,7 @@ iso_obj::iso_obj(void)
 {
 	Mi=1;
 	logAge=9;
-	Teff=3.75;
+	logT=3.75;
 	logg=4.5;
 	feh=0;
 
