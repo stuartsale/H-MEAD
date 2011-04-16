@@ -36,7 +36,7 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 
 	feh_sd=0.008;
 	logT_sd=0.002;
-	logg_sd=0.002;
+	logg_sd=0.004;
 	A_sd=sqrt(d_r*d_r+d_i*d_i)/4;
 	dist_mod_sd=0.5*d_r;
 
@@ -75,7 +75,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 //	cout<< current_prob1 << " " << d_r << " "  << r <<" " <<(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)+test_dist_mod+test_iso.r0 << " " << test_dist_mod+test_iso.r0  << endl;
 		current_prob1+=	- pow(i-(test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)-test_dist_mod-test_iso.i0,2)/(2*d_i*d_i) ;
 	//cout<< current_prob1 << " " << d_i << " " << i << " " << (test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)+test_dist_mod+test_iso.i0 << " ";
-		current_prob1+=	     - pow(ha-(test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)-test_dist_mod-test_iso.ha0,2)/(2*d_ha*d_ha);
+		current_prob1+=	- pow(ha-(test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)-test_dist_mod-test_iso.ha0,2)/(2*d_ha*d_ha);
 	//cout<< current_prob1 << " "  << d_ha << " " << ha << " " << (test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)+test_dist_mod+test_iso.ha0 << " ";
 	// Find p(x) - includes A(dist), IMF, SFH, disc density & metallicity profiles - remember dist^2 term
 
@@ -83,8 +83,8 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 		// IMF - Scalo type?
 		current_prob1+=log(test_iso.IMF());
-		//current_prob1+=test_iso.logAge;
-		current_prob1+=log(test_iso.Jac);
+	//	current_prob1+=test_iso.logAge;
+
 
 		double test_dist=pow(10,test_dist_mod/5+1);
 
@@ -102,9 +102,10 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	//	// dist^2 term 
 		current_prob1+=2*log(test_dist);
+	//	current_prob1+=1*log(test_dist);
 
 		current_prob1+=log(test_dist/(2*test_A*(test_iso.u-test_iso.u_i)+test_iso.v-test_iso.v_i));
-
+		current_prob1+=log(test_iso.Jac);
 //*/
 
 	// Also the the contribution to p(x) from the distance-reddening relationship
@@ -175,7 +176,6 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 	last_rmag=r;
 	last_ri=(last_iso.r0-last_iso.i0)+(last_iso.u-last_iso.u_i)*pow(last_A,2) + (last_iso.v-last_iso.v_i)*last_A + (last_iso.w-last_iso.w_i);
 
-
 	if (last_A>0)
 	{
 
@@ -207,9 +207,9 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 //-----------------------------------------------------------------------------------------------------------
 // First isochrone posn.
 
-	test_feh=last_iso.feh+Z.Next()*feh_sd;
-	test_logT=last_iso.logT+Z.Next()*logT_sd;
-	test_logg=last_iso.logg+Z.Next()*logg_sd;
+	test_feh=last_iso.feh+gsl_ran_gaussian_ziggurat(rng_handle,feh_sd);//Z.Next()*feh_sd;
+	test_logT=last_iso.logT+gsl_ran_gaussian_ziggurat(rng_handle,logT_sd);//Z.Next()*logT_sd;
+	test_logg=last_iso.logg+gsl_ran_gaussian_ziggurat(rng_handle,logg_sd);//Z.Next()*logg_sd;
 	try {test_iso=iso_get_Tg(test_feh, test_logT, test_logg, isochrones);}
 	catch (int e){/*without_change++;*/ return;}
 //	test_A=VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
@@ -264,14 +264,14 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 		last_prob=current_prob;
 		no_accept++;
 
-		if (no_accept/400.==floor(no_accept/400.))
+		/*if (no_accept/400.==floor(no_accept/400.))
 		{
 			iso_obj_chain.push_back(last_iso);
 		//	dist_mod_chain.push_back(last_dist_mod);
 			dist_mod_chain.push_back(test_dist_mod);
 		//	A_chain.push_back(last_A);
 			A_chain.push_back(test_A);
-		}
+		}*/
 	
 		//without_change=0;
 
@@ -300,14 +300,14 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 
 		no_accept++;
 
-		if (no_accept/400.==floor(no_accept/400.))
+	/*	if (no_accept/400.==floor(no_accept/400.))
 		{
 			iso_obj_chain.push_back(last_iso);
 		//	dist_mod_chain.push_back(last_dist_mod);
 			dist_mod_chain.push_back(test_dist_mod);
 		//	A_chain.push_back(last_A);
 			A_chain.push_back(test_A);
-		}
+		}*/
 
 	}
 	else 
@@ -316,104 +316,14 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 		/* if (without_change>100){cout << "fail: " << without_change << " "  << current_prob << " " << previous_prob << " " << transition_prob << endl;}*/
 		no_accept++;
 
-		if (no_accept/400.==floor(no_accept/400.))
-		{
-			iso_obj_chain.push_back(last_iso);
-			dist_mod_chain.push_back(last_dist_mod);
-			A_chain.push_back(last_A);
-		}
 	}
 
-
-/*	test_Mi=VLN.Next(last_iso.Mi, 0.5);
-
-	try {test_iso=iso_get(last_iso.feh, test_Mi, last_iso.logAge, isochrones);}
-	catch (int e){ return;}
-
-	test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.w-test_iso.w_i)+(test_iso.r0-test_iso.i0)-last_ri, +1);
-	test_dist_mod=last_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;
-
-	current_prob=prob_eval(test_iso, test_A, test_dist_mod, A_mean);
-
-	// From new to old
-	// Mi
-	sigma2_LN=log(1+pow(0.5/test_Mi,2));
-	mu_LN=log(test_Mi)-sigma2_LN/2;		
-	transition_prob+=-log(sigma2_LN)/2-log(last_iso.Mi) - pow(log(last_iso.Mi)-mu_LN,2)/(2*sigma2_LN);
-	// From old to new
-	// Mi
-	sigma2_LN=log(1+pow(0.5/last_iso.Mi,2));
-	mu_LN=log(last_iso.Mi)-sigma2_LN/2;		
-	transition_prob-=-log(sigma2_LN)/2-log(test_Mi) - pow(log(test_Mi)-mu_LN,2)/(2*sigma2_LN);
-
-	if (current_prob-last_prob+transition_prob>0)		// New parameter set better => Accept
+	if (no_accept/100.==floor(no_accept/100.))
 	{
-		last_iso=test_iso;
-		last_A=test_A;
-		last_dist_mod=test_dist_mod;
-
-		last_prob=current_prob;
-		no_accept2++;
-
-	/*	if (no_accept/200.==floor(no_accept/200.))
-		{
-			iso_obj_chain.push_back(last_iso);
-		//	dist_mod_chain.push_back(last_dist_mod);
-			dist_mod_chain.push_back(test_dist_mod);
-		//	A_chain.push_back(last_A);
-			A_chain.push_back(test_A);
-		}
-	
-		//without_change=0;
-
-		if (current_prob>best_prob)
-		{
-			best_prob=current_prob;
-			best_iso=test_iso;
-		//	best_A=last_A;
-			best_A=test_A;
-		//	best_dist_mod=last_dist_mod;
-			best_dist_mod=test_dist_mod;
-			best_it=A_chain.size();
-		}*//*
+		iso_obj_chain.push_back(last_iso);
+		dist_mod_chain.push_back(last_dist_mod);
+		A_chain.push_back(last_A);
 	}
-
-	else if (exp(current_prob-last_prob+transition_prob)>U.Next())	// New set worse => accept with P=P(new)/P(old)
-	{
-		last_iso=test_iso;
-		last_A=test_A;
-		last_dist_mod=test_dist_mod;
-
-		last_rmag=test_rmag;
-		last_ri=test_ri;
-
-		last_prob=current_prob;
-
-		no_accept2++;
-
-	/*	if (no_accept/200.==floor(no_accept/200.))
-		{
-			iso_obj_chain.push_back(last_iso);
-		//	dist_mod_chain.push_back(last_dist_mod);
-			dist_mod_chain.push_back(test_dist_mod);
-		//	A_chain.push_back(last_A);
-			A_chain.push_back(test_A);
-		}*//*
-
-	}*/
-/*	else 
-	{
-		//without_change++;
-		/* if (without_change>100){cout << "fail: " << without_change << " "  << current_prob << " " << previous_prob << " " << transition_prob << endl;}*/
-		//no_accept++;
-
-	/*	last_iso.Miif (no_accept/200.==floor(no_accept/200.))
-		{
-			iso_obj_chain.push_back(last_iso);
-			dist_mod_chain.push_back(last_dist_mod);
-			A_chain.push_back(last_A);
-		}*/
-	//}
 
 
 }
@@ -426,6 +336,7 @@ void iphas_obj::mean_intervals(void)
 
 	double A_sum_in=0, A_sum2_in=0, d_sum_in=0, d_sum2_in=0, r_i0_sum_in=0, r_i0_sum2_in=0;
 	double Mi_sum=0, Mi_sum2=0, logAge_sum=0, logAge_sum2=0, feh_sum=0, feh_sum2=0;
+	double logT_sum=0, logT_sum2=0, logg_sum=0, logg_sum2=0;
 	for (int n=floor(0.5*A_chain.size()); n<A_chain.size(); n++)
 	{
 		A_sum_in+=A_chain[n];
@@ -441,6 +352,11 @@ void iphas_obj::mean_intervals(void)
 		logAge_sum2+=pow(iso_obj_chain[n].logAge,2);
 		feh_sum+=iso_obj_chain[n].feh;
 		feh_sum2+=pow(iso_obj_chain[n].feh,2);
+
+		logT_sum+=iso_obj_chain[n].logT;
+		logT_sum2+=pow(iso_obj_chain[n].logT,2);
+		logg_sum+=iso_obj_chain[n].logg;
+		logg_sum2+=pow(iso_obj_chain[n].logg,2);
 	}
 
 //	A =best_A;//A_chain.back();
@@ -453,6 +369,9 @@ void iphas_obj::mean_intervals(void)
 	Mi=Mi_sum/ceil(0.5*iso_obj_chain.size());
 	logAge=logAge_sum/ceil(0.5*iso_obj_chain.size());
 	feh=feh_sum/ceil(0.5*iso_obj_chain.size());
+
+	logT=logT_sum/ceil(0.5*iso_obj_chain.size());
+	logg=logg_sum/ceil(0.5*iso_obj_chain.size());
 
 	d_A=sqrt(A_sum2_in/ceil(0.5*A_chain.size()) - pow(A_sum_in/ceil(0.5*A_chain.size()),2));
 	d_dist=no_accept;//last_logAge;//(last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)+last_dist_mod+last_iso.r0;//sqrt(d_sum2_in/ceil(0.5*A_chain.size()) - pow(d_sum_in/ceil(0.5*dist_mod_chain.size()),2));

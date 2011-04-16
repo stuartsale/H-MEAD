@@ -59,6 +59,13 @@ gsl_rng* rng_handle;
 int main(int argc, char* argv[]) 
 {	
 
+	//initialize up random number generator
+    	//gsl_rng_env_setup ();
+	 rng_handle = gsl_rng_alloc (gsl_rng_taus2);
+
+	//seed the random no generator
+	gsl_rng_set(rng_handle, time(0));
+
 	vector<iphas_obj> colours;		
 	vector<bin_obj2> A_mean;
 	vector<bin_obj2> backup_A_mean (150);				
@@ -96,7 +103,7 @@ int main(int argc, char* argv[])
       //Reading in isochrones data into a vector
 
 	//vector<iso_obj> isochrones=iso_read("padova-iso_reg.dat");
-	vector<iso_obj> isochrones=iso_read_Tg("padova-iso_tefflogg.dat");
+	vector<iso_obj> isochrones=iso_read_Tg("padova-iso_tefflogg2.dat");
 
 	vector<iso_obj> guess_set;
 	guess_set.push_back(iso_get_Tg(0.,3.663 ,4.57 , isochrones));	//K4
@@ -223,16 +230,11 @@ int main(int argc, char* argv[])
 vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double l, double b, vector <bin_obj2> backup_A_mean, double ri_min, double ri_max)
 {
 
-	//initialize up random number generator
-    	//gsl_rng_env_setup ();
-	gsl_rng* rng_handle = gsl_rng_alloc (gsl_rng_taus2);
 
-	//seed the random no generator
-	gsl_rng_set(rng_handle, time(0));
 
 	vector <bin_obj2> first_bins(150);
 
-	double sigma_fac=0.02, accepted=0;
+	double sigma_fac=0.05, accepted=0;
 // Set up
 
 	int without_change=0;
@@ -305,7 +307,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	while (it_stars<stars.size())
 	{
 		stars[it_stars].initial_guess(isochrones, guess_set, previous_rel);
-		if (stars[it_stars].last_A>0 && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0> ri_min  && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0<ri_max){it_stars++;initial_dists.push_back(stars[it_stars].last_dist_mod);}
+		if (stars[it_stars].last_A>0 && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0> ri_min  && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0<ri_max){initial_dists.push_back(stars[it_stars].last_dist_mod); it_stars++;}
 		else if (stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0> ri_min  && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0<ri_max){it_stars++;initial_dists.push_back(stars[it_stars].last_dist_mod);stars[it_stars].last_A = 0.02;} 
 	}
 
@@ -320,7 +322,9 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	vector <double> proposed_probs(stars.size());
 
-	while (global_A_chain.size()<230000 )
+	float it_num=0.;
+
+	while (it_num<200000 )
 	{
 		global_current_prob=0;
 		global_transition_prob=0;
@@ -332,20 +336,22 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
 		for (int it=0; it<stars.size(); it++)
 		{
-			if (U.Next()>0.875){stars[it].star_try1(isochrones, l, b, previous_rel);};
+			if (U.Next()>0.){stars[it].star_try1(isochrones, l, b, previous_rel);};
 		}
 		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
 		for (int it=0; it<stars.size(); it++)
 		{
-			if (U.Next()>0.875){stars[it].star_try1(isochrones, l, b, previous_rel);};
+			if (U.Next()>0.){stars[it].star_try1(isochrones, l, b, previous_rel);};
 		}
 
 		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
 		for (int it=0; it<stars.size(); it++)
 		{
-			if (U.Next()>0.875){stars[it].star_try1(isochrones, l, b, previous_rel);};
+			if (U.Next()>0.){stars[it].star_try1(isochrones, l, b, previous_rel);};
 			global_previous_prob+=stars[it].last_prob;
 		}
+
+		cout << stars[369].last_A << " " << stars[369].last_dist_mod << " " << stars[369].last_prob << " " << stars[369].last_iso.logT << " " << stars[369].last_iso.logg << " " << stars[369].r << " " << it_num << endl;
 
 // Now vary hyper-parameters
 
@@ -418,7 +424,6 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	
 		if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob>0)		// New parameter set better => Accept
 		{
-			global_A_chain.push_back(new_rel);
 			previous_rel=new_rel;
 			previous_internal_rel=internal_rel;
 			global_previous_prob=global_current_prob;
@@ -433,7 +438,6 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 		else if (exp(global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob)>U.Next())	// New set worse => accept with P=P(new)/P(old)
 		{
-			global_A_chain.push_back(new_rel);
 			previous_rel=new_rel;
 			previous_internal_rel=internal_rel;
 			global_previous_prob=global_current_prob;
@@ -447,9 +451,12 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		{
 			without_change++;
 		//	cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << stars.size() << endl;//*/
-			global_A_chain.push_back(previous_rel);
+
 		}
-		if (global_A_chain.size()/1000.==floor(global_A_chain.size()/1000.)){cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << endl;}
+		//if (global_A_chain.size()/1000.==floor(global_A_chain.size()/1000.)){cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << endl;}
+
+		if (floor(it_num/50.)==it_num/50){global_A_chain.push_back(previous_rel);}
+		it_num++;
 	}
 	
 	#pragma omp parallel for  num_threads(3)
@@ -693,12 +700,13 @@ void output_write(string filename, vector<bin_obj2> A_mean, vector<iphas_obj> co
 	ofstream output;
 	dummy_string=filename+"-090.dat";
 	output.open(dummy_string.c_str(), ios::trunc);
-	output << "#\tr\ti\tha\tr_i0\tdist\tA\tdistbin\td_A\td_r_i0\td_dist\td_r\td_i\td_ha\tmag_weight\tprob\tMi\tlogAge\tfeh\td_Mi\td_lagAge\td_feh\n" ;
+	output << "#\tr\ti\tha\tr_i0\tdist\tA\tdistbin\td_A\td_r_i0\td_dist\td_r\td_i\td_ha\tmag_weight\tprob\tMi\tlogAge\tfeh\td_Mi\td_lagAge\td_feh\tlogT\tlogg\n" ;
 	for (int y=0; y<colours.size(); y++)
 	{
 		
 		output << colours[y].r << "\t" << colours[y].i << "\t" << colours[y].ha << "\t"<< colours[y].r_i0 << "\t" << colours[y].dist << "\t" << colours[y].A << "\t" << colours[y].distbin << "\t" << colours[y].d_A << "\t" << colours[y].d_r_i0 << "\t" << colours[y].d_dist << "\t"
-		 << colours[y].d_r << "\t" << colours[y].d_i << "\t" << colours[y].d_ha << "\t" << colours[y].last_iso.Mi  << "\t" << colours[y].last_prob  << "\t" << colours[y].Mi  << "\t" << colours[y].logAge  << "\t" << colours[y].feh  << "\t" << colours[y].d_Mi  << "\t" << colours[y].d_logAge  << "\t" << colours[y].d_feh << "\n";
+		 << colours[y].d_r << "\t" << colours[y].d_i << "\t" << colours[y].d_ha << "\t" << colours[y].last_iso.Mi  << "\t" << colours[y].last_prob  << "\t" << colours[y].Mi  << "\t" << colours[y].logAge  << "\t" << colours[y].feh  << "\t" << colours[y].d_Mi  << "\t" << colours[y].d_logAge  << "\t" << colours[y].d_feh << "\t"
+		 << colours[y].logT << "\t" << colours[y].logg << "\n";
 	}
 	output.close();//*/
 
