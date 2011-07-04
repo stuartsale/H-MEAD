@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
       //Reading in isochrones data into a vector
 
 	//vector<iso_obj> isochrones=iso_read("padova-iso_reg.dat");
-	vector<iso_obj> isochrones=iso_read_Tg("padova-iso_tefflogg2.dat");
+	vector<iso_obj> isochrones=iso_read_Tg("padova-iso_tefflogg3.dat");
 
 	vector<iso_obj> guess_set;
 	guess_set.push_back(iso_get_Tg(0.,3.663 ,4.57 , isochrones));	//K4
@@ -259,7 +259,6 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 // Start from backup_A_mean
 
 
-
 	for (int i=0; i<150; i++)
 	{
 
@@ -273,7 +272,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	previous_internal_rel[0][0]=previous_rel[0][0];//log(previous_rel[0][0]);//
 	previous_internal_rel[0][1]=previous_rel[0][1]/previous_internal_rel[0][0];
 
-	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[0][0],log(previous_internal_rel[0][0]),1.5));
+	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[0][0],log(previous_internal_rel[0][0]),0.85));
 		
 //	previous_hyperprior_prob+=-1*log(previous_internal_rel[0][0]);//-previous_internal_rel[0][0];//
 	for (int i=1; i<150; i++)
@@ -282,7 +281,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		previous_internal_rel[i][1]=sqrt(pow(previous_rel[i][1],2)-pow(previous_rel[i-1][1],2))/previous_internal_rel[i][0];
 		
 
-		previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0],log(previous_internal_rel[i][0]),1.5));
+		previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0],log(previous_internal_rel[i][0]),0.85));
 	//	previous_hyperprior_prob+=-1*log(previous_internal_rel[i][0]);//-log(previous_internal_rel[i][0]);//
 	//	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(sqrt(pow(previous_internal_rel[i][1]/previous_internal_rel[i-1][1],2)*(i+1)/i-1.)*previous_rel[i-1][0]/previous_internal_rel[i][0],1.38629, 1.6651));
 		previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][1],0.34657359,  0.832554611)); 
@@ -304,15 +303,16 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		}
 		else {it_stars++;}
 	}
-	
+
 // Make initial guess
 
 	it_stars=0;
 	while (it_stars<stars.size())
 	{
 		stars[it_stars].initial_guess(isochrones, guess_set, previous_rel);
-		if (stars[it_stars].last_A>0 && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0> ri_min  && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0<ri_max){initial_dists.push_back(stars[it_stars].last_dist_mod); it_stars++;}
-		else if (stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0> ri_min  && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0<ri_max){it_stars++;initial_dists.push_back(stars[it_stars].last_dist_mod);stars[it_stars].last_A = 0.02;} 
+		if (stars[it_stars].last_A>0 && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0> ri_min  && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0<ri_max){initial_dists.push_back(stars[it_stars].last_dist_mod);}
+		else if (stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0> ri_min  && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0<ri_max){initial_dists.push_back(stars[it_stars].last_dist_mod);stars[it_stars].last_A = 0.02;} 
+		it_stars++;
 	}
 
 	sort(initial_dists.begin(), initial_dists.end());
@@ -328,7 +328,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	float it_num=0.;
 
-	while (it_num<200000 )
+	while (it_num<150000 )
 	{
 		global_current_prob=0;
 		global_transition_prob=0;
@@ -355,7 +355,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 			global_previous_prob+=stars[it].last_prob;
 		}
 
-	//	cout << stars[369].last_A << " " << stars[369].last_dist_mod << " " << stars[369].last_prob << " " << stars[369].last_iso.logT << " " << stars[369].last_iso.logg << " " << stars[369].r << " " << it_num << endl;
+		//cout << stars[508].last_A << " " << stars[369].last_dist_mod << " " << stars[369].last_prob << " " << stars[369].last_iso.logT << " " << stars[369].last_iso.logg << " " << stars[369].r << " " << it_num << endl;
 
 // Now vary hyper-parameters
 
@@ -374,8 +374,8 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 			while (internal_rel[it][0]>0.5){internal_rel[it][0]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);}
 			internal_rel[it][1]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2,proposal_sd[it][0]);
 			
-			current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0]),1.5));
-	//		current_hyperprior_prob+=-1.*log(internal_rel[it][0]);//-internal_rel[it][0];//
+			current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0]),0.85));
+
 		}
 
 		new_rel[0][0]=internal_rel[0][0];
@@ -649,14 +649,25 @@ vector<iphas_obj> iphas_read(string filename,double &r_min1,double &i_min1,doubl
 			if (infromfile.size()==30 && (infromfile[6]==-1 || infromfile[6]==-2) && (infromfile[11]==-1 || infromfile[11]==-2) && (infromfile[16]==-1 || infromfile[16]==-2) && (infromfile[4]!=0) && (infromfile[9]!=0) && (infromfile[14]!=0) && (infromfile[5]!=0) && (infromfile[10]!=0) && (infromfile[15]!=0) && infromfile[18]<=1.0 && infromfile[19]<=1.0 && infromfile[20]<=1.0 && infromfile[21]<=1.0) 	//selecting only stellar or probably stellar objects and those with small RA & DEC offsets
 			{
             //iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r_input,double d_i_input, double d_ha_input, double l_input, double b_input)
-            if(infromfile[4] > r_max1) { r_max1 = infromfile[4];}
-            if(infromfile[9] > i_max1) { i_max1 = infromfile[9];}
-            if(infromfile[14] > ha_max1) { ha_max1 = infromfile[14];}
-            iphas_obj next_obj(infromfile[4], infromfile[9], infromfile[14], sqrt(pow(infromfile[5],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[10],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[15],2)+pow(0.0016165105,2)), infromfile[0], infromfile[1], infromfile[22], infromfile[23]*1.0857, infromfile[28], infromfile[27], infromfile[29]);	// making the new iphas_obj
-
+   		        	if(infromfile[4] > r_max1) { r_max1 = infromfile[4];}
+            			if(infromfile[9] > i_max1) { i_max1 = infromfile[9];}
+            			if(infromfile[14] > ha_max1) { ha_max1 = infromfile[14];}
+			        iphas_obj next_obj(infromfile[4], infromfile[9], infromfile[14], sqrt(pow(infromfile[5],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[10],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[15],2)+pow(0.0016165105,2)), infromfile[0], infromfile[1], infromfile[22], infromfile[23]*1.0857, infromfile[28], infromfile[27], infromfile[29]);	// making the new iphas_obj
 
 				iphas_colours.push_back(next_obj);																											// pushing it into the vetor
 			}
+
+			if (infromfile.size()==22 && (infromfile[6]==-1 || infromfile[6]==-2) && (infromfile[11]==-1 || infromfile[11]==-2) && (infromfile[16]==-1 || infromfile[16]==-2) && (infromfile[4]!=0) && (infromfile[9]!=0) && (infromfile[14]!=0) && (infromfile[5]!=0) && (infromfile[10]!=0) && (infromfile[15]!=0) && infromfile[18]<=1.0 && infromfile[19]<=1.0 && infromfile[20]<=1.0 && infromfile[21]<=1.0) 	//selecting only stellar or probably stellar objects and those with small RA & DEC offsets
+			{
+            //iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r_input,double d_i_input, double d_ha_input, double l_input, double b_input)
+   		        	if(infromfile[4] > r_max1) { r_max1 = infromfile[4];}
+            			if(infromfile[9] > i_max1) { i_max1 = infromfile[9];}
+            			if(infromfile[14] > ha_max1) { ha_max1 = infromfile[14];}
+			        iphas_obj next_obj(infromfile[4], infromfile[9], infromfile[14], sqrt(pow(infromfile[5],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[10],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[15],2)+pow(0.0016165105,2)), infromfile[0], infromfile[1]);	// making the new iphas_obj
+
+				iphas_colours.push_back(next_obj);																											// pushing it into the vetor
+			}
+
 			else if (infromfile.size()==22)		// if sources are saturated alter bright limits
 			{
 				if (infromfile[6]==-9 && infromfile[4]>r_min1){r_min1=infromfile[4];}		//r'
@@ -704,13 +715,13 @@ void output_write(string filename, vector<bin_obj2> A_mean, vector<iphas_obj> co
 	ofstream output;
 	dummy_string=filename+"-090.dat";
 	output.open(dummy_string.c_str(), ios::trunc);
-	output << "#\tr\ti\tha\tr_i0\tdist\tA\tdistbin\td_A\td_r_i0\td_dist\td_r\td_i\td_ha\tmag_weight\tprob\tMi\tlogAge\tfeh\td_Mi\td_lagAge\td_feh\tlogT\tlogg\n" ;
+	output << "#\tr\ti\tha\tr_i0\tdist\tA\tdistbin\td_A\td_r_i0\td_dist\td_r\td_i\td_ha\tmag_weight\tprob\tA_prob\tMi\tlogAge\tfeh\td_Mi\td_lagAge\td_feh\tlogT\tlogg\trx\tix\thax\n" ;
 	for (int y=0; y<colours.size(); y++)
 	{
 		
 		output << colours[y].r << "\t" << colours[y].i << "\t" << colours[y].ha << "\t"<< colours[y].r_i0 << "\t" << colours[y].dist << "\t" << colours[y].A << "\t" << colours[y].distbin << "\t" << colours[y].d_A << "\t" << colours[y].d_r_i0 << "\t" << colours[y].d_dist << "\t"
-		 << colours[y].d_r << "\t" << colours[y].d_i << "\t" << colours[y].d_ha << "\t" << colours[y].last_iso.Mi  << "\t" << colours[y].last_prob  << "\t" << colours[y].Mi  << "\t" << colours[y].logAge  << "\t" << colours[y].feh  << "\t" << colours[y].d_Mi  << "\t" << colours[y].d_logAge  << "\t" << colours[y].d_feh << "\t"
-		 << colours[y].logT << "\t" << colours[y].logg << "\n";
+		 << colours[y].d_r << "\t" << colours[y].d_i << "\t" << colours[y].d_ha << "\t" << colours[y].last_iso.Mi  << "\t" << colours[y].mean_prob  << "\t" << colours[y].mean_A_prob  << "\t" << colours[y].Mi  << "\t" << colours[y].logAge  << "\t" << colours[y].feh  << "\t" << colours[y].d_Mi  << "\t" << colours[y].d_logAge  << "\t" << colours[y].d_feh << "\t"
+		 << colours[y].logT << "\t" << colours[y].logg << "\t" << colours[y].rx << "\t" << colours[y].ix << "\t" << colours[y].hax << "\n";
 	}
 	output.close();//*/
 

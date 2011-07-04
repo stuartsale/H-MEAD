@@ -50,6 +50,7 @@ class iphas_obj
 		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <double> > &A_mean);
 		void star_try1(vector<iso_obj> &isochrones, double &l, double &b, vector<vector <double> > &A_mean);
 		void mean_intervals(void);
+		double get_A_prob(iso_obj test_iso, double test_A, double test_dist_mod, vector<vector <double> > &A_mean);
 	//
 	   
       // Returns abs mag or colour of an object given its r-i colour and luminosity class
@@ -65,12 +66,15 @@ class iphas_obj
 	double Mi, logAge, feh, d_Mi, d_logAge, d_feh;
 	double logT, logg;
 	int distbin;
-	double A_min, A_max, A_prob;
+	double A_min, A_max, A_min_r, A_max_r, A_min_i, A_max_i, A_min_ha, A_max_ha, A_prob;
 
 	vector <iso_obj> iso_obj_chain;
 	vector <double> dist_mod_chain;
 	vector <double> A_chain;
+	vector <double> prob_chain, A_prob_chain;
 	int no_accept, no_accept2;
+
+	double mean_prob, mean_A_prob;
 
 	iso_obj last_iso;
 	double last_dist_mod, last_A, last_logT, last_logg, last_dist;
@@ -83,9 +87,14 @@ class iphas_obj
 	double best_it;
 	
 	double logT_sd, logg_sd, feh_sd, A_sd, dist_mod_sd;
+	double ri_sd, rmag_sd;
 
 
 	double real_dist, real_A, real_Mi, real_logAge, real_feh;
+
+	vector <double> rx_chain, ix_chain, hax_chain;
+	double rx, ix, hax;
+
 	
    // BRIGHT LIMITS (default)
  //  double r_min, i_min, ha_min;				
