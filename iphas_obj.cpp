@@ -10,8 +10,8 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 	d_r=d_r_input;
 	d_i=d_i_input;
 	d_ha=d_ha_input;
-	l=l_input;
-	b=b_input;
+	l=l_input * PI/180.;
+	b=b_input* PI/180.;
 
 	feh_sd=0.008;
 	logT_sd=0.003;
@@ -34,8 +34,8 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 	d_r=d_r_input;
 	d_i=d_i_input;
 	d_ha=d_ha_input;
-	l=l_input;
-	b=b_input;
+	l=180;//l_input;
+	b=0;//b_input;
 
 	feh_sd=0.008;
 	logT_sd=0.003;
@@ -95,7 +95,13 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 	//cout<< current_prob1 << " "  << d_ha << " " << ha << " " << (test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)+test_dist_mod+test_iso.ha0 << " ";
 	// Find p(x) - includes A(dist), IMF, SFH, disc density & metallicity profiles - remember dist^2 term
 
+
 		double test_dist=pow(10,test_dist_mod/5+1);
+
+		//double d_p;
+		//d_p=pow(10,3-r/5)*0.00002;		//d_p \propto 1/\sqrt(flux)
+
+		//current_prob1+=-pow(1/test_dist-1/real_dist,2)/(2*pow(d_p,2));
 
 
 		// IMF - Scalo type?
