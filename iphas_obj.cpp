@@ -414,7 +414,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 		}
 	}
 
-	else if (exp(current_prob-last_prob+transition_prob)>U.Next() )	// New set worse => accept with P=P(new)/P(old)
+	else if (exp(current_prob-last_prob+transition_prob)>gsl_ran_flat(rng_handle, 0, 1) )	// New set worse => accept with P=P(new)/P(old)
 	{
 		last_iso=test_iso;
 		last_A=test_A;

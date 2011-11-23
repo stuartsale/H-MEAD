@@ -45,9 +45,6 @@ string stringify(double x);
 
 double r_min, i_min, ha_min, r_max, i_max, ha_max;
 
-Uniform U;
-Normal Z;
-VariLogNormal VLN;
 gsl_rng* rng_handle;
 
 //--------------------------------
@@ -72,14 +69,6 @@ int main(int argc, char* argv[])
 	A_mean.reserve(251); 
 //	backup_A_mean.reserve(251); 
 
-// Setting up random number generators
-
-	srand((unsigned)time(0));
-	double s=double(rand())/(double(RAND_MAX)+1.0);	//Generating a random seed for the MT generator in range 0-1
-	//MT urng(s);
-	MultWithCarry urng(s);
-	Random::Set(urng);
-	srand ( time(NULL) );
 
 	//initialize up random number generator
     	gsl_rng_env_setup ();
@@ -340,18 +329,18 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
 		for (int it=0; it<stars.size(); it++)
 		{
-			if (U.Next()>0.){stars[it].star_try1(isochrones, l, b, previous_rel);};
+			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/stars[it].star_try1(isochrones, l, b, previous_rel);//};
 		}
 		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
 		for (int it=0; it<stars.size(); it++)
 		{
-			if (U.Next()>0.){stars[it].star_try1(isochrones, l, b, previous_rel);};
+			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/stars[it].star_try1(isochrones, l, b, previous_rel);//};
 		}
 
 		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
 		for (int it=0; it<stars.size(); it++)
 		{
-			if (U.Next()>0.){stars[it].star_try1(isochrones, l, b, previous_rel);};
+			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/stars[it].star_try1(isochrones, l, b, previous_rel);//};
 			global_previous_prob+=stars[it].last_prob;
 		}
 
@@ -440,7 +429,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		//	cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << endl;
 		}
 
-		else if (exp(global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob)>U.Next())	// New set worse => accept with P=P(new)/P(old)
+		else if (exp(global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob)>gsl_ran_flat(rng_handle, 0, 1))	// New set worse => accept with P=P(new)/P(old)
 		{
 			previous_rel=new_rel;
 			previous_internal_rel=internal_rel;
@@ -771,7 +760,7 @@ double cdf_normal_fast(double x, double mu, double sigma)
 
 double cdf_normal_smallx(double x, double mu, double sigma)
 {
-	int q=(mu-x)/pow(sigma,2);
+	double q=(mu-x)/pow(sigma,2);
 	return -log(q*sqrt(2*PI)) + log(1-pow(q,-2)) -pow(q,2)/2;
 }
 

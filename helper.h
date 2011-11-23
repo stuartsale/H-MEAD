@@ -11,7 +11,6 @@
 #include <fstream>
 #include <cmath>
 #include <vector>
-#include </home/stuart/work/work-chile/distance_red/MEAD-files/newran03/newran.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 
@@ -47,10 +46,6 @@ double in_sample(double r_in, double i_in, double ha_in, double dr_in, double di
 double in_sample2(double A_max, double mu, double sigma);
 
 // Setting up random number generators
-
-extern Uniform U;
-extern Normal Z;
-extern VariLogNormal VLN;
 
 extern gsl_rng* rng_handle;
 
