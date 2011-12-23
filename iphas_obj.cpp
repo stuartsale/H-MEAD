@@ -149,7 +149,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 		if (floor(test_dist*1.04/100)<A_mean.size())
 		{
 			A_prob=0;
-			current_prob1+=-log(A_mean[floor(test_dist*1.04/100)][3]*test_A) - pow(log(test_A)-A_mean[floor(test_dist*1.04/100)][2],2)/(2*pow(A_mean[floor(test_dist*1.04/100)][3],2));
+			current_prob1+=(-log(A_mean[floor(test_dist*1.04/100)][3]*test_A) - pow(log(test_A)-A_mean[floor(test_dist*1.04/100)][2],2)/(2*pow(A_mean[floor(test_dist*1.04/100)][3],2)));
 
 	// Correction to prior to account for incompletness due to mag limits
 
@@ -168,7 +168,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 		else
 		{
 			A_prob=0;
-			current_prob1+=-log(A_mean[A_mean.size()-1][3]*test_A) - pow(log(test_A)-A_mean[A_mean.size()-1][2],2)/(2*pow(A_mean[A_mean.size()-1][3],2));
+			current_prob1+=(-log(A_mean[A_mean.size()-1][3]*test_A) - pow(log(test_A)-A_mean[A_mean.size()-1][2],2)/(2*pow(A_mean[A_mean.size()-1][3],2)));
 
 	// Correction to prior to account for incompletness due to mag limits
 
@@ -338,13 +338,14 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 	test_logg=last_iso.logg+gsl_ran_gaussian_ziggurat(rng_handle,logg_sd);//Z.Next()*logg_sd;
 	try {test_iso=iso_get_Tg(test_feh, test_logT, test_logg, isochrones);}
 	catch (int e){no_accept++; return;}
-//	test_A=VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
-//	test_dist_mod=last_dist_mod + Z.Next()*dist_mod_sd;
+	//test_A=last_A;//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
+	//test_dist_mod=last_dist_mod ;//+ Z.Next()*dist_mod_sd;
 
 	test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,rmag_sd);//Z.Next()*d_r/2;
 	test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
 
 	test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.w-test_iso.w_i)+(test_iso.r0-test_iso.i0)-test_ri, +1);
+	if (test_A<0){no_accept++; return;}
 	test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;
 
 
