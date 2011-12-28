@@ -155,12 +155,12 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 		//	A_prob=-log(in_sample2(A_max, A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));
 	
-		/*	if (A_min>0){A_prob=-log(cdf_normal_fast(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3])-cdf_normal_fast(log(A_min),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
-			else {A_prob=-log(cdf_normal_fast(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
+		/*	if (A_min>0){A_prob=-log(gsl_cdf_lognormal_P(A_max,A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3])-gsl_cdf_lognormal_P(A_min, A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
+			else {A_prob=-log(gsl_cdf_lognormal_P(A_max,A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
 			if (isinf(A_prob))
 			{
 				A_prob=-log(cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));
-				//cout << A_max << " " << A_min << " " << cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]) << " " << A_mean[floor(test_dist/100)][0] << endl;
+				//cout << A_max << " " << A_min << " " << cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]) << " " << A_mean[floor(test_dist/100)][0] << " " << r << endl;
 			}*/
 	
 		//	current_prob1+=A_prob;
