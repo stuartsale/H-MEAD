@@ -79,7 +79,6 @@ int main(int argc, char* argv[])
 
 	//cout << "TEST " << gsl_ran_lognormal(rng_handle,1, 0.1)<<endl;
 
-
 // set default MIN vals
 	r_min=13.5; 
 	i_min=12.0;
@@ -760,7 +759,7 @@ double cdf_normal_fast(double x, double mu, double sigma)
 
 double cdf_normal_smallx(double x, double mu, double sigma)
 {
-	double q=(mu-x)/pow(sigma,2);
+	double q=(mu-x)/pow(sigma,1);
 	return -log(q*sqrt(2*PI)) + log(1-pow(q,-2)) -pow(q,2)/2;
 }
 
