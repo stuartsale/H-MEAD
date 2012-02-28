@@ -316,7 +316,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	float it_num=0.;
 
-	while (it_num<150000 )
+	while (it_num<450000 )
 	{
 		global_current_prob=0;
 		global_transition_prob=0;
@@ -324,17 +324,6 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		current_hyperprior_prob=0;
 
 // First vary parameters for each star
-
-		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
-		for (int it=0; it<stars.size(); it++)
-		{
-			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/stars[it].star_try1(isochrones, l, b, previous_rel);//};
-		}
-		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
-		for (int it=0; it<stars.size(); it++)
-		{
-			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/stars[it].star_try1(isochrones, l, b, previous_rel);//};
-		}
 
 		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
 		for (int it=0; it<stars.size(); it++)
@@ -826,6 +815,7 @@ vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
 	Sch_string.append(" ");
 	Sch_string.append(stringify(b_gal));
 	Sch_max=atof(getStdoutFromCommand(Sch_string).c_str())*2.944;		// 2.944 to convert E(B-V) given by Schlegel to A_6250
+	Sch_max=4.0;
    cout << "Sch_max = " << Sch_max << endl;
 
 	// integrate dust density to ~infinity, used to normalise the dust distribution so that at infinity it gives the Schlegel value
