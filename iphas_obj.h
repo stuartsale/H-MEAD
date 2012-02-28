@@ -95,6 +95,16 @@ class iphas_obj
 	vector <double> rx_chain, ix_chain, hax_chain;
 	double rx, ix, hax;
 
+
+
+	A_params int_params;
+	gsl_monte_function F;
+	gsl_monte_vegas_state *s;
+
+	double low[1];
+	double hi[1];
+	double res, err;
+
 	
    // BRIGHT LIMITS (default)
  //  double r_min, i_min, ha_min;				

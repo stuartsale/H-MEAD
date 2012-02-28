@@ -14,6 +14,10 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_cdf.h>
+#include <gsl/gsl_monte.h>
+#include <gsl/gsl_monte_plain.h>
+#include <gsl/gsl_monte_miser.h>
+#include <gsl/gsl_monte_vegas.h>
 
 
 
@@ -66,5 +70,8 @@ extern double ha_min;
 extern double r_max;
 extern double i_max;
 extern double ha_max;
+
+struct A_params {double A_max; double A; double sigma;};
+double A_integral_func (double *mean, size_t dim, void *params);
 
 #endif
