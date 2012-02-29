@@ -24,12 +24,6 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 
 	no_accept=0;
 
-	/*gsl_monte_function*/ F={&A_integral_func, 1, &int_params};
-	s11 = gsl_monte_vegas_alloc (1);
-
-	low[0]=0.;
-	hi[0]=10.;
-
 }
 
 iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r_input,double d_i_input, double d_ha_input, double l_input, double b_input, double real_dist_in, double real_A_in, double real_Mi_in, double real_logAge_in, double real_feh_in)
@@ -62,11 +56,6 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 	real_logAge=real_logAge_in;
 	real_feh=real_feh_in;
 
-	/*gsl_monte_function*/ F={&A_integral_func, 1, &int_params};
-	s11 = gsl_monte_vegas_alloc (1);
-
-	low[0]=0.;
-	hi[0]=10.;
 }
 
 iphas_obj::iphas_obj(double d_r_input, double d_i_input, double d_ha_input)
@@ -166,26 +155,15 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	// Correction to prior to account for incompletness due to mag limits
 
-			if (A_min>0){A_prob=-log(gsl_cdf_lognormal_P(A_max,A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3])-gsl_cdf_lognormal_P(A_min, A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
-			else {A_prob=-log(gsl_cdf_lognormal_P(A_max,A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
+			if (A_min>0){A_prob=-log(int_lookup(A_max,A_mean[floor(test_dist/100)][0],A_mean[floor(test_dist/100)][1])-gsl_cdf_lognormal_P(A_min, A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
+			else {A_prob=-log(int_lookup(A_max,A_mean[floor(test_dist/100)][0],A_mean[floor(test_dist/100)][1]));}
 			if (isinf(A_prob))
 			{
-				A_prob=-log(cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));
+				A_prob=-1E6;//log(cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));
 			}
 
-			int_params.A_max=A_max;
-			int_params.A=test_A;
-			int_params.sigma=A_mean[floor(test_dist/100)][1];
-F={&A_integral_func, 1, &int_params};
-			gsl_monte_vegas_init(s11);
-			//s = gsl_monte_vegas_alloc (1);
-			//res=0;
-			//gsl_monte_vegas_integrate (&F, low, hi, 1, 10, rng_handle, s11, &res, &err);
-			//cout << test_A << " " << A_max << " " << res  << endl;
-
-			//gsl_monte_vegas_free(s);
 	
-			//current_prob1+=A_prob-log(res);
+			current_prob1+=A_prob;
 		}
 		else
 		{
@@ -194,26 +172,17 @@ F={&A_integral_func, 1, &int_params};
 
 	// Correction to prior to account for incompletness due to mag limits
 
-			if (A_min>0){A_prob=-log(gsl_cdf_lognormal_P(A_max,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3])-gsl_cdf_lognormal_P(A_min,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-log(gsl_cdf_lognormal_P(A_max,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
+			if (A_min>0){A_prob=-log(int_lookup(A_max,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
+			else {A_prob=-log(int_lookup(A_max,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}
 			if (isinf(A_prob))
 			{
-				A_prob=-log(cdf_normal_smallx(log(A_max),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));
+				A_prob=-1E6;//log(cdf_normal_smallx(log(A_max),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));
 			}
 
-			int_params.A_max=A_max;
-			int_params.A=test_A;
-			int_params.sigma=A_mean[A_mean.size()-1][1];
-F={&A_integral_func, 1, &int_params};
-			gsl_monte_vegas_init(s11);
-			//s = gsl_monte_vegas_alloc (1);
-			//res=0;
-			//gsl_monte_vegas_integrate (&F, low, hi, 1, 10, rng_handle, s11, &res, &err);
-			//cout << test_A << " " << A_max << " " << res  << endl;
 
 			//gsl_monte_vegas_free(s);
 
-			//current_prob1+=A_prob-log(res);
+			current_prob1+=A_prob;
 		}
 
 	if (current_prob1!=current_prob1){/*cout<< test_dist/100<< " " << " " << A_prob<< " " << current_prob1 << "" "" << A_max <<endl;*/ current_prob1=-1E6;}
@@ -566,16 +535,4 @@ void iphas_obj::mean_intervals(void)
 	ix=ix_sum/ceil(0.5*ix_chain.size());
 	hax=hax_sum/ceil(0.5*hax_chain.size());
 }
-
-double A_integral_func (double *mean, size_t dim, void *params)
-{
-	A_params *p;
-	p=(A_params *)params;
-	double xi=sqrt(log(1+pow(p->sigma/(*mean),2)));
-	double mu= log(*mean)-xi/2;
-	double cdf= gsl_cdf_lognormal_P(p->A_max, (mu), xi);
-	if (cdf!=0){return gsl_ran_lognormal_pdf(p->A, (mu),  xi) / cdf;}
-	else {return 0.;}
-}
-
 

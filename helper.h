@@ -71,7 +71,9 @@ extern double r_max;
 extern double i_max;
 extern double ha_max;
 
-struct A_params {double A_max; double A; double sigma;};
-double A_integral_func (double *mean, size_t dim, void *params);
+extern vector <vector <vector <double> > > lookup_table;
+vector <vector <vector <double> > > lookup_creator(void);
+double int_lookup(double A_max, double A_mean, double sd);
+struct params_struct {double A_max; double A_mean; double sigma;};
 
 #endif

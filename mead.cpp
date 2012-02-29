@@ -44,6 +44,7 @@ string stringify(double x);
 
 
 double r_min, i_min, ha_min, r_max, i_max, ha_max;
+vector <vector <vector <double> > > lookup_table;
 
 gsl_rng* rng_handle;
 
@@ -77,7 +78,7 @@ int main(int argc, char* argv[])
 	//seed the random no generator
 	//gsl_rng_set(rng_handle, time(0));
 
-	//cout << "TEST " << gsl_ran_lognormal(rng_handle,1, 0.1)<<endl;
+	lookup_table=lookup_creator();
 
 // set default MIN vals
 	r_min=13.5; 
@@ -845,5 +846,64 @@ vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
 	return backup_A_mean;   
 }
 
-	
+double int_lookup(double A_max, double A_mean, double sd)
+{
+	if (A_mean>=10){A_mean=9.99;}
+	if (A_max>=10){A_max=9.99;}
+	if (sd>=2){sd=1.99;}
+	return lookup_table[int(floor(A_max*10.))][int(floor(A_mean*10.))][int(floor(sd*10.))];
+}
+
+double integral_func (double *A_test, size_t dim, void *params)
+{
+	params_struct *p;
+	p=(params_struct *)params;
+	double xi=sqrt(log(1+pow(p->sigma/(p->A_mean),2)));
+	double mu= log(p->A_mean)-xi/2;
+	//double cdf= gsl_cdf_lognormal_P(p->A_max, (mu), xi);
+	return gsl_ran_lognormal_pdf(*A_test, (mu),  xi) / (1 + exp(0.7*(*A_test-p->A_max)))  ;
+}
+
+
+vector <vector <vector <double> > > lookup_creator(void)
+{
+	vector <vector <vector <double> > > dummy_table(100, vector <vector <double> > (100, vector <double> (20, 0)));
+
+	struct params_struct {double A_max; double A_mean; double sigma;};
+
+	double res, err;
+
+	double low[1]={0.};
+	double hi[1]={10.};
+
+	params_struct int_params;
+
+	gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (1);
+
+	for (int A_max_it=0; A_max_it<100; A_max_it++)
+	{
+		int_params.A_max=A_max_it*0.1;
+		cout << A_max_it << endl;
+
+		for (int A_mean_it=0; A_mean_it<100; A_mean_it++)
+		{
+			int_params.A_mean=A_mean_it*0.1;
+
+			for (int sd_it=0; sd_it<20; sd_it++)
+			{
+				int_params.sigma=sd_it*0.1;
+				gsl_monte_function F={&integral_func, 1, &int_params};
+				gsl_monte_vegas_init(s);
+
+				gsl_monte_vegas_integrate (&F, low, hi, 1, 100, rng_handle, s, &res, &err);
+			
+				dummy_table[A_max_it][A_mean_it][sd_it]=res;
+			}
+		}
+	}
+
+	gsl_monte_vegas_free(s);
+
+	return dummy_table;
+}
 
