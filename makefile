@@ -1,8 +1,8 @@
 # Makefile for MEAD-BB
 # Written by Stuart Sale 17/11/10
 RUN_DIR=../../
-flags= -g -fopenmp
-linking_flags= -lgsl -lgslcblas -lm -lprofiler -fopenmp -g
+flags= -O3 -fopenmp
+linking_flags= -lgsl -lgslcblas -lm -lprofiler -fopenmp 
 
 MEAD: bin_obj.o iso_obj.o helper.o iphas_obj.o mead.o
 	g++ -o H-MEAD bin_obj.o iso_obj.o helper.o iphas_obj.o mead.o $(linking_flags)

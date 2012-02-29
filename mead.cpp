@@ -316,7 +316,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	float it_num=0.;
 
-	while (it_num<450000 )
+	while (it_num<150000 )
 	{
 		global_current_prob=0;
 		global_transition_prob=0;

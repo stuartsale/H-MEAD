@@ -24,8 +24,8 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 
 	no_accept=0;
 
-	gsl_monte_function F={&A_integral_func, 1, &int_params};
-	gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (1);
+	/*gsl_monte_function*/ F={&A_integral_func, 1, &int_params};
+	s11 = gsl_monte_vegas_alloc (1);
 
 	low[0]=0.;
 	hi[0]=10.;
@@ -62,8 +62,8 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 	real_logAge=real_logAge_in;
 	real_feh=real_feh_in;
 
-	gsl_monte_function F={&A_integral_func, 1, &int_params};
-	gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (1);
+	/*gsl_monte_function*/ F={&A_integral_func, 1, &int_params};
+	s11 = gsl_monte_vegas_alloc (1);
 
 	low[0]=0.;
 	hi[0]=10.;
@@ -176,11 +176,16 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 			int_params.A_max=A_max;
 			int_params.A=test_A;
 			int_params.sigma=A_mean[floor(test_dist/100)][1];
+F={&A_integral_func, 1, &int_params};
+			gsl_monte_vegas_init(s11);
+			//s = gsl_monte_vegas_alloc (1);
+			//res=0;
+			//gsl_monte_vegas_integrate (&F, low, hi, 1, 10, rng_handle, s11, &res, &err);
+			//cout << test_A << " " << A_max << " " << res  << endl;
 
-			gsl_monte_vegas_init(s);
-			gsl_monte_vegas_integrate (&F, low, hi, 1, 100, rng_handle, s, &res, &err);
+			//gsl_monte_vegas_free(s);
 	
-			current_prob1+=A_prob;
+			//current_prob1+=A_prob-log(res);
 		}
 		else
 		{
@@ -199,11 +204,16 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 			int_params.A_max=A_max;
 			int_params.A=test_A;
 			int_params.sigma=A_mean[A_mean.size()-1][1];
+F={&A_integral_func, 1, &int_params};
+			gsl_monte_vegas_init(s11);
+			//s = gsl_monte_vegas_alloc (1);
+			//res=0;
+			//gsl_monte_vegas_integrate (&F, low, hi, 1, 10, rng_handle, s11, &res, &err);
+			//cout << test_A << " " << A_max << " " << res  << endl;
 
-			gsl_monte_vegas_init(s);
-			gsl_monte_vegas_integrate (&F, low, hi, 1, 100, rng_handle, s, &res, &err);
+			//gsl_monte_vegas_free(s);
 
-			current_prob1+=A_prob;
+			//current_prob1+=A_prob-log(res);
 		}
 
 	if (current_prob1!=current_prob1){/*cout<< test_dist/100<< " " << " " << A_prob<< " " << current_prob1 << "" "" << A_max <<endl;*/ current_prob1=-1E6;}
