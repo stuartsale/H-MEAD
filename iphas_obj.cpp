@@ -155,15 +155,15 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	// Correction to prior to account for incompletness due to mag limits
 
-			if (A_min>0){A_prob=-log(int_lookup(A_max,A_mean[floor(test_dist/100)][0],A_mean[floor(test_dist/100)][1])-gsl_cdf_lognormal_P(A_min, A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
-			else {A_prob=-log(int_lookup(A_max,A_mean[floor(test_dist/100)][0],A_mean[floor(test_dist/100)][1]));}
+			if (A_min>0){A_prob=-log(int_lookup(A_max,A_mean[floor(test_dist*1.04/100)][0],A_mean[floor(test_dist*1.04/100)][1])-gsl_cdf_lognormal_P(A_min, A_mean[floor(test_dist*1.04/100)][2],A_mean[floor(test_dist*1.04/100)][3]));}
+			else {A_prob=-log(int_lookup(A_max,A_mean[floor(test_dist*1.04/100)][0],A_mean[floor(test_dist*1.04/100)][1]));}
 			if (isinf(A_prob))
 			{
 				A_prob=-1E6;//log(cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));
 			}
 
 	
-			current_prob1+=A_prob;
+			current_prob1+=A_prob ;//- 2*log(A_mean[floor(test_dist*1.04/100)][3]);		// Jeffreys prior term
 		}
 		else
 		{
@@ -182,7 +182,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 			//gsl_monte_vegas_free(s);
 
-			current_prob1+=A_prob;
+			current_prob1+=A_prob ;//- 2*log(A_mean[A_mean.size()-1][3]);		// Jeffreys prior term
 		}
 
 	if (current_prob1!=current_prob1){/*cout<< test_dist/100<< " " << " " << A_prob<< " " << current_prob1 << "" "" << A_max <<endl;*/ current_prob1=-1E6;}
