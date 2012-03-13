@@ -136,12 +136,16 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	// Also the the contribution to p(x) from the distance-reddening relationship
 
-		A_max_r=test_A+(r_max-r)/test_iso.v;
-		A_min_r=test_A-(r-r_min)/test_iso.v;
-		A_max_i=test_A+(i_max-i)/test_iso.v_i;
+		//A_max_r=test_A+(r_max-r)/test_iso.v;
+		//A_min_r=test_A-(r-r_min)/test_iso.v;
+		//A_max_i=test_A+(i_max-i)/test_iso.v_i;
 		A_min_i=test_A-(i-i_min)/test_iso.v_i;
 		A_max_ha=test_A+(ha_max-ha)/test_iso.v_ha;
 		A_min_ha=test_A-(ha-ha_min)/test_iso.v_ha;
+
+		A_max_r=quadratic(test_iso.u, test_iso.v, test_iso.w + (test_iso.r0+test_dist_mod-r_max), +1);
+		A_max_i=quadratic(test_iso.u_i, test_iso.v_i, test_iso.w_i + (test_iso.i0+test_dist_mod-i_max), +1);
+		A_max_ha=quadratic(test_iso.u_ha, test_iso.v_ha, test_iso.w_ha + (test_iso.ha0+test_dist_mod-ha_max), +1);
 
 		A_max=min(min(A_max_r,A_max_i),A_max_ha);
 		A_min=max(max(A_min_r,A_min_i),A_min_ha);
@@ -151,12 +155,12 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 		if (floor(test_dist*1.04/100)<A_mean.size())
 		{
 			A_prob=0;
-			current_prob1+=(-log(A_mean[floor(test_dist*1.04/100)][3]*test_A) - pow(log(test_A)-A_mean[floor(test_dist*1.04/100)][2],2)/(2*pow(A_mean[floor(test_dist*1.04/100)][3],2)));
+			current_prob1+=-log(A_mean[floor(test_dist*1.0/100)][3]*test_A) - pow(log(test_A)-A_mean[floor(test_dist*1.0/100)][2],2)/(2*pow(A_mean[floor(test_dist*1.0/100)][3],2));
 
 	// Correction to prior to account for incompletness due to mag limits
 
-			if (A_min>0){A_prob=-log(int_lookup(A_max,A_mean[floor(test_dist*1.04/100)][0],A_mean[floor(test_dist*1.04/100)][1])-gsl_cdf_lognormal_P(A_min, A_mean[floor(test_dist*1.04/100)][2],A_mean[floor(test_dist*1.04/100)][3]));}
-			else {A_prob=-log(int_lookup(A_max,A_mean[floor(test_dist*1.04/100)][0],A_mean[floor(test_dist*1.04/100)][1]));}
+			if (A_min>0){A_prob=-log(int_lookup(A_max,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
+			else {A_prob=-log(int_lookup(A_max,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}
 			if (isinf(A_prob))
 			{
 				A_prob=-1E6;//log(cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));
@@ -297,8 +301,8 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 //	last_dist=pow(10,last_dist_mod/5+1);
 
 //	last_iso=iso_get(0.,real_Mi, 7.08, isochrones);
-//	last_A=real_A;
-//	last_dist_mod=5*log10(real_dist/10);
+	last_A=real_A;
+	last_dist_mod=5*log10(real_dist/10);
 
 	last_rmag=r;
 	last_ri=(last_iso.r0-last_iso.i0)+(last_iso.u-last_iso.u_i)*pow(last_A,2) + (last_iso.v-last_iso.v_i)*last_A + (last_iso.w-last_iso.w_i);
@@ -344,9 +348,9 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 	test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,rmag_sd);//Z.Next()*d_r/2;
 	test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
 
-	test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.w-test_iso.w_i)+(test_iso.r0-test_iso.i0)-test_ri, +1);
+	test_A=last_A;//quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.w-test_iso.w_i)+(test_iso.r0-test_iso.i0)-test_ri, +1);
 	if (test_A<0){no_accept++; return;}
-	test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;
+	test_dist_mod=last_dist_mod;//test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;
 
 
 // Find probability of this parameter set -isochrone

@@ -120,6 +120,9 @@ int main(int argc, char* argv[])
    // Read in IPHAS data
 	string iphas_filename=argv[1];		
 	colours=iphas_read(iphas_filename,r_min,i_min,ha_min,r_max,i_max,ha_max);
+	r_max-=0.5;
+	i_max-=0.5;
+	ha_max-=0.5;
 	cout << "r_min=" << r_min << " i_min=" << i_min << " ha_min=" << ha_min << endl; 
 	cout << "r_max=" << r_max << " i_max=" << i_max << " ha_max=" << ha_max << endl; 
 
@@ -319,7 +322,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	float it_num=0.;
 
-	while (it_num<150000 )
+	while (it_num<450000 )
 	{
 		global_current_prob=0;
 		global_transition_prob=0;
@@ -343,7 +346,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 		for (int it=0; it<rel_length; it++)
 		{
-			proposal_sd[it][0]=sigma_fac;
+			proposal_sd[it][0]=sigma_fac/10;
 			proposal_sd[it][1]=sigma_fac/10;
 		}
 		
@@ -856,8 +859,9 @@ double int_lookup(double A_max, double A_mean, double sd)
 {
 	if (A_mean>=10){A_mean=9.99;}
 	if (A_max>=10){A_max=9.99;}
+	if (A_max<-2.0){A_max=0.;}
 	if (sd>=2){sd=1.99;}
-	return lookup_table[int(floor(A_max*10.))][int(floor(A_mean*10.))][int(floor(sd*10.))];
+	return lookup_table[int(floor((A_max+2)*10.))][int(floor(A_mean*10.))][int(floor(sd*10.))];
 }
 
 double integral_func (double *A_test, size_t dim, void *params)
@@ -867,13 +871,13 @@ double integral_func (double *A_test, size_t dim, void *params)
 	double xi=sqrt(log(1+pow(p->sigma/(p->A_mean),2)));
 	double mu= log(p->A_mean)-xi/2;
 	//double cdf= gsl_cdf_lognormal_P(p->A_max, (mu), xi);
-	return gsl_ran_lognormal_pdf(*A_test, (mu),  xi) / (1 + exp(2*(*A_test-p->A_max)))  ;
+	return gsl_ran_lognormal_pdf(*A_test, (mu),  xi) / (1 + exp(40*(*A_test-p->A_max)))  ;
 }
 
 
 vector <vector <vector <double> > > lookup_creator(void)
 {
-	vector <vector <vector <double> > > dummy_table(100, vector <vector <double> > (100, vector <double> (20, 0)));
+	vector <vector <vector <double> > > dummy_table(120, vector <vector <double> > (100, vector <double> (20, 0)));
 
 	struct params_struct {double A_max; double A_mean; double sigma;};
 
@@ -886,9 +890,9 @@ vector <vector <vector <double> > > lookup_creator(void)
 
 	gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (1);
 
-	for (int A_max_it=0; A_max_it<100; A_max_it++)
+	for (int A_max_it=0; A_max_it<120; A_max_it++)
 	{
-		int_params.A_max=A_max_it*0.1+0.1;
+		int_params.A_max=A_max_it*0.1+0.1-2.;
 		cout << A_max_it << endl;
 
 		for (int A_mean_it=0; A_mean_it<100; A_mean_it++)
