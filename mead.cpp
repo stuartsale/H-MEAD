@@ -322,7 +322,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	float it_num=0.;
 
-	while (it_num<450000 )
+	while (it_num<150000 )
 	{
 		global_current_prob=0;
 		global_transition_prob=0;
@@ -857,11 +857,11 @@ vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
 
 double int_lookup(double A_max, double A_mean, double sd)
 {
-	if (A_mean>=10){A_mean=9.99;}
-	if (A_max>=10){A_max=9.99;}
-	if (A_max<-2.0){A_max=0.;}
-	if (sd>=2){sd=1.99;}
-	return lookup_table[int(floor((A_max+2)*10.))][int(floor(A_mean*10.))][int(floor(sd*10.))];
+	if (A_mean>=9.95){A_mean=9.94;}
+	if (A_max>=9.95){A_max=9.94;}
+	if (A_max<-2.0){A_max=-2.0;}
+	if (sd>=1.95){sd=1.94;}
+	return lookup_table[int(floor((A_max+2)*10.+0.5))][int(floor(A_mean*10.+0.5))][int(floor(sd*10.+0.5))];
 }
 
 double integral_func (double *A_test, size_t dim, void *params)
@@ -871,7 +871,7 @@ double integral_func (double *A_test, size_t dim, void *params)
 	double xi=sqrt(log(1+pow(p->sigma/(p->A_mean),2)));
 	double mu= log(p->A_mean)-xi/2;
 	//double cdf= gsl_cdf_lognormal_P(p->A_max, (mu), xi);
-	return gsl_ran_lognormal_pdf(*A_test, (mu),  xi) / (1 + exp(40*(*A_test-p->A_max)))  ;
+	return gsl_ran_lognormal_pdf(*A_test, (mu),  xi) / (1 + exp(17*(*A_test-p->A_max)))  ;
 }
 
 
