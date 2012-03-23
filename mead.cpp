@@ -120,9 +120,12 @@ int main(int argc, char* argv[])
    // Read in IPHAS data
 	string iphas_filename=argv[1];		
 	colours=iphas_read(iphas_filename,r_min,i_min,ha_min,r_max,i_max,ha_max);
-	r_max-=0.5;
-	i_max-=0.5;
-	ha_max-=0.5;
+	//r_max-=0.2;
+	//i_max-=0.2;
+	//ha_max-=0.2;
+	r_max=21.5;
+	i_max=20.5;
+	ha_max=20.5;
 	cout << "r_min=" << r_min << " i_min=" << i_min << " ha_min=" << ha_min << endl; 
 	cout << "r_max=" << r_max << " i_max=" << i_max << " ha_max=" << ha_max << endl; 
 
@@ -143,7 +146,7 @@ int main(int argc, char* argv[])
 // first run through
 
 
-	cout << "backup size:" << backup_A_mean.size() << endl;
+//	cout << "backup size:" << backup_A_mean.size() << endl;
 
 //	cout << "Real: " << real_prob(colours, isochrones, guess_set, atof(argv[2]), atof(argv[3]), backup_A_mean, -0.0272, 0.53) << endl;
 
@@ -255,12 +258,12 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	{
 
 		previous_rel[i][0]=backup_A_mean[i].mean_A;
-		if (i==0) {previous_rel[i][1]=0.2;}//5*previous_rel[i][0];}
-		else {previous_rel[i][1]=0.2;}//5*previous_rel[i][0];}//sqrt(pow(previous_rel[i-1][1],2)+pow(previous_rel[i][0]-previous_rel[i-1][0],2));}
+		if (i==0) {previous_rel[i][1]=0.4;}//5*previous_rel[i][0];}
+		else {previous_rel[i][1]=0.4;}//5*previous_rel[i][0];}//sqrt(pow(previous_rel[i-1][1],2)+pow(previous_rel[i][0]-previous_rel[i-1][0],2));}
 		previous_rel[i][3]=sqrt(log(1+pow(previous_rel[i][1]/previous_rel[i][0],2)));
 		previous_rel[i][2]=log(previous_rel[i][0])-pow(previous_rel[i][3],2)/2;
 
-		previous_hyperprior_prob+=log(previous_rel[i][1]/(exp(-pow(previous_rel[i][3],2))*pow(previous_rel[i][0],3)*previous_rel[i][3])) - 2*log(previous_rel[i][3]);
+		previous_hyperprior_prob+=log(previous_rel[i][1]/(exp(pow(previous_rel[i][3],2))*pow(previous_rel[i][0],3)*previous_rel[i][3])) - 2*log(previous_rel[i][3]);
 	}
 
 	previous_internal_rel[0][0]=previous_rel[0][0];//log(previous_rel[0][0]);//
@@ -311,8 +314,8 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	sort(initial_dists.begin(), initial_dists.end());
 
-	cout << "95th percentile on dist is: " << pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1) << " kpc away" << endl;
-	cout << "5th percentile on dist is: " << pow(10,initial_dists[int(initial_dists.size()*0.05)]/5+1) << " kpc away" << endl;
+//	cout << "95th percentile on dist is: " << pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1) << " kpc away" << endl;
+//	cout << "5th percentile on dist is: " << pow(10,initial_dists[int(initial_dists.size()*0.05)]/5+1) << " kpc away" << endl;
 
 	for (int star_it=0; star_it<stars.size(); star_it++){global_previous_prob+=stars[star_it].last_prob;}
 	
@@ -338,7 +341,9 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 			global_previous_prob+=stars[it].last_prob;
 		}
 
-		//cout << stars[508].last_A << " " << stars[369].last_dist_mod << " " << stars[369].last_prob << " " << stars[369].last_iso.logT << " " << stars[369].last_iso.logg << " " << stars[369].r << " " << it_num << endl;
+	//	cout << stars[350].last_A << " " << stars[350].last_dist_mod << " " << stars[350].last_prob << " " << stars[350].last_iso.logT << " " << stars[350].last_iso.logg << " " << stars[350].last_iso.r0-stars[350].last_iso.i0 << " " << stars[350].last_iso.r0-stars[350].last_iso.ha0 << " " << it_num  << " " << stars[350].last_iso.Mi << " " << log(stars[350].last_iso.Jac) << " " << log(stars[350].last_iso.IMF())  << " " 
+//<< stars[350].last_iso.r0+stars[350].last_iso.u*pow(stars[350].last_A,2)+stars[350].last_iso.v*stars[350].last_A+stars[350].last_iso.w+stars[350].last_dist_mod  << " " 
+//<< stars[350].last_iso.i0+stars[350].last_iso.u_i*pow(stars[350].last_A,2)+stars[350].last_iso.v_i*stars[350].last_A+stars[350].last_iso.w_i+stars[350].last_dist_mod  << " " << stars[350].last_iso.ha0+stars[350].last_iso.u_ha*pow(stars[350].last_A,2)+stars[350].last_iso.v_ha*stars[350].last_A+stars[350].last_iso.w_ha+stars[350].last_dist_mod << endl;
 
 // Now vary hyper-parameters
 
@@ -346,7 +351,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 		for (int it=0; it<rel_length; it++)
 		{
-			proposal_sd[it][0]=sigma_fac/10;
+			proposal_sd[it][0]=sigma_fac;
 			proposal_sd[it][1]=sigma_fac/10;
 		}
 		
@@ -362,7 +367,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		}
 
 		new_rel[0][0]=internal_rel[0][0];
-		new_rel[0][1]=pow(new_rel[0][0], 0.4)/3;//internal_rel[0][1];//*internal_rel[0][0];
+		new_rel[0][1]=0.4;//pow(new_rel[0][0], 0.4)/3;//internal_rel[0][1];//*internal_rel[0][0];
 		new_rel[0][3]=sqrt(log(1+pow(new_rel[0][1]/new_rel[0][0],2)));
 		new_rel[0][2]=log(new_rel[0][0])-pow(new_rel[0][3],2)/2;
 		current_hyperprior_prob+=+log(new_rel[0][1]/(exp(pow(new_rel[0][3],2))*pow(new_rel[0][0],3)*new_rel[0][3]))- 2*log(new_rel[0][3]);
@@ -371,7 +376,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		{			
 
 			new_rel[it][0]=internal_rel[it][0]+new_rel[it-1][0];//exp(internal_rel[it][0])+new_rel[it-1][0];//
-			new_rel[it][1]=pow(new_rel[it][0], 0.4)/3;//internal_rel[it][1];//sqrt(pow(internal_rel[it][1]*internal_rel[it][0],2)+pow(new_rel[it-1][1],2));
+			new_rel[it][1]=0.4;//pow(new_rel[it][0], 0.4)/3;//internal_rel[it][1];//sqrt(pow(internal_rel[it][1]*internal_rel[it][0],2)+pow(new_rel[it-1][1],2));
 			new_rel[it][3]=sqrt(log(1+pow(new_rel[it][1]/new_rel[it][0],2)));
 			new_rel[it][2]=log(new_rel[it][0])-pow(new_rel[it][3],2)/2;
 
@@ -455,7 +460,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 	if (pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1)<15000)
 	{
-		rel_length=floor(pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1)/100);
+		rel_length=150;//floor(pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1)/100);
 		first_bins.resize(rel_length);
 	}
 
@@ -825,8 +830,8 @@ vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
 	Sch_string.append(" ");
 	Sch_string.append(stringify(b_gal));
 	Sch_max=atof(getStdoutFromCommand(Sch_string).c_str())*2.944;		// 2.944 to convert E(B-V) given by Schlegel to A_6250
-	Sch_max=4.0;
-   cout << "Sch_max = " << Sch_max << endl;
+	Sch_max=4.0/0.95;
+//   cout << "Sch_max = " << Sch_max << endl;
 
 	// integrate dust density to ~infinity, used to normalise the dust distribution so that at infinity it gives the Schlegel value
 	double dust_inf=0;
@@ -871,7 +876,7 @@ double integral_func (double *A_test, size_t dim, void *params)
 	double xi=sqrt(log(1+pow(p->sigma/(p->A_mean),2)));
 	double mu= log(p->A_mean)-xi/2;
 	//double cdf= gsl_cdf_lognormal_P(p->A_max, (mu), xi);
-	return gsl_ran_lognormal_pdf(*A_test, (mu),  xi) / (1 + exp(17*(*A_test-p->A_max)))  ;
+	return gsl_ran_lognormal_pdf(*A_test, (mu),  xi) / (1 + exp(4*(*A_test-p->A_max)))  ;
 }
 
 
@@ -893,7 +898,7 @@ vector <vector <vector <double> > > lookup_creator(void)
 	for (int A_max_it=0; A_max_it<120; A_max_it++)
 	{
 		int_params.A_max=A_max_it*0.1+0.1-2.;
-		cout << A_max_it << endl;
+	//	cout << A_max_it << endl;
 
 		for (int A_mean_it=0; A_mean_it<100; A_mean_it++)
 		{

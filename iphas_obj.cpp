@@ -78,37 +78,21 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 	//cout << test_iso.Mi << " " << test_iso.logAge << " " << test_A << " " << test_dist_mod << " " ;
 	// Find P(S|y,x,sigma_y)
 		double current_prob1=0;
-		//current_prob1-=log(1+exp(3*((test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)+test_dist_mod+test_iso.r0-r_max+0.5)));
-		//current_prob1-=log(1+exp(3*((test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)+test_dist_mod+test_iso.i0-i_max+0.5)));
-		//current_prob1-=log(1+exp(3*((test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)+test_dist_mod+test_iso.ha0-ha_max+0.5)));
-
-		//current_prob1+=log(in_sample((test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)+test_dist_mod+test_iso.r0, (test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)+test_dist_mod+test_iso.i0, (test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)+test_dist_mod+test_iso.ha0, d_r, d_i, d_ha));
-		//cout << r << 
 
 	// Find p(y|x,sigma_y) 
+
 		current_prob1+=-pow(r-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_dist_mod-test_iso.r0,2)/(2*d_r*d_r) ;
-	//	current_prob1+=+1.0857*((test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)+test_dist_mod+test_iso.r0) - pow((1-pow(10,-0.4*(r-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_dist_mod-test_iso.r0))/d_r)*1.0857,2)/2;
-//	cout<< current_prob1 << " " << d_r << " "  << r <<" " <<(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)+test_dist_mod+test_iso.r0 << " " << test_dist_mod+test_iso.r0  << endl;
 		current_prob1+=	-pow(i-(test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)-test_dist_mod-test_iso.i0,2)/(2*d_i*d_i) ;
-	//	current_prob1+=+1.0857*((test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)+test_dist_mod+test_iso.i0) - pow((1-pow(10,-0.4*(i-(test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)-test_dist_mod-test_iso.i0))/d_i)*1.0857,2)/2;
-	//cout<< current_prob1 << " " << d_i << " " << i << " " << (test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)+test_dist_mod+test_iso.i0 << " ";
 		current_prob1+=	-pow(ha-(test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)-test_dist_mod-test_iso.ha0,2)/(2*d_ha*d_ha);
-	//	current_prob1+=+1.0857*((test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)+test_dist_mod+test_iso.ha0) - pow((1-pow(10,-0.4*(ha-(test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)-test_dist_mod-test_iso.ha0))/d_ha)*1.0857,2)/2;
-	//cout<< current_prob1 << " "  << d_ha << " " << ha << " " << (test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)+test_dist_mod+test_iso.ha0 << " ";
-	// Find p(x) - includes A(dist), IMF, SFH, disc density & metallicity profiles - remember dist^2 term
+
 
 
 		double test_dist=pow(10,test_dist_mod/5+1);
 
-		//double d_p;
-		//d_p=pow(10,3-r/5)*0.00002;		//d_p \propto 1/\sqrt(flux)
-
-		//current_prob1+=-pow(1/test_dist-1/real_dist,2)/(2*pow(d_p,2));
-
 
 		// IMF - Scalo type?
 		current_prob1+=log(test_iso.IMF());
-	//	current_prob1-=test_iso.logAge;
+		current_prob1-=test_iso.logAge;
 
 
 
@@ -117,7 +101,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 		// density profile
 	//	current_prob1+=-R_gal/2500 -test_dist*sinb/200;
-		if (R_gal<130000){current_prob1+=-R_gal/3000 -test_dist*sin(b)/200;}
+		if (R_gal<130000){current_prob1+=-R_gal/3000 -test_dist*sin(b)/200;}	// change back to 13000 for real data
 		else {current_prob1+=-R_gal/1200 +6.5 -test_dist*sin(b)/200;} 		// -6.5=13000/3000 - 13000/1200
 
 		// metallicity profile
@@ -198,88 +182,33 @@ double iphas_obj::get_A_prob(iso_obj test_iso, double test_A, double test_dist_m
 {
 	// Find P(S|y,x,sigma_y)
 		double current_prob1=0;
-/*		current_prob1-=log(1+exp(3*((test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)+test_dist_mod+test_iso.r0-r_max+0.5)));
-		current_prob1-=log(1+exp(3*((test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)+test_dist_mod+test_iso.i0-i_max+0.5)));
-		current_prob1-=log(1+exp(3*((test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)+test_dist_mod+test_iso.ha0-ha_max+0.5)));
-		//cout << r << */
-
-	// Find p(y|x,sigma_y) 
-		current_prob1+=-pow(r-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_dist_mod-test_iso.r0,2)/(2*d_r*d_r) ;
-//	cout<< current_prob1 << " " << d_r << " "  << r <<" " <<(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)+test_dist_mod+test_iso.r0 << " " << test_dist_mod+test_iso.r0  << endl;
-	//	current_prob1+=	- pow(i-(test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)-test_dist_mod-test_iso.i0,2)/(2*d_i*d_i) ;
-	//cout<< current_prob1 << " " << d_i << " " << i << " " << (test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)+test_dist_mod+test_iso.i0 << " ";
-	//	current_prob1+=	- pow(ha-(test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)-test_dist_mod-test_iso.ha0,2)/(2*d_ha*d_ha);
-	//cout<< current_prob1 << " "  << d_ha << " " << ha << " " << (test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)+test_dist_mod+test_iso.ha0 << " ";
-	// Find p(x) - includes A(dist), IMF, SFH, disc density & metallicity profiles - remember dist^2 term
-
-//*/		// IMF - Scalo type?
-//		current_prob1+=log(test_iso.IMF());
-		//current_prob1+=test_iso.logAge;
-
 		double test_dist=pow(10,test_dist_mod/5+1);
 
-/*		double cosb=1, sinb=0, cosl=-1, R_gal;
-		R_gal=sqrt(test_dist*test_dist*cosb*cosb + 64000000-16000*test_dist*cosl*cosb);
+	//	current_prob1+=log(test_iso.IMF());
+	//	current_prob1-=test_iso.logAge;
+
+
+
+		double /*cosb=1, sinb=0, cosl=-1,*/ R_gal;
+		R_gal=sqrt(test_dist*test_dist*cos(b)*cos(b) + 64000000-16000*test_dist*cos(l)*cos(b));
 
 		// density profile
-		current_prob1+=-R_gal/2500 -test_dist*sinb/200;
-	//	if (R_gal<130000){current_prob1+=-R_gal/3000 -test_dist*sinb/200;}
-	//	else {current_prob1+=-R_gal/1200 +6.5 -test_dist*sinb/200;} 		// -6.5=13000/3000 - 13000/1200
+	//	current_prob1+=-R_gal/2500 -test_dist*sinb/200;
+		if (R_gal<130000){current_prob1+=-R_gal/3000 -test_dist*sin(b)/200;}
+		else {current_prob1+=-R_gal/1200 +6.5 -test_dist*sin(b)/200;} 		// -6.5=13000/3000 - 13000/1200
 
 		// metallicity profile
 	//	current_prob1+=-pow(test_iso.feh-(R_gal-8000.)*0.00007,2)/(2*0.5);
 	//	current_prob1+=-pow(test_iso.feh,2)/(2*pow(0.05,2));
-
-	//	// dist^2 term */
-
-	//	current_prob1+=2*log(test_dist);
-
-	//	current_prob1+=log(test_dist/(2*test_A*(test_iso.u-test_iso.u_i)+test_iso.v-test_iso.v_i));
-	//	current_prob1+=log(test_iso.Jac);
-
-//current_prob1+=in_sample((test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)+test_dist_mod+test_iso.r0, (test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)+test_dist_mod+test_iso.i0, (test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)+test_dist_mod+test_iso.ha0, d_r, d_i, d_ha);
-
-		if (floor(test_dist/100)<A_mean.size())
-		{
-			A_prob=0;
-	//		current_prob1+=-log(A_mean[floor(test_dist/100)][3]*test_A) - pow(log(test_A)-A_mean[floor(test_dist/100)][2],2)/(2*pow(A_mean[floor(test_dist/100)][3],2));
-
-	// Correction to prior to account for incompletness due to mag limits
-
-		//	A_prob=-log(in_sample2(A_max, A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));
-	
-		/*	if (A_min>0){A_prob=-log(cdf_normal_fast(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3])-cdf_normal_fast(log(A_min),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
-			else {A_prob=-log(cdf_normal_fast(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));}
-			if (isinf(A_prob))
-			{
-				A_prob=-log(cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]));
-				//cout << A_max << " " << A_min << " " << cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]) << " " << A_mean[floor(test_dist/100)][0] << endl;
-			}*/
-	
-		//	current_prob1+=A_prob;
+		
 
 
-		}
-		else
-		{
-			A_prob=0;
-	//		current_prob1+=-log(A_mean[A_mean.size()-1][3]*test_A) - pow(log(test_A)-A_mean[A_mean.size()-1][2],2)/(2*pow(A_mean[A_mean.size()-1][3],2));
 
-	// Correction to prior to account for incompletness due to mag limits
+	//	// dist^2 term 
+		current_prob1+=2*log(test_dist);
 
-		//	A_prob=-log(in_sample2(A_max, A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));
-	
-		/*	if (A_min>0){A_prob=-log(cdf_normal_fast(log(A_max),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3])-cdf_normal_fast(log(A_min),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-log(cdf_normal_fast(log(A_max),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			if (isinf(A_prob))
-			{
-				A_prob=-log(cdf_normal_smallx(log(A_max),A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));
-				//cout << A_max << " " << A_min << " " << cdf_normal_smallx(log(A_max),A_mean[floor(test_dist/100)][2],A_mean[floor(test_dist/100)][3]) << " " << A_mean[floor(test_dist/100)][0] << endl;
-			}*/
-
-		//	current_prob1+=A_prob;*/
-		}
-
+		current_prob1+=log(test_dist/(2*test_A*(test_iso.u-test_iso.u_i)+test_iso.v-test_iso.v_i));
+		current_prob1+=log(test_iso.Jac);
 
 	return current_prob1;
 }
@@ -301,8 +230,8 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 //	last_dist=pow(10,last_dist_mod/5+1);
 
 //	last_iso=iso_get(0.,real_Mi, 7.08, isochrones);
-	last_A=real_A;
-	last_dist_mod=5*log10(real_dist/10);
+//	last_A=real_A;
+//	last_dist_mod=5*log10(real_dist/10);
 
 	last_rmag=r;
 	last_ri=(last_iso.r0-last_iso.i0)+(last_iso.u-last_iso.u_i)*pow(last_A,2) + (last_iso.v-last_iso.v_i)*last_A + (last_iso.w-last_iso.w_i);
@@ -342,15 +271,16 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 	test_logg=last_iso.logg+gsl_ran_gaussian_ziggurat(rng_handle,logg_sd);//Z.Next()*logg_sd;
 	try {test_iso=iso_get_Tg(test_feh, test_logT, test_logg, isochrones);}
 	catch (int e){no_accept++; return;}
+//	if (test_iso.Mi<0.9){no_accept++; return;}
 	//test_A=last_A;//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
 	//test_dist_mod=last_dist_mod ;//+ Z.Next()*dist_mod_sd;
 
 	test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,rmag_sd);//Z.Next()*d_r/2;
 	test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
 
-	test_A=last_A;//quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.w-test_iso.w_i)+(test_iso.r0-test_iso.i0)-test_ri, +1);
+	test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.w-test_iso.w_i)+(test_iso.r0-test_iso.i0)-test_ri, +1);
 	if (test_A<0){no_accept++; return;}
-	test_dist_mod=last_dist_mod;//test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;
+	test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;
 
 
 // Find probability of this parameter set -isochrone
