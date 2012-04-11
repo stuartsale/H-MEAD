@@ -95,6 +95,10 @@ int main(int argc, char* argv[])
 	vector<iso_obj> isochrones=iso_read_Tg("padova-iso_tefflogg3.dat");
 
 	vector<iso_obj> guess_set;
+//	guess_set.push_back(iso_get_Tg(0.,3.574 ,5.00 , isochrones));	//M1
+//	guess_set.push_back(iso_get_Tg(0.,3.591 ,4.95 , isochrones));	//M0
+//	guess_set.push_back(iso_get_Tg(0.,3.602 ,4.90 , isochrones));	//K7
+//	guess_set.push_back(iso_get_Tg(0.,3.643 ,4.65 , isochrones));	//K5
 	guess_set.push_back(iso_get_Tg(0.,3.663 ,4.57 , isochrones));	//K4
 	guess_set.push_back(iso_get_Tg(0.,3.672 ,4.56 , isochrones));	//K3
 	guess_set.push_back(iso_get_Tg(0.,3.686 ,4.55 , isochrones));	//K2
@@ -126,8 +130,8 @@ int main(int argc, char* argv[])
 	r_max=21.5;
 	i_max=20.5;
 	ha_max=20.5;
-	cout << "r_min=" << r_min << " i_min=" << i_min << " ha_min=" << ha_min << endl; 
-	cout << "r_max=" << r_max << " i_max=" << i_max << " ha_max=" << ha_max << endl; 
+	//cout << "r_min=" << r_min << " i_min=" << i_min << " ha_min=" << ha_min << endl; 
+	//cout << "r_max=" << r_max << " i_max=" << i_max << " ha_max=" << ha_max << endl; 
 
 
    //
@@ -156,7 +160,7 @@ int main(int argc, char* argv[])
 
 	A_mean=dist_redMCMC(colours, isochrones, guess_set, atof(argv[2]), atof(argv[3]), backup_A_mean, -0.0272, 0.53);			// }
 
-	cout << "total time: " << (time(NULL)-start) <<"s\n";
+	//cout << "total time: " << (time(NULL)-start) <<"s\n";
    	
 // Write results to file
 	output_write(iphas_filename, A_mean, colours);
@@ -269,7 +273,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 	previous_internal_rel[0][0]=previous_rel[0][0];//log(previous_rel[0][0]);//
 	previous_internal_rel[0][1]=previous_rel[0][1];///previous_internal_rel[0][0];
 
-	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[0][0],log(previous_internal_rel[0][0]),1.5));
+	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[0][0],log(previous_internal_rel[0][0])-0.75,1.5));
 		
 //	previous_hyperprior_prob+=-1*log(previous_internal_rel[0][0]);//-previous_internal_rel[0][0];//
 	for (int i=1; i<150; i++)
@@ -278,7 +282,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		previous_internal_rel[i][1]=previous_rel[i][1];//sqrt(pow(previous_rel[i][1],2)-pow(previous_rel[i-1][1],2))/previous_internal_rel[i][0];
 		
 
-		previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0],log(previous_internal_rel[i][0]),1.5));
+		previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0],log(previous_internal_rel[i][0])-0.75,1.5));
 	//	previous_hyperprior_prob+=-1*log(previous_internal_rel[i][0]);//-log(previous_internal_rel[i][0]);//
 	//	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(sqrt(pow(previous_internal_rel[i][1]/previous_internal_rel[i-1][1],2)*(i+1)/i-1.)*previous_rel[i-1][0]/previous_internal_rel[i][0],1.38629, 1.6651));
 	//	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][1],0.34657359,  0.832554611)); 
@@ -341,9 +345,9 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 			global_previous_prob+=stars[it].last_prob;
 		}
 
-	//	cout << stars[350].last_A << " " << stars[350].last_dist_mod << " " << stars[350].last_prob << " " << stars[350].last_iso.logT << " " << stars[350].last_iso.logg << " " << stars[350].last_iso.r0-stars[350].last_iso.i0 << " " << stars[350].last_iso.r0-stars[350].last_iso.ha0 << " " << it_num  << " " << stars[350].last_iso.Mi << " " << log(stars[350].last_iso.Jac) << " " << log(stars[350].last_iso.IMF())  << " " 
-//<< stars[350].last_iso.r0+stars[350].last_iso.u*pow(stars[350].last_A,2)+stars[350].last_iso.v*stars[350].last_A+stars[350].last_iso.w+stars[350].last_dist_mod  << " " 
-//<< stars[350].last_iso.i0+stars[350].last_iso.u_i*pow(stars[350].last_A,2)+stars[350].last_iso.v_i*stars[350].last_A+stars[350].last_iso.w_i+stars[350].last_dist_mod  << " " << stars[350].last_iso.ha0+stars[350].last_iso.u_ha*pow(stars[350].last_A,2)+stars[350].last_iso.v_ha*stars[350].last_A+stars[350].last_iso.w_ha+stars[350].last_dist_mod << endl;
+	//	cout << stars[161].last_A << " " << stars[161].last_dist_mod << " " << stars[161].last_prob << " " << stars[161].last_iso.logT << " " << stars[161].last_iso.logg << " " << stars[161].last_iso.r0-stars[161].last_iso.i0 << " " << stars[161].last_iso.r0-stars[161].last_iso.ha0 << " " << it_num  << " " << stars[161].last_iso.Mi << " " << log(stars[161].last_iso.Jac) << " " << log(stars[161].last_iso.IMF())  << " " 
+//<< stars[161].last_iso.r0+stars[161].last_iso.u*pow(stars[161].last_A,2)+stars[161].last_iso.v*stars[161].last_A+stars[161].last_iso.w+stars[161].last_dist_mod  << " " 
+//<< stars[161].last_iso.i0+stars[161].last_iso.u_i*pow(stars[161].last_A,2)+stars[161].last_iso.v_i*stars[161].last_A+stars[161].last_iso.w_i+stars[161].last_dist_mod  << " " << stars[161].last_iso.ha0+stars[161].last_iso.u_ha*pow(stars[161].last_A,2)+stars[161].last_iso.v_ha*stars[161].last_A+stars[161].last_iso.w_ha+stars[161].last_dist_mod << endl;
 
 // Now vary hyper-parameters
 
@@ -351,7 +355,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 		for (int it=0; it<rel_length; it++)
 		{
-			proposal_sd[it][0]=sigma_fac;
+			proposal_sd[it][0]=sigma_fac/10;
 			proposal_sd[it][1]=sigma_fac/10;
 		}
 		
@@ -362,7 +366,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 			while (internal_rel[it][0]>0.5){internal_rel[it][0]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);}
 			internal_rel[it][1]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2,proposal_sd[it][1]);
 			
-			current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0]),1.5));
+			current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0])-0.75,1.5));
 
 		}
 
@@ -453,6 +457,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 		if (floor(it_num/50.)==it_num/50){global_A_chain.push_back(previous_rel);}
 		it_num++;
+	//	cout << it_num << " " << previous_rel[90][0] << " " << global_current_prob+current_hyperprior_prob <<  endl;
 	}
 	
 	#pragma omp parallel for  num_threads(3)
@@ -830,7 +835,7 @@ vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
 	Sch_string.append(" ");
 	Sch_string.append(stringify(b_gal));
 	Sch_max=atof(getStdoutFromCommand(Sch_string).c_str())*2.944;		// 2.944 to convert E(B-V) given by Schlegel to A_6250
-	Sch_max=4.0/0.95;
+	Sch_max=4.0;
 //   cout << "Sch_max = " << Sch_max << endl;
 
 	// integrate dust density to ~infinity, used to normalise the dust distribution so that at infinity it gives the Schlegel value
@@ -863,10 +868,12 @@ vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
 double int_lookup(double A_max, double A_mean, double sd)
 {
 	if (A_mean>=9.95){A_mean=9.94;}
+	if (A_mean<0.05){A_mean=0.05;}
 	if (A_max>=9.95){A_max=9.94;}
-	if (A_max<-2.0){A_max=-2.0;}
+	if (A_max<-1.95){A_max=-1.95;}
 	if (sd>=1.95){sd=1.94;}
-	return lookup_table[int(floor((A_max+2)*10.+0.5))][int(floor(A_mean*10.+0.5))][int(floor(sd*10.+0.5))];
+	if (sd<0.05){sd=0.05;}
+	return lookup_table[int(floor((A_max+2)*10.-0.5))][int(floor(A_mean*10.-0.5))][int(floor(sd*10.-0.5))];
 }
 
 double integral_func (double *A_test, size_t dim, void *params)
