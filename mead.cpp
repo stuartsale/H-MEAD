@@ -176,55 +176,6 @@ int main(int argc, char* argv[])
 //-------------------------------------------------------------------
 //-------------------------------------------------------------------
 
-/*double real_prob(vector<iphas_obj> &stars, vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double l, double b, vector <bin_obj2> backup_A_mean, double ri_min, double ri_max)
-{
-	vector < vector <double> > previous_rel (150, vector <double> (4));
-
-	for (int i=0; i<150; i++)
-	{
-		previous_rel[i][0]=backup_A_mean[i].mean_A;
-		previous_rel[i][1]=0.2;//backup_A_mean[i].sigma;
-		previous_rel[i][3]=sqrt(log(1+pow(previous_rel[i][1]/previous_rel[i][0],2)));
-		previous_rel[i][2]=log(previous_rel[i][0])-pow(previous_rel[i][3],2)/2;
-	}
-
-// Dump sources not in required region of c-c
-
-	int it_stars=0;
-	while (it_stars<stars.size())
-	{
-		if (stars[it_stars].r-stars[it_stars].ha>guess_set[0].redline(stars[it_stars].r-stars[it_stars].i) || stars[it_stars].r-stars[it_stars].ha<guess_set[guess_set.size()-1].redline(stars[it_stars].r-stars[it_stars].i))
-		{
-			stars.erase(stars.begin()+it_stars);
-		}
-		else {it_stars++;}
-	}
-	
-// Make initial guess
-
-	it_stars=0;
-	while (it_stars<stars.size())
-	{
-		stars[it_stars].initial_guess(isochrones, guess_set, previous_rel);
-		if (stars[it_stars].last_A>0 && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0> ri_min  && stars[it_stars].last_iso.r0-stars[it_stars].last_iso.i0<ri_max){it_stars++;}
-		else {stars.erase(stars.begin()+it_stars);}
-	}
-
-	cout << "start-------------------\n\n"<<endl;
-	double global_previous_prob=0;
-	for (int star_it=0; star_it<stars.size(); star_it++)
-	{
-		iso_obj test_iso;
-		test_iso=iso_get(stars[star_it].real_feh, stars[star_it].real_Mi, log10(stars[star_it].real_logAge)+6, isochrones);
-
-		stars[star_it].last_prob=stars[star_it].prob_eval(test_iso, stars[star_it].real_A, 5*log10(stars[star_it].real_dist/10), previous_rel);
-		global_previous_prob+=stars[star_it].last_prob;
-//		cout << stars[star_it].last_prob << " " <<stars[star_it].real_Mi << " " << stars[star_it].real_logAge << " " << stars[star_it].real_A << " " << stars[star_it].real_dist << " " << stars[star_it].r << " " << stars[star_it].i << " " << stars[star_it].ha << " " << test_iso.r0 << " " << test_iso.i0 << " " << test_iso.ha0 << " " << log(test_iso.IMF()) << endl;
-	}
-
-	return global_previous_prob;
-
-}*/
 
 vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double l, double b, vector <bin_obj2> backup_A_mean, double ri_min, double ri_max)
 {
@@ -321,7 +272,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 //	cout << "95th percentile on dist is: " << pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1) << " kpc away" << endl;
 //	cout << "5th percentile on dist is: " << pow(10,initial_dists[int(initial_dists.size()*0.05)]/5+1) << " kpc away" << endl;
 
-	for (int star_it=0; star_it<stars.size(); star_it++){global_previous_prob+=stars[star_it].last_prob;}
+	for (int star_it=0; star_it<stars.size(); star_it++){global_previous_prob+=stars[star_it].last_A_prob;}
 	
 // Loop through this section
 
@@ -342,7 +293,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		for (int it=0; it<stars.size(); it++)
 		{
 			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/stars[it].star_try1(isochrones, l, b, previous_rel);//};
-			global_previous_prob+=stars[it].last_prob;
+			global_previous_prob+=stars[it].last_A_prob;
 		}
 
 	//	cout << stars[161].last_A << " " << stars[161].last_dist_mod << " " << stars[161].last_prob << " " << stars[161].last_iso.logT << " " << stars[161].last_iso.logg << " " << stars[161].last_iso.r0-stars[161].last_iso.i0 << " " << stars[161].last_iso.r0-stars[161].last_iso.ha0 << " " << it_num  << " " << stars[161].last_iso.Mi << " " << log(stars[161].last_iso.Jac) << " " << log(stars[161].last_iso.IMF())  << " " 
@@ -355,7 +306,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 
 		for (int it=0; it<rel_length; it++)
 		{
-			proposal_sd[it][0]=sigma_fac/10;
+			proposal_sd[it][0]=sigma_fac;
 			proposal_sd[it][1]=sigma_fac/10;
 		}
 		
@@ -398,7 +349,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 		#pragma omp parallel for  num_threads(3) reduction(+:global_current_prob)
 		for (int it=0; it<stars.size(); it++)
 		{
-			proposed_probs[it]=stars[it].prob_eval(stars[it].last_iso, stars[it].last_A, stars[it].last_dist_mod, new_rel);
+			proposed_probs[it]=stars[it].get_A_prob(stars[it].last_iso, stars[it].last_A, stars[it].last_dist_mod, new_rel);
 			global_current_prob+= proposed_probs[it];
 		}
 
@@ -431,7 +382,7 @@ vector <bin_obj2> dist_redMCMC(vector<iphas_obj> &stars, vector<iso_obj> &isochr
 			without_change=0;
 			accepted++;
 
-			for (int stars_it=0; stars_it<stars.size(); stars_it++){stars[stars_it].last_prob=proposed_probs[stars_it];}
+			for (int stars_it=0; stars_it<stars.size(); stars_it++){stars[stars_it].last_A_prob=proposed_probs[stars_it];}
 		
 		//	cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << endl;
 		}

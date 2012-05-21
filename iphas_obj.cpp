@@ -118,6 +118,17 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 		current_prob1+=log(test_iso.Jac);
 //*/
 
+
+	return current_prob1;
+} 
+
+double iphas_obj::get_A_prob(iso_obj test_iso, double test_A, double test_dist_mod, vector<vector <double> > &A_mean)
+{
+	// Find P(S|y,x,sigma_y)
+		double current_prob1=0;
+
+		double test_dist=pow(10,test_dist_mod/5+1);
+
 	// Also the the contribution to p(x) from the distance-reddening relationship
 
 		//A_max_r=test_A+(r_max-r)/test_iso.v;
@@ -143,14 +154,14 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	// Correction to prior to account for incompletness due to mag limits
 
-			if (A_min_r>0){A_prob=-log(int_lookup(A_max_r,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_r, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
-			else {A_prob=-log(int_lookup(A_max_r,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}
+			if (A_min_r>0){A_prob=-(int_lookup(A_max_r,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_r, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
+			else {A_prob=-(int_lookup(A_max_r,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}
 
-			if (A_min_i>0){A_prob=-log(int_lookup(A_max_i,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_i, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
-			else {A_prob=-log(int_lookup(A_max_i,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}
+			if (A_min_i>0){A_prob=-(int_lookup(A_max_i,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_i, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
+			else {A_prob=-(int_lookup(A_max_i,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}
 
-			if (A_min_ha>0){A_prob=-log(int_lookup(A_max_ha,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_ha, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
-			else {A_prob=-log(int_lookup(A_max_ha,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}
+			if (A_min_ha>0){A_prob=-(int_lookup(A_max_ha,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_ha, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
+			else {A_prob=-(int_lookup(A_max_ha,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}
 
 			if (isinf(A_prob))
 			{
@@ -164,14 +175,14 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 	// Correction to prior to account for incompletness due to mag limits
 
-			if (A_min_r>0){A_prob=-log(int_lookup(A_max_r,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_r,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-log(int_lookup(A_max_r,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}
+			if (A_min_r>0){A_prob=-(int_lookup(A_max_r,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_r,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
+			else {A_prob=-(int_lookup(A_max_r,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}
 
-			if (A_min_i>0){A_prob=-log(int_lookup(A_max_i,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_i,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-log(int_lookup(A_max_i,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}
+			if (A_min_i>0){A_prob=-(int_lookup(A_max_i,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_i,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
+			else {A_prob=-(int_lookup(A_max_i,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}
 
-			if (A_min_ha>0){A_prob=-log(int_lookup(A_max_ha,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_ha,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-log(int_lookup(A_max_ha,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}
+			if (A_min_ha>0){A_prob=-(int_lookup(A_max_ha,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_ha,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
+			else {A_prob=-(int_lookup(A_max_ha,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}
 
 			if (isinf(A_prob))
 			{
@@ -183,40 +194,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 	current_prob1+=A_prob ;//- 2*log(A_mean[floor(test_dist*1.04/100)][3]);		// Jeffreys prior term
 	if (current_prob1!=current_prob1){/*cout<< test_dist/100<< " " << " " << A_prob<< " " << current_prob1 << "" "" << A_max <<endl;*/ current_prob1=-1E6;}
 
-	return current_prob1;
-} 
 
-double iphas_obj::get_A_prob(iso_obj test_iso, double test_A, double test_dist_mod, vector<vector <double> > &A_mean)
-{
-	// Find P(S|y,x,sigma_y)
-		double current_prob1=0;
-		double test_dist=pow(10,test_dist_mod/5+1);
-
-	//	current_prob1+=log(test_iso.IMF());
-	//	current_prob1-=test_iso.logAge;
-
-
-
-		double /*cosb=1, sinb=0, cosl=-1,*/ R_gal;
-		R_gal=sqrt(test_dist*test_dist*cos(b)*cos(b) + 64000000-16000*test_dist*cos(l)*cos(b));
-
-		// density profile
-	//	current_prob1+=-R_gal/2500 -test_dist*sinb/200;
-		if (R_gal<130000){current_prob1+=-R_gal/3000 -test_dist*sin(b)/200;}
-		else {current_prob1+=-R_gal/1200 +6.5 -test_dist*sin(b)/200;} 		// -6.5=13000/3000 - 13000/1200
-
-		// metallicity profile
-	//	current_prob1+=-pow(test_iso.feh-(R_gal-8000.)*0.00007,2)/(2*0.5);
-	//	current_prob1+=-pow(test_iso.feh,2)/(2*pow(0.05,2));
-		
-
-
-
-	//	// dist^2 term 
-		current_prob1+=2*log(test_dist);
-
-		current_prob1+=log(test_dist/(2*test_A*(test_iso.u-test_iso.u_i)+test_iso.v-test_iso.v_i));
-		current_prob1+=log(test_iso.Jac);
 
 	return current_prob1;
 }
@@ -249,8 +227,9 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 // Find prob
 
 	last_prob=prob_eval(last_iso, last_A, last_dist_mod, A_mean);
+	last_A_prob= get_A_prob(last_iso, last_A, last_dist_mod, A_mean);
 
-	best_prob=last_prob;
+	best_prob=last_prob+last_A_prob;
 	best_iso=last_iso;
 	best_A=last_A;
 	best_dist_mod=last_dist_mod;
@@ -268,7 +247,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 	double test_feh, test_logT, test_logg;
 	double test_rmag, test_ri;
 
-	double current_prob, transition_prob=0;
+	double current_prob, current_A_prob, transition_prob=0;
 	double sigma2_LN, mu_LN;
 
 //-----------------------------------------------------------------------------------------------------------
@@ -290,37 +269,16 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 	test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;
 
 
-// Find probability of this parameter set -isochrone
-//	current_prob=prob_eval(test_iso, last_A, last_dist_mod, A_mean);
-//	current_prob=prob_eval(test_iso, test_A, last_dist_mod, A_mean);
 	current_prob=prob_eval(test_iso, test_A, test_dist_mod, A_mean);
+	current_A_prob=get_A_prob(test_iso, test_A, test_dist_mod, A_mean);
 
 // Metropolis-Hastings algorithm step
 
 	transition_prob=0;
 
-	// From new to old
-	// Mi
-//	sigma2_LN=log(1+pow(Mi_sd/test_Mi,2));
-//	mu_LN=log(test_Mi)-sigma2_LN/2;		
-//	transition_prob+=-log(sigma2_LN)/2-log(last_iso.Mi) - pow(log(last_iso.Mi)-mu_LN,2)/(2*sigma2_LN);
-	// A
-//	sigma2_LN=log(1+pow(A_sd/test_A,2));
-//	mu_LN=log(test_A)-sigma2_LN/2;		
-//	transition_prob+=-log(sigma2_LN)/2-log(last_A) - pow(log(last_A)-mu_LN,2)/(2*sigma2_LN);
-
-	// From old to new
-	// Mi
-//	sigma2_LN=log(1+pow(Mi_sd/last_iso.Mi,2));
-//	mu_LN=log(last_iso.Mi)-sigma2_LN/2;		
-//	transition_prob-=-log(sigma2_LN)/2-log(test_Mi) - pow(log(test_Mi)-mu_LN,2)/(2*sigma2_LN);
-	// A
-//	sigma2_LN=log(1+pow(A_sd/last_A,2));
-//	mu_LN=log(last_A)-sigma2_LN/2;		
-//	transition_prob-=-log(sigma2_LN)/2-log(test_A) - pow(log(test_A)-mu_LN,2)/(2*sigma2_LN);
 
 
-	if (current_prob-last_prob+transition_prob>0 )		// New parameter set better => Accept
+	if (current_prob+current_A_prob-(last_prob+last_A_prob)+transition_prob>0 )		// New parameter set better => Accept
 	{
 		last_iso=test_iso;
 		last_A=test_A;
@@ -330,33 +288,23 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 		last_ri=test_ri;
 
 		last_prob=current_prob;
+		last_A_prob=current_A_prob;
 		no_accept++;
 		no_accept2++;
 
-		/*if (no_accept/400.==floor(no_accept/400.))
-		{
-			iso_obj_chain.push_back(last_iso);
-		//	dist_mod_chain.push_back(last_dist_mod);
-			dist_mod_chain.push_back(test_dist_mod);
-		//	A_chain.push_back(last_A);
-			A_chain.push_back(test_A);
-		}*/
-	
-		//without_change=0;
 
-		if (current_prob>best_prob)
+
+		if (current_prob+current_A_prob>best_prob)
 		{
-			best_prob=current_prob;
+			best_prob=current_prob+current_A_prob;
 			best_iso=test_iso;
-		//	best_A=last_A;
 			best_A=test_A;
-		//	best_dist_mod=last_dist_mod;
 			best_dist_mod=test_dist_mod;
 			best_it=A_chain.size();
 		}
 	}
 
-	else if (exp(current_prob-last_prob+transition_prob)>gsl_ran_flat(rng_handle, 0, 1) )	// New set worse => accept with P=P(new)/P(old)
+	else if (exp(current_prob+current_A_prob-(last_prob+last_A_prob)+transition_prob)>gsl_ran_flat(rng_handle, 0, 1) )	// New set worse => accept with P=P(new)/P(old)
 	{
 		last_iso=test_iso;
 		last_A=test_A;
@@ -366,24 +314,15 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 		last_ri=test_ri;
 
 		last_prob=current_prob;
+		last_A_prob=current_A_prob;
 
 		no_accept++;
 		no_accept2++;
 
-	/*	if (no_accept/400.==floor(no_accept/400.))
-		{
-			iso_obj_chain.push_back(last_iso);
-		//	dist_mod_chain.push_back(last_dist_mod);
-			dist_mod_chain.push_back(test_dist_mod);
-		//	A_chain.push_back(last_A);
-			A_chain.push_back(test_A);
-		}*/
 
 	}
 	else 
 	{
-		//without_change++;
-		/* if (without_change>100){cout << "fail: " << without_change << " "  << current_prob << " " << previous_prob << " " << transition_prob << endl;}*/
 		no_accept++;
 	}
 
@@ -406,8 +345,6 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vec
 void iphas_obj::mean_intervals(void)
 {
 // measure estimated means and ~credible intervals for each param. - then output
-
-//	cout << "out: " << dist_mod_1/A_chain.size() << " " << A_1/A_chain.size() << " " << feh_1/A_chain.size() << " " << Mi_1/A_chain.size() << " " << A_chain.size() << endl;
 
 	double A_sum_in=0, A_sum2_in=0, d_sum_in=0, d_sum2_in=0, r_i0_sum_in=0, r_i0_sum2_in=0;
 	double Mi_sum=0, Mi_sum2=0, logAge_sum=0, logAge_sum2=0, feh_sum=0, feh_sum2=0;
@@ -443,25 +380,20 @@ void iphas_obj::mean_intervals(void)
 		hax_sum+=hax_chain[A_prob_chain.size()-1];
 	}
 
-//	A =best_A;//A_chain.back();
 	A= A_sum_in/ceil(0.5*A_chain.size());
-//	dist = pow(10,best_dist_mod/5+1);// d_sum_in/ceil(0.5*dist_mod_chain.size());
 	dist = d_sum_in/ceil(0.5*dist_mod_chain.size());
-//	r_i0 =best_iso.r0-best_iso.i0;//iso_obj_chain.back().r0 - iso_obj_chain.back().i0;//
 	r_i0 =  r_i0_sum_in/ceil(0.5*iso_obj_chain.size());
 
 	Mi=Mi_sum/ceil(0.5*iso_obj_chain.size());
 	logAge=logAge_sum/ceil(0.5*iso_obj_chain.size());
 	feh=feh_sum/ceil(0.5*iso_obj_chain.size());
 
-	logT=last_iso.logT;//logT_sum/ceil(0.5*iso_obj_chain.size());
-	logg=last_iso.logg;//logg_sum/ceil(0.5*iso_obj_chain.size());
+	logT=logT_sum/ceil(0.5*iso_obj_chain.size());
+	logg=logg_sum/ceil(0.5*iso_obj_chain.size());
 
 	d_A=sqrt(A_sum2_in/ceil(0.5*A_chain.size()) - pow(A_sum_in/ceil(0.5*A_chain.size()),2));
 	d_dist=1.*no_accept2/(1.*no_accept);//(last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)+last_dist_mod+last_iso.r0;//sqrt(d_sum2_in/ceil(0.5*A_chain.size()) - pow(d_sum_in/ceil(0.5*dist_mod_chain.size()),2));
-//	d_dist=best_iso.r0;
 	d_r_i0 =sqrt(r_i0_sum2_in/ceil(0.5*A_chain.size()) - pow(r_i0_sum_in/ceil(0.5*A_chain.size()),2));
-//	d_r_i0=best_iso.logAge-max_age(best_iso.Mi, isochrones);
 
 	d_Mi=sqrt(Mi_sum2/ceil(0.5*iso_obj_chain.size())-pow(Mi,2));
 	d_logAge=sqrt(logAge_sum2/ceil(0.5*iso_obj_chain.size())-pow(logAge,2));
