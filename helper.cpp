@@ -298,107 +298,53 @@ string getStdoutFromCommand(string cmd)
 	return str;
 }
 
-void output_write(string filename, vector<bin_obj2> A_mean, vector<iphas_obj> colours)		// function for outputing results
+
+
+vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
 {
-	filename.erase(filename.size()-4);
-	ofstream A_out;
-	string dummy_string;
-	dummy_string=filename+".td4";
-	A_out.open(dummy_string.c_str(), ios::trunc);
-	//A_out << "#\tdist\tA\tsigma_A\n";
-	int last_good=-2;
-	for (int x=0; x<A_mean.size(); x++)
+	double Sch_max, density_dust, A_6250;
+	vector<bin_obj2> backup_A_mean (150);
+
+	// retrieve Schlegel et al limit
+	string Sch_string="./CodeC/lambert_getval CodeC/SFD_dust_4096_ngp.fits CodeC/SFD_dust_4096_sgp.fits 1 "; 	
+	Sch_string.append(stringify(l_gal));
+	Sch_string.append(" ");
+	Sch_string.append(stringify(b_gal));
+	//Sch_max=atof(getStdoutFromCommand(Sch_string).c_str())*2.944;		// 2.944 to convert E(B-V) given by Schlegel to A_6250
+	Sch_max=4.0;
+//   cout << "Sch_max = " << Sch_max << endl;
+
+	// integrate dust density to ~infinity, used to normalise the dust distribution so that at infinity it gives the Schlegel value
+	double dust_inf=0;
+	for (double d=0; d<50000; d+=10)
 	{
-		A_out << x*100 + 50 << "\t" << A_mean[x].mean_A << "\t" << A_mean[x].sigma <<"\t"<<A_mean[x].d_mean<<"\t"<<A_mean[x].d_sigma<<"\t"
-			<<A_mean[x].size<<"\t"<<A_mean[x].error_measure<<"\t"<<A_mean[x].sum<<"\t"<<A_mean[x].diff<<"\t"<<A_mean[x].d_diff<<"\n";
+		dust_inf+=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8080.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/2500 - fabs(d*sin(b_gal*PI/180.)+17)/125)*10;	// Dust scale height and lengh from Marshall et al 2006
 	}
-	A_out.close();
 
-	vector < vector <double> > previous_rel (150, vector <double> (4));
+	double const_term=Sch_max/dust_inf;
 
-	ofstream output;
-	dummy_string=filename+"-090.dat";
-	output.open(dummy_string.c_str(), ios::trunc);
-	output << "#\tr\ti\tha\tr_i0\tdist\tA\tdistbin\td_A\td_r_i0\td_dist\td_r\td_i\td_ha\tmag_weight\tprob\tA_prob\tMi\tlogAge\tfeh\td_Mi\td_lagAge\td_feh\tlogT\tlogg\trx\tix\thax\n" ;
-	for (int y=0; y<colours.size(); y++)
+	A_6250=0;
+	for (double d=0.0; d<=15001.0; d+=10.0)
 	{
-		
-		output << colours[y].r << "\t" << colours[y].i << "\t" << colours[y].ha << "\t"<< colours[y].r_i0 << "\t" << colours[y].dist << "\t" << colours[y].A << "\t" 
-			<< colours[y].distbin << "\t" << colours[y].d_A << "\t" << colours[y].d_r_i0 << "\t" << colours[y].d_dist << "\t" << colours[y].d_r << "\t"
-			<< colours[y].d_i << "\t" << colours[y].d_ha << "\t" << colours[y].last_iso.Mi  << "\t" << colours[y].mean_prob  << "\t" 
-			<< colours[y].mean_A_prob  << "\t" << colours[y].Mi  << "\t" << colours[y].logAge  << "\t" << colours[y].feh  << "\t" << colours[y].d_Mi  << "\t" 
-			<< colours[y].d_logAge  << "\t" << colours[y].d_feh << "\t" << colours[y].logT << "\t" << colours[y].logg << "\t" << colours[y].rx << "\t" 
-			<< colours[y].ix << "\t" << colours[y].hax << "\n";
+		density_dust=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8080.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/2500 - fabs(d*sin(b_gal*PI/180.)+17)/125);
+		A_6250+=const_term*10*density_dust;		// max/total_int * delta_d * rho(d)
+
+		if (d/100!=int(d/100) && d/50==int(d/50))				
+		{
+         		//cout << "d/100=" << d/100 << " A=" << A_6250 << " " << backup_A_mean.size() << endl; 
+										// also make backup_A_mean at this point
+			backup_A_mean[int((d-50)/100)].mean_A=A_6250;
+			backup_A_mean[int((d-50)/100)].sigma=0.1*A_6250;
+			backup_A_mean[int((d-50)/100)].d_mean=0.1;
+		}
 	}
-	output.close();//*/
-} 
+	return backup_A_mean;   
+}
 
-// function to read in IPHAS data, works in much the same manner as calibration_read
-vector<iphas_obj> iphas_read(string filename,double &r_min1,double &i_min1,double &ha_min1,double &r_max1, double &i_max1, double &ha_max1)		
-{						
-   //-----------------------
-   // Pre-cond: filename is a string containing the filename of the IPHAS 
-   // catalogue data for the region examined.
-   //--------------------
-   // Post-cond: iphas_colours is returned. As a vector of iphas_obj, it contains all sources in the IPHAS catalogue
-   // iff they match these conditions: (a) Classified as stellar or _probably_ stellar  in all three bands (Ha, r' and i')
-   //----------------------------------------------
-
-	vector<iphas_obj> iphas_colours;
-	ifstream iphas_data;
-	iphas_data.open(filename.c_str());
-	if(!iphas_data) { //output file couldn't be opened
-		cerr << "Error: file could not be opened \n";
-		exit(1);
-	}	
-	while (!iphas_data.eof())				// Running down file
-	{
-		string str1; 	
-		getline(iphas_data, str1);
-		string temp;
-		stringstream sstest(str1);
-		sstest>>temp;
-		if (temp!="#")
-		{		
-			double buffer;
-			stringstream ss1(str1);
-		
-			vector<double> infromfile;
-		
-			while (ss1>>buffer){			// Includes implicit conversion from string to double
-				infromfile.push_back(buffer);
-			}// correct length		-r_class is stellar or prob stellar-	--i_class is stellar or prob stellar-----	-ha class is stellar or prob stellar---		--------r,i,Ha photometry non-zero----------------		-----r,i,Ha photometric errors non-zero-------------------		---------small RA & DEC offsets between r and i, and r and Ha-------------------
-			if (infromfile.size()==30 && (infromfile[6]==-1 || infromfile[6]==-2) && (infromfile[11]==-1 || infromfile[11]==-2) && (infromfile[16]==-1 || infromfile[16]==-2) && (infromfile[4]!=0) && (infromfile[9]!=0) && (infromfile[14]!=0) && (infromfile[5]!=0) && (infromfile[10]!=0) && (infromfile[15]!=0) && infromfile[18]<=1.0 && infromfile[19]<=1.0 && infromfile[20]<=1.0 && infromfile[21]<=1.0) 	//selecting only stellar or probably stellar objects and those with small RA & DEC offsets
-			{
-
-   		        	if(infromfile[4] > r_max1) { r_max1 = infromfile[4];}
-            			if(infromfile[9] > i_max1) { i_max1 = infromfile[9];}
-            			if(infromfile[14] > ha_max1) { ha_max1 = infromfile[14];}
-			        iphas_obj next_obj(infromfile[4], infromfile[9], infromfile[14], sqrt(pow(infromfile[5],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[10],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[15],2)+pow(0.0016165105,2)), infromfile[0], infromfile[1], infromfile[22], infromfile[23]*1.0857, infromfile[28], infromfile[27], infromfile[29]);	// making the new iphas_obj
-
-				iphas_colours.push_back(next_obj);																											// pushing it into the vetor
-			}
-
-			if (infromfile.size()==22 && (infromfile[6]==-1 || infromfile[6]==-2) && (infromfile[11]==-1 || infromfile[11]==-2) && (infromfile[16]==-1 || infromfile[16]==-2) && (infromfile[4]!=0) && (infromfile[9]!=0) && (infromfile[14]!=0) && (infromfile[5]!=0) && (infromfile[10]!=0) && (infromfile[15]!=0) && infromfile[18]<=1.0 && infromfile[19]<=1.0 && infromfile[20]<=1.0 && infromfile[21]<=1.0) 	//selecting only stellar or probably stellar objects and those with small RA & DEC offsets
-			{
-
-   		        	if(infromfile[4] > r_max1) { r_max1 = infromfile[4];}
-            			if(infromfile[9] > i_max1) { i_max1 = infromfile[9];}
-            			if(infromfile[14] > ha_max1) { ha_max1 = infromfile[14];}
-			        iphas_obj next_obj(infromfile[4], infromfile[9], infromfile[14], sqrt(pow(infromfile[5],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[10],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[15],2)+pow(0.0016165105,2)), infromfile[0], infromfile[1]);	// making the new iphas_obj
-
-				iphas_colours.push_back(next_obj);																											// pushing it into the vetor
-			}
-
-			else if (infromfile.size()==22)		// if sources are saturated alter bright limits
-			{
-				if (infromfile[6]==-9 && infromfile[4]>r_min1){r_min1=infromfile[4];}		//r'
-				if (infromfile[11]==-9 && infromfile[9]>i_min1){i_min1=infromfile[9];}		//i'
-				if (infromfile[16]==-9 && infromfile[14]>ha_min1){ha_min1=infromfile[14];} 	//Ha
-			}
-		}	
-	}
-	iphas_data.close();
-	return  iphas_colours;
+string stringify(double x)		
+{  
+	ostringstream o;
+	if(!(o << x)){throw 66;}
+	return o.str();
 }
 

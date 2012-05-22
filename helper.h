@@ -2,10 +2,10 @@
 #define HELPER_H_
 
 
-/*#include <iostream>
+/*#include <iostream>*/
 #include <string>
 #include <algorithm>
-#include <cstdlib> 
+/*#include <cstdlib> 
 #include <sstream>*/
 #include <iostream>
 #include <fstream>
@@ -23,14 +23,14 @@
 
 
 using namespace std;
-//#ifndef PI
-//#define PI 3.14159265358979323846
-//#endif
+#ifndef PI
+#define PI 3.14159265358979323846
+#endif
 
 //GLOBALS (checked)
 
 #include "bin_obj.h"
-#include "iphas_obj.h"
+//#include "iphas_obj.h"
 #include "iso_obj.h"
 //class bin_obj;
 
@@ -51,7 +51,10 @@ double max_age(double targ_Mi, vector<iso_obj> &isochrones);
 
 
 string getStdoutFromCommand(string cmd);
-void output_write(string filename, vector<bin_obj2> A_mean, vector<iphas_obj> colours);			
+
+void output_write(string filename, vector<bin_obj2> A_mean, vector<iphas_obj> colours);
+string stringify(double x);
+vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)	;
 
 // set default MIN vals
 extern double r_min;

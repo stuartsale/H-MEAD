@@ -20,8 +20,8 @@ using namespace std;
 
 
 //#endif
-#include "iso_obj.h"
-#include "bin_obj.h"
+//#include "iso_obj.h"
+//#include "bin_obj.h"
 #include "helper.h"
 //class bin_obj2;
 //class iphas_sub_obj;
@@ -35,6 +35,7 @@ class iphas_obj
 {	
 
 	friend class bin_obj2;
+	friend class sl_obj;
 	public:
 		iphas_obj(double r_input, double i_input, double ha_input, double d_r_input, double d_i_input, double d_ha_input, double l_input, double b_input);
       		iphas_obj(double d_r_input, double d_i_input, double d_ha_input);
