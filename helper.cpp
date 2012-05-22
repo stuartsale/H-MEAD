@@ -279,41 +279,23 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	return new_iso;
 }
 
-double in_sample(double r_in, double i_in, double ha_in, double dr_in, double di_in, double dha_in)
-{
-	double r_s, i_s, ha_s;
-	double r_ha_max, r_i_min;
-	double sum=0;
-	double A_int;
 
-	for (int n=0; n<50; n++)
-	{
-		r_s=r_in+gsl_ran_gaussian_ziggurat(rng_handle,dr_in);
-		i_s=i_in+gsl_ran_gaussian_ziggurat(rng_handle,di_in);
-		ha_s=ha_in+gsl_ran_gaussian_ziggurat(rng_handle,dha_in);
-		
-		A_int=(+(r_s-i_s)-0.53738)/(0.233289);
-		r_ha_max=-0.00248*pow(A_int,2) + 0.06848*A_int + 0.005775 + 0.32275;
-		if (r_s-ha_s<r_ha_max)
-		{
-			sum++;
-		}
-	}
-	if (sum>0) {return sum/50;}
-	else {return 0.0002;}		
+// gets stdout following the use of a command - used to read in Schlegel Galactic reddening - code 'borrowed' from somewhere on the net
+string getStdoutFromCommand(string cmd)				
+{
+	// setup
+	string str;
+	FILE *stream;
+	char buffer[100];
+
+	// do it
+	stream = popen(cmd.c_str(), "r");
+	while ( fgets(buffer, 100, stream) != NULL )
+		str.append(buffer);
+	pclose(stream);
+
+	// exit
+	return str;
 }
 
-double in_sample2(double A_max, double mu, double sigma)
-{
-	double A_s;
-	double sum=0;
-	double A_m2=log(A_max);
-	for (int n=0; n<50; n++)
-	{
-	//	A_s=gsl_ran_lognormal(rng_handle,mu, sigma);	
-		A_s=mu+gsl_ran_gaussian_ziggurat(rng_handle,sigma);
-		if (A_s<A_m2){sum++;}
-	}
-	if (sum>0) {return sum/50;}
-	else {return 0.0002;}		
-}
+

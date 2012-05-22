@@ -37,9 +37,9 @@ using namespace std;
 // HELPER FUNCTIONS
 //
 
+// Setting up random number generators
 
-//Mag giver
-//double mag_giver(vector< vector <calibration_obj> > &cdata, double r_i1, int lumclass, string band);
+extern gsl_rng* rng_handle;
 
 // Solves a quadratic eqn
 double quadratic(double a, double b, double c, int sign);	
@@ -48,19 +48,8 @@ iso_obj iso_get(double targ_feh, double targ_Mi, double targ_logAge, vector<iso_
 iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<iso_obj> &isochrones);
 double max_age(double targ_Mi, vector<iso_obj> &isochrones);
 
-double in_sample(double r_in, double i_in, double ha_in, double dr_in, double di_in, double dha_in);
-double in_sample2(double A_max, double mu, double sigma);
 
-// Setting up random number generators
-
-extern gsl_rng* rng_handle;
-
-// CDF of a normal distribution
-double cdf_normal (double x, double mu, double sigma);	
-double inv_cdf_normal_fast(double p, double mu, double sigma);
-double cdf_normal_fast(double x, double mu, double sigma);
-double cdf_normal_smallx(double x, double mu, double sigma);
-
+string getStdoutFromCommand(string cmd);			
 
 // set default MIN vals
 extern double r_min;
