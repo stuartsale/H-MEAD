@@ -11,6 +11,7 @@
 #include <fstream>
 #include <cmath>
 #include <vector>
+#include <sstream>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_cdf.h>
@@ -28,8 +29,8 @@ using namespace std;
 
 //GLOBALS (checked)
 
-//#include "bin_obj.h"
-//#include "iphas_obj.h"
+#include "bin_obj.h"
+#include "iphas_obj.h"
 #include "iso_obj.h"
 //class bin_obj;
 
@@ -49,7 +50,8 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 double max_age(double targ_Mi, vector<iso_obj> &isochrones);
 
 
-string getStdoutFromCommand(string cmd);			
+string getStdoutFromCommand(string cmd);
+void output_write(string filename, vector<bin_obj2> A_mean, vector<iphas_obj> colours);			
 
 // set default MIN vals
 extern double r_min;
