@@ -27,7 +27,8 @@ sl_obj::sl_obj(string filename, double l_in, double b_in)
 
 	// Find expected A(d) -------------------------------------------------------------------
 
-	vector<bin_obj2> backup_A_mean (150);
+	//vector<bin_obj2> backup_A_mean (150);
+	backup_A_mean.resize(150);
 	backup_A_mean=backup_A_mean_find(l, b);
 }
 

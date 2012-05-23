@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
    	
 // Write results to file
 
-	//sl1.output_write();
+	sl1.output_write();
 
 
 	return 0;
