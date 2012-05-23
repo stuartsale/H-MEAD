@@ -68,31 +68,16 @@ void sl_obj::output_write(void)
 }
 
 
-
-void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double ri_min, double ri_max)
+void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double ri_min, double ri_max)
 {
+	global_previous_prob=0;
+	previous_hyperprior_prob=0, current_hyperprior_prob=0;
 
-	double sigma_fac=0.05, accepted=0;
-// Set up
-
-	int without_change=0;
-	int thin=200;
-
-	vector <vector <vector <double> > > global_A_chain;
-
-	double global_previous_prob=0;
-	double previous_hyperprior_prob=0, current_hyperprior_prob=0;
-	double global_current_prob, global_transition_prob;
-	double sigma2_LN, mu_LN;
-
-	vector < vector<double> > proposal_sd (150, vector <double> (2));
-	vector < vector <double> > previous_rel (150, vector <double> (4));
-	vector < vector <double> > internal_rel (150, vector <double> (2));
-	vector < vector <double> > previous_internal_rel (150, vector <double> (2));
-	vector < vector <double> > first_internal_rel (150, vector <double> (2));
-
-	vector <double> initial_dists;
-	int rel_length=150;
+	proposal_sd.resize(150, vector <double> (2));
+	previous_rel.resize(150, vector <double> (4));
+	internal_rel.resize(150, vector <double> (2));
+	previous_internal_rel.resize(150, vector <double> (2));
+	first_internal_rel.resize(150, vector <double> (2));
 
 // Start from backup_A_mean
 
@@ -150,17 +135,29 @@ void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_se
 	while (it_stars<star_cat.size())
 	{
 		star_cat[it_stars].initial_guess(isochrones, guess_set, previous_rel);
-		if (star_cat[it_stars].last_A>0 && star_cat[it_stars].last_iso.r0-star_cat[it_stars].last_iso.i0> ri_min  && star_cat[it_stars].last_iso.r0-star_cat[it_stars].last_iso.i0<ri_max){initial_dists.push_back(star_cat[it_stars].last_dist_mod);}
-		else if (star_cat[it_stars].last_iso.r0-star_cat[it_stars].last_iso.i0> ri_min  && star_cat[it_stars].last_iso.r0-star_cat[it_stars].last_iso.i0<ri_max){initial_dists.push_back(star_cat[it_stars].last_dist_mod);star_cat[it_stars].last_A = 0.02;} 
+		if (star_cat[it_stars].last_A<0){star_cat[it_stars].last_A = 0.02;} 
 		it_stars++;
 	}
 
-	sort(initial_dists.begin(), initial_dists.end());
-
-//	cout << "95th percentile on dist is: " << pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1) << " kpc away" << endl;
-//	cout << "5th percentile on dist is: " << pow(10,initial_dists[int(initial_dists.size()*0.05)]/5+1) << " kpc away" << endl;
 
 	for (int star_it=0; star_it<star_cat.size(); star_it++){global_previous_prob+=star_cat[star_it].last_A_prob;}
+}
+
+
+
+void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double ri_min, double ri_max)
+{
+
+	double sigma_fac=0.05, accepted=0;
+// Set up
+
+	int without_change=0;
+	int thin=200;
+
+
+	double sigma2_LN, mu_LN;
+
+	int rel_length=150;
 	
 // Loop through this section
 
@@ -177,12 +174,14 @@ void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_se
 
 // First vary parameters for each star
 
-		#pragma omp parallel for  num_threads(3) reduction(+:global_previous_prob)
+		double dummy=0;
+		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 		for (int it=0; it<star_cat.size(); it++)
 		{
 			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, previous_rel);//};
-			global_previous_prob+=star_cat[it].last_A_prob;
+			dummy+=star_cat[it].last_A_prob;
 		}
+		global_previous_prob=dummy;
 
 	//	cout << star_cat[161].last_A << " " << star_cat[161].last_dist_mod << " " << star_cat[161].last_prob << " " << star_cat[161].last_iso.logT << " " << star_cat[161].last_iso.logg << " " << star_cat[161].last_iso.r0-star_cat[161].last_iso.i0 << " " << star_cat[161].last_iso.r0-star_cat[161].last_iso.ha0 << " " << it_num  << " " << star_cat[161].last_iso.Mi << " " << log(star_cat[161].last_iso.Jac) << " " << log(star_cat[161].last_iso.IMF())  << " " 
 //<< star_cat[161].last_iso.r0+star_cat[161].last_iso.u*pow(star_cat[161].last_A,2)+star_cat[161].last_iso.v*star_cat[161].last_A+star_cat[161].last_iso.w+star_cat[161].last_dist_mod  << " " 
@@ -233,30 +232,33 @@ void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_se
 
 // Find probability of this parameter set
 
-
-		#pragma omp parallel for  num_threads(3) reduction(+:global_current_prob)
+		dummy=0;
+		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 		for (int it=0; it<star_cat.size(); it++)
 		{
 			proposed_probs[it]=star_cat[it].get_A_prob(star_cat[it].last_iso, star_cat[it].last_A, star_cat[it].last_dist_mod, new_rel);
-			global_current_prob+= proposed_probs[it];
+			dummy+= proposed_probs[it];
 		}
+		global_current_prob=dummy;
 
 // Metropolis-Hastings algorithm step
 
 		global_transition_prob=0;
 
-		#pragma omp parallel for  num_threads(3) reduction(+:global_transition_prob)
+		dummy=0;
+		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 		for (int it=1; it<rel_length; it++)
 		{
 		// From new to old
 		// mean_A
-			global_transition_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][0], log(internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
-		//	global_transition_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][1], log(internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
+			dummy+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][0], log(internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
+		//	dummy+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][1], log(internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
 		// From old to new
 		// mean_A
-			global_transition_prob-=log(gsl_ran_lognormal_pdf(internal_rel[it][0], log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
-		//	global_transition_prob-=log(gsl_ran_lognormal_pdf(internal_rel[it][1], log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
-		}	
+			dummy-=log(gsl_ran_lognormal_pdf(internal_rel[it][0], log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
+		//	dummy-=log(gsl_ran_lognormal_pdf(internal_rel[it][1], log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
+		}
+		global_transition_prob=dummy;
 
 // Accept or reject
 	
@@ -301,12 +303,6 @@ void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_se
 	
 	#pragma omp parallel for  num_threads(3)
 	for (int star_it=0; star_it<star_cat.size(); star_it++){star_cat[star_it].mean_intervals();}
-
-	if (pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1)<15000)
-	{
-		rel_length=150;//floor(pow(10,initial_dists[int(initial_dists.size()*0.95)]/5+1)/100);
-		A_mean.resize(rel_length);
-	}
 
 	#pragma omp parallel for  num_threads(3)
 	for (int it=0; it<rel_length; it++)

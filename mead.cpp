@@ -112,6 +112,7 @@ int main(int argc, char* argv[])
    // Read in data
 
 	sl_obj sl1( argv[1],atof(argv[2]), atof(argv[3]) );
+	sl1.initial_guess(isochrones, guess_set, -0.0272, 0.53);
 
 	clock_t start;
 	start=time(NULL);
