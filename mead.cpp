@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 	vector <vector <string> > config_file;
 	config_file=config_read(argv[1]);
 
-	vector <sl_obj> slsl;
+	vector <sl_obj> slsl(config_file.size());
 
 	for(int it_conf=0; it_conf<config_file.size(); it_conf++)
 	{
@@ -109,19 +109,29 @@ int main(int argc, char* argv[])
    // Read in data
 
 		sl_obj sl1( config_file[it_conf][0],atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()) );
-		slsl.push_back(sl1);
+		//slsl.push_back(sl1);
+		slsl[it_conf]=sl1;
 
 		slsl[it_conf].initial_guess(isochrones, guess_set);
+	}
 
-		clock_t start;
-		start=time(NULL);
+	clock_t start;
+	start=time(NULL);
+
+	while (slsl[0].it_num<150000)
+	{
+		for (int it_conf=0; it_conf<config_file.size(); it_conf++)
+		{
+			slsl[it_conf].update(isochrones);
+		}
+	}		
 	
-		slsl[it_conf].dist_redMCMC(isochrones);
-
-		cout << "total time: " << (time(NULL)-start) <<"s\n";
+	cout << "total time: " << (time(NULL)-start) <<"s\n";
    	
 // Write results to file
 
+	for(int it_conf=0; it_conf<config_file.size(); it_conf++)
+	{
 		slsl[it_conf].mean_intervals();
 		slsl[it_conf].output_write();
 	}

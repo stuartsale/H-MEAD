@@ -14,11 +14,14 @@ class sl_obj
 
 	public:
 		sl_obj(string filename, double l_in, double b_in);
+		sl_obj(void);
 		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set);
 		void dist_redMCMC(vector<iso_obj> &isochrones);
 		void update(vector<iso_obj> &isochrones);
 		void mean_intervals(void);
 		void output_write(void);
+		float it_num;
+
 
 	private:
 		vector <iphas_obj> star_cat;
@@ -56,5 +59,8 @@ class sl_obj
 		vector <double> proposed_probs;
 		double rel_length;
 
-		float it_num;
+
+
+		sl_obj * neighbour_sl;
+
 };

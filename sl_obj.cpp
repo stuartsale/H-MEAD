@@ -1,5 +1,25 @@
 #include "sl_obj.h"
 
+sl_obj::sl_obj(void)
+{
+	// set default MIN vals
+	r_min=13.5; 
+	i_min=12.0;
+	ha_min=12.0;				
+	// set default MAX vals
+	r_max=21.;
+	i_max=20.;
+	ha_max=20.;
+
+	sigma_fac=0.05;
+	accepted=0;
+	without_change=0;
+	thin=200;
+	rel_length=150;
+
+	it_num=0.;
+}
+
 sl_obj::sl_obj(string filename, double l_in, double b_in)
 {
 	// Set up variables ---------------------------------------------------------------------
@@ -13,9 +33,9 @@ sl_obj::sl_obj(string filename, double l_in, double b_in)
 	i_min=12.0;
 	ha_min=12.0;				
 	// set default MAX vals
-	r_max=0.;
-	i_max=0.;
-	ha_max=0.;
+	r_max=21.;
+	i_max=20.;
+	ha_max=20.;
 
 	//	global_previous_prob=0;
 	//	previous_hyperprior_prob=0;
@@ -41,6 +61,8 @@ sl_obj::sl_obj(string filename, double l_in, double b_in)
 
 	it_num=0.;
 }
+
+//void sl_obj::set_neighbour(
 
 
 
