@@ -14,8 +14,10 @@ class sl_obj
 
 	public:
 		sl_obj(string filename, double l_in, double b_in);
-		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double ri_min, double ri_max);
-		void dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double ri_min, double ri_max);
+		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set);
+		void dist_redMCMC(vector<iso_obj> &isochrones);
+		void update(vector<iso_obj> &isochrones);
+		void mean_intervals(void);
 		void output_write(void);
 
 	private:
@@ -42,6 +44,17 @@ class sl_obj
 		vector <vector <vector <double> > > global_A_chain;
 
 		vector<bin_obj2> A_mean;
-		vector<bin_obj2> backup_A_mean ;				
+		vector<bin_obj2> backup_A_mean;				
 
+		double sigma_fac, accepted;
+// Set up
+
+		int without_change;
+		int thin;
+
+		double sigma2_LN, mu_LN;
+		vector <double> proposed_probs;
+		double rel_length;
+
+		float it_num;
 };

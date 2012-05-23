@@ -30,6 +30,16 @@ sl_obj::sl_obj(string filename, double l_in, double b_in)
 	//vector<bin_obj2> backup_A_mean (150);
 	backup_A_mean.resize(150);
 	backup_A_mean=backup_A_mean_find(l, b);
+
+	A_mean.resize(150);
+
+	sigma_fac=0.05;
+	accepted=0;
+	without_change=0;
+	thin=200;
+	rel_length=150;
+
+	it_num=0.;
 }
 
 
@@ -68,7 +78,7 @@ void sl_obj::output_write(void)
 }
 
 
-void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double ri_min, double ri_max)
+void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set)
 {
 	global_previous_prob=0;
 	previous_hyperprior_prob=0, current_hyperprior_prob=0;
@@ -141,32 +151,23 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 
 
 	for (int star_it=0; star_it<star_cat.size(); star_it++){global_previous_prob+=star_cat[star_it].last_A_prob;}
+
+	proposed_probs.resize(star_cat.size());
 }
 
 
 
-void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, double ri_min, double ri_max)
+void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones)
 {
-
-	double sigma_fac=0.05, accepted=0;
-// Set up
-
-	int without_change=0;
-	int thin=200;
-
-
-	double sigma2_LN, mu_LN;
-
-	int rel_length=150;
-	
-// Loop through this section
-
-	vector <double> proposed_probs(star_cat.size());
-
-	float it_num=0.;
 
 	while (it_num<150000 )
 	{
+		update(isochrones);
+	}
+}
+
+void sl_obj::update(vector<iso_obj> &isochrones)
+{
 		global_current_prob=0;
 		global_transition_prob=0;
 		global_previous_prob=0;
@@ -247,7 +248,7 @@ void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_se
 
 		dummy=0;
 		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
-		for (int it=1; it<rel_length; it++)
+		for (int it=1; it<150; it++)
 		{
 		// From new to old
 		// mean_A
@@ -299,13 +300,16 @@ void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_se
 		if (floor(it_num/50.)==it_num/50){global_A_chain.push_back(previous_rel);}
 		it_num++;
 	//	cout << it_num << " " << previous_rel[90][0] << " " << global_current_prob+current_hyperprior_prob <<  endl;
-	}
-	
+}
+
+
+void sl_obj::mean_intervals(void)
+{
 	#pragma omp parallel for  num_threads(3)
 	for (int star_it=0; star_it<star_cat.size(); star_it++){star_cat[star_it].mean_intervals();}
 
-	#pragma omp parallel for  num_threads(3)
-	for (int it=0; it<rel_length; it++)
+	//#pragma omp parallel for  num_threads(3)
+	for (int it=0; it<150; it++)
 	{
 		double A_sum=0., sigma_sum=0.;
 		for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)

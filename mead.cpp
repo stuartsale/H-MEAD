@@ -16,25 +16,12 @@ using namespace std;
 #endif
 
 //Reads in IPHAS datas
-//vector<iphas_obj> iphas_read(string filename); 
-//vector<iphas_obj> iphas_read(string filename,double &i_min,double &r_min,double &ha_min);		
-//vector<iphas_obj> iphas_read(string filename,double &r_min,double &i_min,double &ha_min,double &r_max, double &i_max, double &ha_max);		
+
 vector<iso_obj> iso_read(const string &filename);
 vector<iso_obj> iso_read_Tg(const string &filename);
-//vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal);		
 
-// Gets stdout of a system cmd
-// Used to read in Schlegel Galactic reddening
-// Code 'borrowed' from somewhere on the net
-//
-// (BM notes: replace this with CFITSIO access to Schlegel ?)
-string getStdoutFromCommand(string cmd);
 
-// Dump me baby, yeah!
-void output_write(string filename);
-
-//converts double => C++ string
-string stringify(double x);	
+	
 
 
 double r_min, i_min, ha_min, r_max, i_max, ha_max;
@@ -73,9 +60,9 @@ int main(int argc, char* argv[])
 	i_min=12.0;
 	ha_min=12.0;				
 // set default MAX vals
-	r_max=0.;
-	i_max=0.;
-	ha_max=0.;
+	r_max=21.;
+	i_max=20.;
+	ha_max=20.;
 
       //Reading in isochrones data into a vector
 
@@ -109,21 +96,36 @@ int main(int argc, char* argv[])
 //	while (1.0648*guess_set[guess_set.size()-1].Mi<2.060){guess_set.push_back(iso_get(0., 1.0648*guess_set[guess_set.size()-1].Mi, 8.5, isochrones));}
 //	guess_set.push_back(iso_get(0., 2.060, 8.5, isochrones));
 
+// Read in config file
+
+	vector <vector <string> > config_file;
+	config_file=config_read(argv[1]);
+
+	vector <sl_obj> slsl;
+
+	for(int it_conf=0; it_conf<config_file.size(); it_conf++)
+	{
+
    // Read in data
 
-	sl_obj sl1( argv[1],atof(argv[2]), atof(argv[3]) );
-	sl1.initial_guess(isochrones, guess_set, -0.0272, 0.53);
+		sl_obj sl1( config_file[it_conf][0],atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()) );
+		slsl.push_back(sl1);
 
-	clock_t start;
-	start=time(NULL);
+		slsl[it_conf].initial_guess(isochrones, guess_set);
 
-	sl1.dist_redMCMC(isochrones, guess_set, -0.0272, 0.53);
+		clock_t start;
+		start=time(NULL);
+	
+		slsl[it_conf].dist_redMCMC(isochrones);
 
-	//cout << "total time: " << (time(NULL)-start) <<"s\n";
+		cout << "total time: " << (time(NULL)-start) <<"s\n";
    	
 // Write results to file
 
-	sl1.output_write();
+		slsl[it_conf].mean_intervals();
+		slsl[it_conf].output_write();
+	}
+
 
 
 	return 0;

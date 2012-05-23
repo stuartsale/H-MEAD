@@ -348,3 +348,51 @@ string stringify(double x)
 	return o.str();
 }
 
+double StrToDbl(string s) 
+{
+     double d;
+     stringstream ss(s); //turn the string into a stream
+     ss >> d; //convert
+     return d;
+}
+
+vector <vector <string> > config_read(string filename)
+{
+	vector <vector <string> > totalfile;
+
+	ifstream input1;
+	input1.open(filename.c_str());
+	if(!input1) { //output file couldn't be opened
+		cerr << "Error: file " << filename << " could not be opened" << endl;
+		exit(1);
+	}
+
+	while (!input1.eof())				// Running down file - reading it in
+	{
+		string str; 	
+		getline(input1, str);			// grab a line
+		string temp;
+		stringstream sstest(str);
+		sstest>>temp;
+		if (temp!="#")				// check the line isn't commented out
+		{
+
+			string buf;
+			stringstream ss(str);		// turn that line into a stringstream
+		
+			vector<string> fromfile;	//vector to put contents of line into
+		
+			while (ss>>buf)
+			{			// Includes implicit conversion from string to string
+				fromfile.push_back(buf);	
+			}
+			if (fromfile.size()==3)		// check there's something in the line
+			{
+				totalfile.push_back(fromfile);
+			}
+		}
+	}
+
+	return totalfile;
+}
+
