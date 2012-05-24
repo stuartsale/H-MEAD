@@ -113,6 +113,8 @@ int main(int argc, char* argv[])
 		slsl[it_conf]=sl1;
 
 		slsl[it_conf].initial_guess(isochrones, guess_set);
+
+		if (it_conf!=0){slsl[it_conf].neighbour_set(&slsl[it_conf-1]);}
 	}
 
 	clock_t start;

@@ -18,6 +18,8 @@ sl_obj::sl_obj(void)
 	rel_length=150;
 
 	it_num=0.;
+
+	neighbour_sl=NULL;
 }
 
 sl_obj::sl_obj(string filename, double l_in, double b_in)
@@ -60,6 +62,7 @@ sl_obj::sl_obj(string filename, double l_in, double b_in)
 	rel_length=150;
 
 	it_num=0.;
+	neighbour_sl=NULL;
 }
 
 //void sl_obj::set_neighbour(
@@ -317,7 +320,8 @@ void sl_obj::update(vector<iso_obj> &isochrones)
 		//	cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << star_cat.size() << endl;//*/
 
 		}
-		if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << endl;}
+		if (neighbour_sl){if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << " " << neighbour_sl->previous_rel[rel_length-1][0] << endl;}}
+		else {if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << endl;}}
 
 		if (floor(it_num/50.)==it_num/50){global_A_chain.push_back(previous_rel);}
 		it_num++;
@@ -357,6 +361,11 @@ void sl_obj::mean_intervals(void)
 		A_mean[it].error_measure=sqrt(pow(A_mean[it].d_mean/A_mean[it].mean_A,2)+pow(A_mean[it].d_sigma/A_mean[it].sigma,2));
 	}
 
+}
+
+void sl_obj::neighbour_set(sl_obj * neighbour)
+{
+	neighbour_sl=neighbour;
 }
 
 

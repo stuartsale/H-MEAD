@@ -20,6 +20,7 @@ class sl_obj
 		void update(vector<iso_obj> &isochrones);
 		void mean_intervals(void);
 		void output_write(void);
+		void neighbour_set(sl_obj * neighbour);
 		float it_num;
 
 
