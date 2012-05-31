@@ -216,8 +216,8 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 //	last_dist=pow(10,last_dist_mod/5+1);
 
 //	last_iso=iso_get(0.,real_Mi, 7.08, isochrones);
-	last_A=real_A;
-	last_dist_mod=5*log10(real_dist/10);
+//	last_A=real_A;
+//	last_dist_mod=5*log10(real_dist/10);
 
 	last_rmag=r;
 	last_ri=(last_iso.r0-last_iso.i0)+(last_iso.u-last_iso.u_i)*pow(last_A,2) + (last_iso.v-last_iso.v_i)*last_A + (last_iso.w-last_iso.w_i);

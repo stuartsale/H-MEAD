@@ -43,6 +43,7 @@ class sl_obj
 		double global_previous_prob;
 		double previous_hyperprior_prob, current_hyperprior_prob;
 		double global_current_prob, global_transition_prob;
+		double previous_xsl_prob, current_xsl_prob;
 
 		// hold chains too
 		vector <vector <vector <double> > > global_A_chain;
