@@ -96,7 +96,7 @@ class iphas_obj
 	vector <double> rx_chain, ix_chain, hax_chain;
 	double rx, ix, hax;
 
-
+	vector<double> acl_calc(void);
 	
    // BRIGHT LIMITS (default)
  //  double r_min, i_min, ha_min;				

@@ -135,6 +135,7 @@ int main(int argc, char* argv[])
 	{
 		slsl[it_conf].mean_intervals();
 		slsl[it_conf].output_write();
+		slsl[it_conf].acl_calc();
 	}
 
 

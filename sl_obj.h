@@ -21,6 +21,7 @@ class sl_obj
 		void mean_intervals(void);
 		void output_write(void);
 		void neighbour_set(sl_obj * neighbour);
+		void acl_calc(void);
 		float it_num;
 
 

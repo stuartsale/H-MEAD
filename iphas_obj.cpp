@@ -39,8 +39,8 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 	b=0;//b_input;
 
 	feh_sd=0.008;
-	logT_sd=0.003;
-	logg_sd=0.008;
+	logT_sd=0.003*4.;
+	logg_sd=0.008*4.;
 	A_sd=sqrt(d_r*d_r+d_i*d_i)/4;
 	dist_mod_sd=0.5*d_r;
 
@@ -409,3 +409,25 @@ void iphas_obj::mean_intervals(void)
 	hax=hax_sum/ceil(0.5*hax_chain.size());
 }
 
+
+vector <double> iphas_obj::acl_calc(void)
+{
+
+	vector <double> acf (A_chain.size()-1, 0.);
+
+	for (int it1=1; it1<A_chain.size(); it1++)
+	{
+		for (int lag=1; lag<it1; lag++)
+		{
+			acf[lag-1]+=(A_chain[it1]-A)*(A_chain[it1-lag]-A);
+		}
+
+	}
+
+	for (int it1=0; it1<acf.size(); it1++)
+	{
+		acf[it1]/=(acf.size()-it1)*d_A;
+	}
+
+	return acf;
+}
