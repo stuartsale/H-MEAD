@@ -1,6 +1,12 @@
 # Makefile for MEAD-BB
 # Written by Stuart Sale 17/11/10
-RUN_DIR=../../
+HOST=$(shell hostname)
+ifeq ($(HOST),orion)
+	RUN_DIR=../../
+else
+	RUN_DIR=../
+endif
+
 flags= -g -fopenmp
 linking_flags= -lgsl -lgslcblas -lm -lprofiler -fopenmp -g
 
