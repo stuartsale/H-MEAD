@@ -219,7 +219,7 @@ void sl_obj::update(vector<iso_obj> &isochrones)
 // First vary parameters for each star
 
 		double dummy=0;
-		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
+//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 		for (int it=0; it<star_cat.size(); it++)
 		{
 			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, previous_rel);//};
@@ -279,7 +279,7 @@ void sl_obj::update(vector<iso_obj> &isochrones)
 // Find probability of this parameter set
 
 		dummy=0;
-		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
+//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 		for (int it=0; it<star_cat.size(); it++)
 		{
 			proposed_probs[it]=star_cat[it].get_A_prob(star_cat[it].last_iso, star_cat[it].last_A, star_cat[it].last_dist_mod, new_rel);
@@ -303,7 +303,7 @@ void sl_obj::update(vector<iso_obj> &isochrones)
 		global_transition_prob=0;
 
 		dummy=0;
-		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
+//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 		for (int it=1; it<150; it++)
 		{
 		// From new to old
@@ -363,7 +363,7 @@ void sl_obj::update(vector<iso_obj> &isochrones)
 
 void sl_obj::mean_intervals(void)
 {
-	#pragma omp parallel for  num_threads(3)
+//	#pragma omp parallel for  num_threads(3)
 	for (int star_it=0; star_it<star_cat.size(); star_it++){star_cat[star_it].mean_intervals();}
 
 	//#pragma omp parallel for  num_threads(3)

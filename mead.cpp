@@ -5,7 +5,7 @@
 //#include "iso_obj.h"
 //#include "iphas_obj.h"
 #include "sl_obj.h"
-#include "omp.h"
+//#include "omp.h"
 using namespace std;
 
 #ifndef PI
