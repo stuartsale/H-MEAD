@@ -13,6 +13,7 @@ ifeq ($(HOST),newhydra.physics.ox.ac.uk)
 else
 	gsl_lib=/usr/lib/
 	gsl_include=/usr/include/
+endif
 
 
 flags= -g -fopenmp
