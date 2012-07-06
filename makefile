@@ -24,25 +24,25 @@ MEAD: bin_obj.o iso_obj.o helper.o iphas_obj.o mead.o sl_obj.o cat_read.o
 	cp H-MEAD $(RUN_DIR)
 
 bin_obj.o: bin_obj.cpp bin_obj.h
-	g++ -c $(flags) bin_obj.cpp
+	g++ -c $(flags) bin_obj.cpp -I$(gsl_include) -L$(gsl_lib)
 
 cat_read.o: cat_read.cpp cat_read.h iphas_obj.h
-	g++ -c $(flags) cat_read.cpp	
+	g++ -c $(flags) cat_read.cpp -I$(gsl_include) -L$(gsl_lib)
 
 iso_obj.o: iso_obj.cpp iso_obj.h
-	g++ -c $(flags) iso_obj.cpp
+	g++ -c $(flags) iso_obj.cpp -I$(gsl_include) -L$(gsl_lib)
 
 helper.o: helper.cpp helper.h
 	g++ -c $(flags) helper.cpp -I$(gsl_include) -L$(gsl_lib)
 
 iphas_obj.o: iphas_obj.cpp bin_obj.h iso_obj.h helper.h iphas_obj.h
-	g++ -c $(flags) iphas_obj.cpp
+	g++ -c $(flags) iphas_obj.cpp -I$(gsl_include) -L$(gsl_lib)
 
 sl_obj.o: sl_obj.cpp sl_obj.h helper.h
-	g++ -c $(flags) sl_obj.cpp
+	g++ -c $(flags) sl_obj.cpp  -I$(gsl_include) -L$(gsl_lib)
 
 mead.o: mead.cpp bin_obj.h iso_obj.h helper.h iphas_obj.h sl_obj.h
-	g++ -c $(flags) mead.cpp
+	g++ -c $(flags) mead.cpp -I$(gsl_include) -L$(gsl_lib)
 
 
 
