@@ -9,7 +9,7 @@ ifeq ($(HOST),orion)
 	gsl_include=/usr/include/
 else 
 	ifeq ($(HOST),newhydra.physics.ox.ac.uk)
-		RUN_DIR=../
+		RUN_DIR=../../
 		flags= -g -fopenmp
 		linking_flags= -lgsl -lgslcblas -lm -fopenmp -g
 		gsl_include=/usr/local/shared/gsl-1.12/include/
