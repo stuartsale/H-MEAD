@@ -26,10 +26,6 @@ endif
 
 
 
-
-flags= -g -fopenmp
-linking_flags= -lgsl -lgslcblas -lm -lprofiler -fopenmp -g
-
 MEAD: bin_obj.o iso_obj.o helper.o iphas_obj.o mead.o sl_obj.o cat_read.o
 	g++ -o H-MEAD bin_obj.o iso_obj.o helper.o iphas_obj.o sl_obj.o cat_read.o mead.o -I$(gsl_include) -L$(gsl_lib) $(linking_flags)
 	cp H-MEAD $(RUN_DIR)
