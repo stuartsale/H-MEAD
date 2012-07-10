@@ -6,6 +6,7 @@
 //#include "iphas_obj.h"
 #include "sl_obj.h"
 //#include "omp.h"
+#include <mpi.h>
 using namespace std;
 
 #ifndef PI
@@ -37,6 +38,24 @@ gsl_rng* rng_handle;
 
 int main(int argc, char* argv[]) 
 {	
+	// Initialise MPI
+
+	int numprocs, rank, namelen, rc;
+	char processor_name[MPI_MAX_PROCESSOR_NAME];
+	MPI_Status Stat;
+
+	rc=MPI_Init(&argc, &argv);
+	if (rc!=MPI_SUCCESS)
+	{
+		printf ("Error starting MPI program. Terminating.\n");
+		MPI_Abort(MPI_COMM_WORLD, rc);
+	}
+
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Get_processor_name(processor_name, &namelen);
+
+	printf("Process %d on %s out of %d\n", rank, processor_name, numprocs);
 
 	//initialize up random number generator
     	//gsl_rng_env_setup ();
@@ -139,7 +158,7 @@ int main(int argc, char* argv[])
 	}
 
 
-
+	MPI_Finalize();
 	return 0;
 }
 
