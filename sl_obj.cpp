@@ -20,6 +20,7 @@ sl_obj::sl_obj(void)
 	it_num=0.;
 
 	neighbour_sl=NULL;
+	recv_neighbour_rel=NULL;
 }
 
 sl_obj::sl_obj(string filename, double l_in, double b_in)
@@ -63,9 +64,8 @@ sl_obj::sl_obj(string filename, double l_in, double b_in)
 
 	it_num=0.;
 	neighbour_sl=NULL;
+	recv_neighbour_rel=NULL;
 }
-
-//void sl_obj::set_neighbour(
 
 
 

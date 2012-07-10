@@ -65,5 +65,6 @@ class sl_obj
 
 
 		sl_obj * neighbour_sl;
+		vector <vector <double> > recv_neighbour_rel;
 
 };
