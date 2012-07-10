@@ -396,3 +396,20 @@ vector <vector <string> > config_read(string filename)
 	return totalfile;
 }
 
+vector <double> pack_A_mean(double input[])
+{
+	vector < vector <double> > output(150, vector<double> (4));
+	for (int it=0; it<input.size); it++)
+	{
+		output[int(floor(it/4))][it%2]=input[it];
+	}
+
+	return output;
+}
+
+double unpack_A_mean(vector< vector<double> > input)
+{
+
+	return output;
+}
+
