@@ -6,7 +6,7 @@
 //#include "iphas_obj.h"
 #include "sl_obj.h"
 //#include "omp.h"
-#include <mpi.h>
+//#include <mpi.h>
 using namespace std;
 
 #ifndef PI

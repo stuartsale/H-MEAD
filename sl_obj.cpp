@@ -20,7 +20,6 @@ sl_obj::sl_obj(void)
 	it_num=0.;
 
 	neighbour_sl=NULL;
-	recv_neighbour_rel=NULL;
 }
 
 sl_obj::sl_obj(string filename, double l_in, double b_in)
@@ -64,7 +63,6 @@ sl_obj::sl_obj(string filename, double l_in, double b_in)
 
 	it_num=0.;
 	neighbour_sl=NULL;
-	recv_neighbour_rel=NULL;
 }
 
 
@@ -291,12 +289,20 @@ void sl_obj::update(vector<iso_obj> &isochrones)
 		{
 			for (int it=0; it<rel_length; it++)
 			{
-				current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2))) 
-						- (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./9.);
-			//	current_xsl_prob+=pow(internal_rel[it][0] - neighbour_sl->internal_rel[it][0],2)/(0.125);
+			//	current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2))) 
+			//			- (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./9.);
+				current_xsl_prob+=pow(internal_rel[it][0] - neighbour_sl->internal_rel[it][0],2)/(0.125);
 			}
 		}
-			
+		else if (!recv_neighbour_rel.empty())
+		{
+			for (int it=0; it<rel_length; it++)
+			{
+			//	current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2))) 
+			//			- (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./9.);
+				current_xsl_prob+=pow(internal_rel[it][0] -recv_neighbour_rel[it][0],2)/(0.125);
+			}
+		}	
 
 // Metropolis-Hastings algorithm step
 

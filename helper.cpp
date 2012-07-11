@@ -399,7 +399,7 @@ vector <vector <string> > config_read(string filename)
 vector <vector <double> > pack_A_mean(double input[])
 {
 	vector < vector <double> > output(150, vector<double> (4));
-	for (int it=0; it<input.size); it++)
+	for (int it=0; it<600; it++)
 	{
 		output[int(floor(it/4))][it%2]=input[it];
 	}
@@ -418,7 +418,7 @@ void vector_send(vector < vector <double> > input, int tag, int dest)
 		}
 	}
 
-	MPI_RECV(&intput1, 600, MPI_DOUBLE, tag, dest, MPI_COMM_WORLD);
+	MPI_Send(&input1, 600, MPI_DOUBLE, tag, dest, MPI_COMM_WORLD);
 }
 
 vector <vector <double> > vector_recv(int tag, int source)
@@ -427,7 +427,7 @@ vector <vector <double> > vector_recv(int tag, int source)
 	vector <vector <double> > output;
 	double output1[600];
 
-	MPI_RECV(&output1, 600, MPI_DOUBLE, tag, source, MPI_COMM_WORLD, &Stat);
+	MPI_Recv(&output1, 600, MPI_DOUBLE, tag, source, MPI_COMM_WORLD, &Stat);
 
 	output=pack_A_mean(output1);
 

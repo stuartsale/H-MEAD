@@ -32,6 +32,7 @@ using namespace std;
 #include "bin_obj.h"
 //#include "iphas_obj.h"
 #include "iso_obj.h"
+#include <mpi.h>
 //class bin_obj;
 
 //
