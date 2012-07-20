@@ -15,7 +15,7 @@ vector<iphas_obj> iphas_read(string filename,double &r_min1,double &i_min1,doubl
 	ifstream iphas_data;
 	iphas_data.open(filename.c_str());
 	if(!iphas_data) { //output file couldn't be opened
-		cerr << "Error: file could not be opened \n";
+		cerr << "Error: IPHAS catalogue file could not be opened \n";
 		exit(1);
 	}	
 	while (!iphas_data.eof())				// Running down file
@@ -67,4 +67,17 @@ vector<iphas_obj> iphas_read(string filename,double &r_min1,double &i_min1,doubl
 	}
 	iphas_data.close();
 	return  iphas_colours;
+}
+
+
+// Function to read in 2MASS data, based on IPHAS read
+vector<iphas_obj> 2MASS_read(string filename,double &J_min1,double &J_min1,double &H_min1,double &H_max1, double &K_max1, double &K_max1)
+{
+	//vector<2MASS_obj> 2MASS_colours;
+	ifstream 2MASS_data;
+	2MASS_data.open(filename.c_str());
+	if(!iphas_data) { //output file couldn't be opened
+		cerr << "Error: 2MASS catalogue file could not be opened \n";
+		exit(1);
+	}	
 }
