@@ -1,7 +1,7 @@
 #include "iphas_obj.h"
 
 
-iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r_input,double d_i_input, double d_ha_input, double l_input, double b_input)
+iphas_obj::iphas_obj(float r_input, float i_input, float ha_input, float d_r_input,float d_i_input, float d_ha_input, float l_input, float b_input)
 {
 
 	r=r_input;	
@@ -19,14 +19,14 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 	A_sd=sqrt(d_r*d_r+d_i*d_i)/4;
 	dist_mod_sd=0.5*d_r;
 
-	ri_sd=min(sqrt(d_r*d_r+d_i*d_i), 0.04);
+	ri_sd=min(sqrt(d_r*d_r+d_i*d_i), 0.04f);
 	rmag_sd=d_r;
 
 	no_accept=0;
 
 }
 
-iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r_input,double d_i_input, double d_ha_input, double l_input, double b_input, double real_dist_in, double real_A_in, double real_Mi_in, double real_logAge_in, double real_feh_in)
+iphas_obj::iphas_obj(float r_input, float i_input, float ha_input, float d_r_input,float d_i_input, float d_ha_input, float l_input, float b_input, float real_dist_in, float real_A_in, float real_Mi_in, float real_logAge_in, float real_feh_in)
 {
 
 	r=r_input;	
@@ -44,7 +44,7 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 	A_sd=sqrt(d_r*d_r+d_i*d_i)/4;
 	dist_mod_sd=0.5*d_r;
 
-	ri_sd=min(sqrt(d_r*d_r+d_i*d_i), 0.04);
+	ri_sd=min(sqrt(d_r*d_r+d_i*d_i), 0.04f);
 	rmag_sd=d_r;
 
 	no_accept=0;
@@ -58,7 +58,7 @@ iphas_obj::iphas_obj(double r_input, double i_input, double ha_input, double d_r
 
 }
 
-iphas_obj::iphas_obj(double d_r_input, double d_i_input, double d_ha_input)
+iphas_obj::iphas_obj(float d_r_input, float d_i_input, float d_ha_input)
 {
 	d_r=d_r_input;
 	d_i=d_i_input;
@@ -67,17 +67,17 @@ iphas_obj::iphas_obj(double d_r_input, double d_i_input, double d_ha_input)
 
 
 
-void iphas_obj::set_mag_weight(double mag_weight_input)
+void iphas_obj::set_mag_weight(float mag_weight_input)
 {
    mag_weight=mag_weight_input;
 }
 
-double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mod, vector<vector <double> > &A_mean)
+float iphas_obj::prob_eval(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean)
 {	
 // Find probability of this parameter set - distance
 	//cout << test_iso.Mi << " " << test_iso.logAge << " " << test_A << " " << test_dist_mod << " " ;
 	// Find P(S|y,x,sigma_y)
-		double current_prob1=0;
+		float current_prob1=0;
 
 	// Find p(y|x,sigma_y) 
 
@@ -87,7 +87,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 
 
-		double test_dist=pow(10,test_dist_mod/5+1);
+		float test_dist=pow(10,test_dist_mod/5+1);
 
 
 		// IMF - Scalo type?
@@ -96,7 +96,7 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 
 
 
-		double /*cosb=1, sinb=0, cosl=-1,*/ R_gal;
+		float /*cosb=1, sinb=0, cosl=-1,*/ R_gal;
 		R_gal=sqrt(test_dist*test_dist*cos(b)*cos(b) + 64000000-16000*test_dist*cos(l)*cos(b));
 
 		// density profile
@@ -122,12 +122,12 @@ double iphas_obj::prob_eval(iso_obj test_iso, double test_A, double test_dist_mo
 	return current_prob1;
 } 
 
-double iphas_obj::get_A_prob(iso_obj test_iso, double test_A, double test_dist_mod, vector<vector <double> > &A_mean)
+float iphas_obj::get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean)
 {
 	// Find P(S|y,x,sigma_y)
-		double current_prob1=0;
+		float current_prob1=0;
 
-		double test_dist=pow(10,test_dist_mod/5+1);
+		float test_dist=pow(10,test_dist_mod/5+1);
 
 	// Also the the contribution to p(x) from the distance-reddening relationship
 
@@ -199,7 +199,7 @@ double iphas_obj::get_A_prob(iso_obj test_iso, double test_A, double test_dist_m
 	return current_prob1;
 }
 
-void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <double> > &A_mean)
+void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <float> > &A_mean)
 {
 	for (int it=0; it<guess_set.size();it++)
 	{
@@ -240,15 +240,15 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 
 
 
-void iphas_obj::star_try1(vector<iso_obj> &isochrones, double &l, double &b, vector<vector <double> > &A_mean)
+void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vector<vector <float> > &A_mean)
 {
 	iso_obj test_iso;
-	double test_dist_mod, test_A, test_dist;
-	double test_feh, test_logT, test_logg;
-	double test_rmag, test_ri;
+	float test_dist_mod, test_A, test_dist;
+	float test_feh, test_logT, test_logg;
+	float test_rmag, test_ri;
 
-	double current_prob, current_A_prob, transition_prob=0;
-	double sigma2_LN, mu_LN;
+	float current_prob, current_A_prob, transition_prob=0;
+	float sigma2_LN, mu_LN;
 
 //-----------------------------------------------------------------------------------------------------------
 // First isochrone posn.
@@ -346,11 +346,11 @@ void iphas_obj::mean_intervals(void)
 {
 // measure estimated means and ~credible intervals for each param. - then output
 
-	double A_sum_in=0, A_sum2_in=0, d_sum_in=0, d_sum2_in=0, r_i0_sum_in=0, r_i0_sum2_in=0;
-	double Mi_sum=0, Mi_sum2=0, logAge_sum=0, logAge_sum2=0, feh_sum=0, feh_sum2=0;
-	double logT_sum=0, logT_sum2=0, logg_sum=0, logg_sum2=0;
-	double prob_sum=0, A_prob_sum=0;
-	double rx_sum=0, ix_sum=0, hax_sum=0;
+	float A_sum_in=0, A_sum2_in=0, d_sum_in=0, d_sum2_in=0, r_i0_sum_in=0, r_i0_sum2_in=0;
+	float Mi_sum=0, Mi_sum2=0, logAge_sum=0, logAge_sum2=0, feh_sum=0, feh_sum2=0;
+	float logT_sum=0, logT_sum2=0, logg_sum=0, logg_sum2=0;
+	float prob_sum=0, A_prob_sum=0;
+	float rx_sum=0, ix_sum=0, hax_sum=0;
 	for (int n=floor(0.5*A_chain.size()); n<A_chain.size(); n++)
 	{
 		A_sum_in+=A_chain[n];
@@ -410,10 +410,10 @@ void iphas_obj::mean_intervals(void)
 }
 
 
-vector <double> iphas_obj::acl_calc(void)
+vector <float> iphas_obj::acl_calc(void)
 {
 
-	vector <double> acf (A_chain.size()-1, 0.);
+	vector <float> acf (A_chain.size()-1, 0.);
 
 	for (int it1=1; it1<A_chain.size(); it1++)
 	{

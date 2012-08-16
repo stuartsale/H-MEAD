@@ -13,7 +13,7 @@ class sl_obj
 {
 
 	public:
-		sl_obj(string filename, double l_in, double b_in);
+		sl_obj(string filename, float l_in, float b_in);
 		sl_obj(void);
 		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set);
 		void dist_redMCMC(vector<iso_obj> &isochrones);
@@ -28,43 +28,43 @@ class sl_obj
 	private:
 		vector <iphas_obj> star_cat;
 
-		double l, b;
+		float l, b;
 
-		double r_min, i_min, ha_min;	// iphas min & maxes
-		double r_max, i_max, ha_max;
+		float r_min, i_min, ha_min;	// iphas min & maxes
+		float r_max, i_max, ha_max;
 
 		string rootname;
 
-		vector < vector<double> > proposal_sd ;//(150, vector <double> (2));
-		vector < vector <double> > previous_rel; //(150, vector <double> (4));
-		vector < vector <double> > internal_rel; //(150, vector <double> (2));
-		vector < vector <double> > previous_internal_rel; //(150, vector <double> (2));
-		vector < vector <double> > first_internal_rel; //(150, vector <double> (2));
+		vector < vector<float> > proposal_sd ;//(150, vector <float> (2));
+		vector < vector <float> > previous_rel; //(150, vector <float> (4));
+		vector < vector <float> > internal_rel; //(150, vector <float> (2));
+		vector < vector <float> > previous_internal_rel; //(150, vector <float> (2));
+		vector < vector <float> > first_internal_rel; //(150, vector <float> (2));
 
-		double global_previous_prob;
-		double previous_hyperprior_prob, current_hyperprior_prob;
-		double global_current_prob, global_transition_prob;
-		double previous_xsl_prob, current_xsl_prob;
+		float global_previous_prob;
+		float previous_hyperprior_prob, current_hyperprior_prob;
+		float global_current_prob, global_transition_prob;
+		float previous_xsl_prob, current_xsl_prob;
 
 		// hold chains too
-		vector <vector <vector <double> > > global_A_chain;
+		vector <vector <vector <float> > > global_A_chain;
 
 		vector<bin_obj2> A_mean;
 		vector<bin_obj2> backup_A_mean;				
 
-		double sigma_fac, accepted;
+		float sigma_fac, accepted;
 // Set up
 
 		int without_change;
 		int thin;
 
-		double sigma2_LN, mu_LN;
-		vector <double> proposed_probs;
-		double rel_length;
+		float sigma2_LN, mu_LN;
+		vector <float> proposed_probs;
+		float rel_length;
 
 
 
 		sl_obj * neighbour_sl;
-		vector <vector <double> > recv_neighbour_rel;
+		vector <vector <float> > recv_neighbour_rel;
 
 };

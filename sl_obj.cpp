@@ -22,7 +22,7 @@ sl_obj::sl_obj(void)
 	neighbour_sl=NULL;
 }
 
-sl_obj::sl_obj(string filename, double l_in, double b_in)
+sl_obj::sl_obj(string filename, float l_in, float b_in)
 {
 	// Set up variables ---------------------------------------------------------------------
 	l=l_in;
@@ -109,11 +109,11 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	previous_xsl_prob=0;
 	current_xsl_prob=0;
 
-	proposal_sd.resize(150, vector <double> (2));
-	previous_rel.resize(150, vector <double> (4));
-	internal_rel.resize(150, vector <double> (2));
-	previous_internal_rel.resize(150, vector <double> (2));
-	first_internal_rel.resize(150, vector <double> (2));
+	proposal_sd.resize(150, vector <float> (2));
+	previous_rel.resize(150, vector <float> (4));
+	internal_rel.resize(150, vector <float> (2));
+	previous_internal_rel.resize(150, vector <float> (2));
+	first_internal_rel.resize(150, vector <float> (2));
 
 // Start from backup_A_mean
 
@@ -216,7 +216,7 @@ void sl_obj::update(vector<iso_obj> &isochrones)
 
 // First vary parameters for each star
 
-		double dummy=0;
+		float dummy=0;
 //		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 		for (int it=0; it<star_cat.size(); it++)
 		{
@@ -231,7 +231,7 @@ void sl_obj::update(vector<iso_obj> &isochrones)
 
 // Now vary hyper-parameters
 
-		vector < vector <double> > new_rel(rel_length,vector <double> (4));
+		vector < vector <float> > new_rel(rel_length,vector <float> (4));
 
 		for (int it=0; it<rel_length; it++)
 		{
@@ -375,7 +375,7 @@ void sl_obj::mean_intervals(void)
 	//#pragma omp parallel for  num_threads(3)
 	for (int it=0; it<150; it++)
 	{
-		double A_sum=0., sigma_sum=0.;
+		float A_sum=0., sigma_sum=0.;
 		for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)
 		{
 			A_sum+=global_A_chain[m][it][0];
@@ -384,7 +384,7 @@ void sl_obj::mean_intervals(void)
 		A_mean[it].mean_A=A_sum/ceil(0.30*global_A_chain.size());
 		A_mean[it].sigma=exp(sigma_sum/ceil(0.30*global_A_chain.size()));
 
-		vector <double> A_diffs, sigma_diffs;
+		vector <float> A_diffs, sigma_diffs;
 		for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)
 		{
 			A_diffs.push_back(abs(global_A_chain[m][it][0]-A_mean[it].mean_A));
@@ -416,8 +416,8 @@ void sl_obj::acl_calc(void)
 	acl_out << "# lag acf" <<endl; 
 
 
-	vector <double> acl;
-	vector <double> new_acl;
+	vector <float> acl;
+	vector <float> new_acl;
 
 	acl=star_cat[0].acl_calc();
 

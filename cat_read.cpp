@@ -1,7 +1,7 @@
 #include "cat_read.h"
 
 // function to read in IPHAS data, works in much the same manner as calibration_read
-vector<iphas_obj> iphas_read(string filename,double &r_min1,double &i_min1,double &ha_min1,double &r_max1, double &i_max1, double &ha_max1)		
+vector<iphas_obj> iphas_read(string filename,float &r_min1,float &i_min1,float &ha_min1,float &r_max1, float &i_max1, float &ha_max1)		
 {						
    //-----------------------
    // Pre-cond: filename is a string containing the filename of the IPHAS 
@@ -27,12 +27,12 @@ vector<iphas_obj> iphas_read(string filename,double &r_min1,double &i_min1,doubl
 		sstest>>temp;
 		if (temp!="#")
 		{		
-			double buffer;
+			float buffer;
 			stringstream ss1(str1);
 		
-			vector<double> infromfile;
+			vector<float> infromfile;
 		
-			while (ss1>>buffer){			// Includes implicit conversion from string to double
+			while (ss1>>buffer){			// Includes implicit conversion from string to float
 				infromfile.push_back(buffer);
 			}// correct length		-r_class is stellar or prob stellar-	--i_class is stellar or prob stellar-----	-ha class is stellar or prob stellar---		--------r,i,Ha photometry non-zero----------------		-----r,i,Ha photometric errors non-zero-------------------		---------small RA & DEC offsets between r and i, and r and Ha-------------------
 			if (infromfile.size()==30 && (infromfile[6]==-1 || infromfile[6]==-2) && (infromfile[11]==-1 || infromfile[11]==-2) && (infromfile[16]==-1 || infromfile[16]==-2) && (abs(infromfile[4])>0.1) && (abs(infromfile[9])>0.1) && (abs(infromfile[14])>0.1) && (infromfile[5]!=0) && (infromfile[10]!=0) && (infromfile[15]!=0) && infromfile[18]<=1.0 && infromfile[19]<=1.0 && infromfile[20]<=1.0 && infromfile[21]<=1.0) 	//selecting only stellar or probably stellar objects and those with small RA & DEC offsets
@@ -71,7 +71,7 @@ vector<iphas_obj> iphas_read(string filename,double &r_min1,double &i_min1,doubl
 
 
 // Function to read in 2MASS data, based on IPHAS read
-vector<iphas_obj> TWOMASS_read(string filename,double &J_min1,double &H_min1,double &K_min1,double &J_max1, double &H_max1, double &K_max1)
+vector<iphas_obj> TWOMASS_read(string filename,float &J_min1,float &H_min1,float &K_min1,float &J_max1, float &H_max1, float &K_max1)
 {
 	//vector<2MASS_obj> 2MASS_colours;
 	ifstream TWOMASS_data;

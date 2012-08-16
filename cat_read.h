@@ -7,5 +7,5 @@ using namespace std;
 #endif
 
 
-vector<iphas_obj> iphas_read(string filename,double &r_min1,double &i_min1,double &ha_min1,double &r_max1, double &i_max1, double &ha_max1);
-vector<iphas_obj> TWOMASS_read(string filename,double &J_min1,double &H_min1,double &K_min1,double &J_max1, double &H_max1, double &K_max1);
+vector<iphas_obj> iphas_read(string filename,float &r_min1,float &i_min1,float &ha_min1,float &r_max1, float &i_max1, float &ha_max1);
+vector<iphas_obj> TWOMASS_read(string filename,float &J_min1,float &H_min1,float &K_min1,float &J_max1, float &H_max1, float &K_max1);
