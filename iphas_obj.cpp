@@ -7,6 +7,9 @@ iphas_obj::iphas_obj(float r_input, float i_input, float ha_input, float d_r_inp
 	r=r_input;	
 	i=i_input;
 	ha=ha_input;
+	J=-99;
+	H=-99;
+	K=-99;
 	d_r=d_r_input;
 	d_i=d_i_input;
 	d_ha=d_ha_input;
@@ -32,6 +35,9 @@ iphas_obj::iphas_obj(float r_input, float i_input, float ha_input, float d_r_inp
 	r=r_input;	
 	i=i_input;
 	ha=ha_input;
+	J=-99;
+	H=-99;
+	K=-99;
 	d_r=d_r_input;
 	d_i=d_i_input;
 	d_ha=d_ha_input;
@@ -81,9 +87,13 @@ float iphas_obj::prob_eval(iso_obj test_iso, float test_A, float test_dist_mod, 
 
 	// Find p(y|x,sigma_y) 
 
-		if (r>-98){current_prob1+=-pow(r-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_dist_mod-test_iso.r0,2)/(2*d_r*d_r) ;}
+		if (r>-98){current_prob1+=	-pow(r-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_dist_mod-test_iso.r0,2)/(2*d_r*d_r) ;}
 		if (i>-98){current_prob1+=	-pow(i-(test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)-test_dist_mod-test_iso.i0,2)/(2*d_i*d_i) ;}
 		if (ha>-98){current_prob1+=	-pow(ha-(test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)-test_dist_mod-test_iso.ha0,2)/(2*d_ha*d_ha);}
+
+	//	if (J>-98){current_prob1+=	-pow(J-(test_iso.u_J*pow(test_A,2)+test_iso.v_J*test_A+test_iso.w_J)-test_dist_mod-test_iso.J0,2)/(2*d_J*d_K) ;}
+	//	if (H>-98){current_prob1+=	-pow(H-(test_iso.u_H*pow(test_A,2)+test_iso.v_H*test_A+test_iso.w_H)-test_dist_mod-test_iso.H0,2)/(2*d_H*d_H) ;}
+	//	if (K>-98){current_prob1+=	-pow(K-(test_iso.u_K*pow(test_A,2)+test_iso.v_K*test_A+test_iso.w_K)-test_dist_mod-test_iso.K0,2)/(2*d_K*d_K) ;}
 
 
 

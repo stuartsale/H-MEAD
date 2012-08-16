@@ -62,7 +62,9 @@ class iphas_obj
 
    private:
    // The basic photometry of each object and its calculated parameters - with uncertainties
-	float r, i, ha, d_r, d_i, d_ha, l, b;	
+	float r, i, ha, d_r, d_i, d_ha;
+	float J, H, K, d_J, d_H, d_K;
+	float l, b;	
 	float r_i0, A, dist, d_r_i0, d_A, d_dist, mag_weight;
 	float Mi, logAge, feh, d_Mi, d_logAge, d_feh;
 	float logT, logg;

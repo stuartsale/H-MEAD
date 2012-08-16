@@ -47,7 +47,7 @@ helper.o: helper.cpp helper.h
 iphas_obj.o: iphas_obj.cpp bin_obj.h iso_obj.h helper.h iphas_obj.h
 	$(COMPILER) -c $(flags) iphas_obj.cpp -I$(gsl_include) -L$(gsl_lib)
 
-sl_obj.o: sl_obj.cpp sl_obj.h helper.h
+sl_obj.o: sl_obj.cpp sl_obj.h helper.h iphas_obj.h cat_read.h bin_obj.h iso_obj.h
 	$(COMPILER) -c $(flags) sl_obj.cpp  -I$(gsl_include) -L$(gsl_lib)
 
 mead.o: mead.cpp bin_obj.h iso_obj.h helper.h iphas_obj.h sl_obj.h
