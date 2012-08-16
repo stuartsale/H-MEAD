@@ -81,9 +81,9 @@ float iphas_obj::prob_eval(iso_obj test_iso, float test_A, float test_dist_mod, 
 
 	// Find p(y|x,sigma_y) 
 
-		current_prob1+=-pow(r-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_dist_mod-test_iso.r0,2)/(2*d_r*d_r) ;
-		current_prob1+=	-pow(i-(test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)-test_dist_mod-test_iso.i0,2)/(2*d_i*d_i) ;
-		current_prob1+=	-pow(ha-(test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)-test_dist_mod-test_iso.ha0,2)/(2*d_ha*d_ha);
+		if (r>-98){current_prob1+=-pow(r-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_dist_mod-test_iso.r0,2)/(2*d_r*d_r) ;}
+		if (i>-98){current_prob1+=	-pow(i-(test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)-test_dist_mod-test_iso.i0,2)/(2*d_i*d_i) ;}
+		if (ha>-98){current_prob1+=	-pow(ha-(test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)-test_dist_mod-test_iso.ha0,2)/(2*d_ha*d_ha);}
 
 
 
@@ -154,14 +154,17 @@ float iphas_obj::get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod,
 
 	// Correction to prior to account for incompletness due to mag limits
 
+			if (r>-98){
 			if (A_min_r>0){A_prob=-(int_lookup(A_max_r,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_r, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
-			else {A_prob=-(int_lookup(A_max_r,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}
+			else {A_prob=-(int_lookup(A_max_r,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}}
 
+			if (i>-98){
 			if (A_min_i>0){A_prob=-(int_lookup(A_max_i,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_i, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
-			else {A_prob=-(int_lookup(A_max_i,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}
+			else {A_prob=-(int_lookup(A_max_i,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}}
 
+			if (ha>-98){
 			if (A_min_ha>0){A_prob=-(int_lookup(A_max_ha,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_ha, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
-			else {A_prob=-(int_lookup(A_max_ha,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}
+			else {A_prob=-(int_lookup(A_max_ha,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}}
 
 			if (isinf(A_prob))
 			{
@@ -175,14 +178,17 @@ float iphas_obj::get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod,
 
 	// Correction to prior to account for incompletness due to mag limits
 
+			if (r>-98){
 			if (A_min_r>0){A_prob=-(int_lookup(A_max_r,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_r,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-(int_lookup(A_max_r,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}
+			else {A_prob=-(int_lookup(A_max_r,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}}
 
+			if (i>-98){
 			if (A_min_i>0){A_prob=-(int_lookup(A_max_i,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_i,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-(int_lookup(A_max_i,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}
+			else {A_prob=-(int_lookup(A_max_i,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}}
 
+			if (ha>-98){
 			if (A_min_ha>0){A_prob=-(int_lookup(A_max_ha,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_ha,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-(int_lookup(A_max_ha,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}
+			else {A_prob=-(int_lookup(A_max_ha,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}}
 
 			if (isinf(A_prob))
 			{
