@@ -63,11 +63,17 @@ vector <vector <string> > config_read(string filename);
 // set default MIN vals
 extern double r_min;
 extern double i_min;
-extern double ha_min;				
+extern double ha_min;
+extern double J_min;
+extern double H_min;
+extern double K_min;			
 // set default MAX vals
 extern double r_max;
 extern double i_max;
 extern double ha_max;
+extern double J_max;
+extern double H_max;
+extern double K_max;
 
 extern vector <vector <vector <double> > > lookup_table;
 vector <vector <vector <double> > > lookup_creator(void);

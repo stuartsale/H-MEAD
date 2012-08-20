@@ -26,6 +26,7 @@ vector<iso_obj> iso_read_Tg(const string &filename);
 
 
 double r_min, i_min, ha_min, r_max, i_max, ha_max;
+double J_min, H_min, K_min, J_max, H_max, K_max;
 vector <vector <vector <double> > > lookup_table;
 
 gsl_rng* rng_handle;

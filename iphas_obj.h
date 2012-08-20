@@ -70,6 +70,7 @@ class iphas_obj
 	float logT, logg;
 	int distbin;
 	float A_min, A_max, A_min_r, A_max_r, A_min_i, A_max_i, A_min_ha, A_max_ha, A_prob;
+	float A_min_J, A_max_J, A_min_H, A_max_H, A_min_K, A_max_K;
 
 	vector <iso_obj> iso_obj_chain;
 	vector <float> dist_mod_chain;
