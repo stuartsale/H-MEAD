@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
 
    // Read in data
 
-		sl_obj sl1( config_file[it_conf][0],atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()) );
+		sl_obj sl1( config_file[it_conf][0],atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()), config_file[it_conf][3] );
 		//slsl.push_back(sl1);
 		slsl[it_conf]=sl1;
 

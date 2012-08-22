@@ -13,7 +13,7 @@ class sl_obj
 {
 
 	public:
-		sl_obj(string filename, float l_in, float b_in);
+		sl_obj(string filename, float l_in, float b_in, string datatype);
 		sl_obj(void);
 		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set);
 		void dist_redMCMC(vector<iso_obj> &isochrones);

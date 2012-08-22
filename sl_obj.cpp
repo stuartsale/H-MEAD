@@ -22,7 +22,7 @@ sl_obj::sl_obj(void)
 	neighbour_sl=NULL;
 }
 
-sl_obj::sl_obj(string filename, float l_in, float b_in)
+sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 {
 	// Set up variables ---------------------------------------------------------------------
 	l=l_in;
@@ -45,7 +45,8 @@ sl_obj::sl_obj(string filename, float l_in, float b_in)
 
 	// Read in data	-------------------------------------------------------------------------
 
-	star_cat=iphas_read(filename,r_min,i_min,ha_min,r_max,i_max,ha_max);
+	if (datatype=="iphas" || datatype=="IPHAS"){star_cat=iphas_read(filename,r_min,i_min,ha_min,r_max,i_max,ha_max);}
+	else {cout << "Unrecognised datatype: " << datatype << endl;}
 
 	// Find expected A(d) -------------------------------------------------------------------
 

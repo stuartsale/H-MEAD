@@ -386,7 +386,7 @@ vector <vector <string> > config_read(string filename)
 			{			// Includes implicit conversion from string to string
 				fromfile.push_back(buf);	
 			}
-			if (fromfile.size()==3)		// check there's something in the line
+			if (fromfile.size()==4)		// check there's something in the line
 			{
 				totalfile.push_back(fromfile);
 			}
