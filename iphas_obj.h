@@ -40,6 +40,7 @@ class iphas_obj
 		iphas_obj(float r_input, float i_input, float ha_input, float d_r_input, float d_i_input, float d_ha_input, float l_input, float b_input);
       		iphas_obj(float d_r_input, float d_i_input, float d_ha_input);
 		iphas_obj(float r_input, float i_input, float ha_input, float d_r_input, float d_i_input, float d_ha_input, float l_input, float b_input, float real_dist_in, float real_A_in, float real_Mi_in, float real_logAge_in, float real_feh_in);
+		iphas_obj(float P1_input, float P2_input, float P3_input, float d_P1_input, float d_P2_input, float d_P3_input, float l_input, float b_input, string source);
 		void red_dist(vector<bin_obj2> &A_mean, vector<iso_obj> &isochrones, float l, float b);
 		void red_dist(vector<iso_obj> &isochrones, float l, float b);
 		void print();
@@ -64,7 +65,8 @@ class iphas_obj
    // The basic photometry of each object and its calculated parameters - with uncertainties
 	float r, i, ha, d_r, d_i, d_ha;
 	float J, H, K, d_J, d_H, d_K;
-	float l, b;	
+	float l, b;
+	int pixel;	
 	float r_i0, A, dist, d_r_i0, d_A, d_dist, mag_weight;
 	float Mi, logAge, feh, d_Mi, d_logAge, d_feh;
 	float logT, logg;

@@ -71,6 +71,35 @@ iphas_obj::iphas_obj(float d_r_input, float d_i_input, float d_ha_input)
 	d_ha=d_ha_input;
 }
 
+iphas_obj::iphas_obj(float P1_input, float P2_input, float P3_input, float d_P1_input, float d_P2_input, float d_P3_input, float l_input, float b_input, string source)
+{
+	if (source=="2MASS")
+	{
+		r=-99;	
+		i=-99;
+		ha=-99;
+		J=P1_input;
+		H=P2_input;
+		K=P3_input;
+		d_J=d_P1_input;
+		d_H=d_P2_input;
+		d_K=d_P3_input;
+		l=l_input * PI/180.;
+		b=b_input* PI/180.;
+	
+		feh_sd=0.008;
+		logT_sd=0.003;
+		logg_sd=0.008;
+		A_sd=sqrt(d_r*d_r+d_i*d_i)/4;
+		dist_mod_sd=0.5*d_r;
+
+		ri_sd=min(sqrt(d_r*d_r+d_i*d_i), 0.04f);
+		rmag_sd=d_r;
+	
+		no_accept=0;
+	}
+}
+
 
 
 void iphas_obj::set_mag_weight(float mag_weight_input)
