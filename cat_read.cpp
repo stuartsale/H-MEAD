@@ -73,11 +73,36 @@ vector<iphas_obj> iphas_read(string filename,float &r_min1,float &i_min1,float &
 // Function to read in 2MASS data, based on IPHAS read
 vector<iphas_obj> TWOMASS_read(string filename,float &J_min1,float &H_min1,float &K_min1,float &J_max1, float &H_max1, float &K_max1)
 {
-	//vector<2MASS_obj> 2MASS_colours;
+	vector<iphas_obj> TWOMASS_colours;
 	ifstream TWOMASS_data;
 	TWOMASS_data.open(filename.c_str());
 	if(!TWOMASS_data) { //output file couldn't be opened
 		cerr << "Error: 2MASS catalogue file could not be opened \n";
 		exit(1);
+	}
+	while (!TWOMASS_data.eof())				// Running down file
+	{
+		string str1; 	
+		getline(TWOMASS_data, str1);
+		string temp;
+		stringstream sstest(str1);
+		sstest>>temp;
+		if (temp!="#")
+		{		
+			float buffer;
+			stringstream ss1(str1);
+		
+			vector<float> infromfile;
+		
+			while (ss1>>buffer){			// Includes implicit conversion from string to float
+				infromfile.push_back(buffer);	
+				if (infromfile.size()==9)
+				{
+					iphas_obj new_obj(infromfile[3], infromfile[5], infromfile[7], infromfile[4], infromfile[6], infromfile[7], infromfile[0], infromfile[1], "2MASS");
+					TWOMASS_colours.push_back(new_obj);
+				}
+			}
+
+		}
 	}	
 }
