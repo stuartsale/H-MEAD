@@ -46,6 +46,7 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 	// Read in data	-------------------------------------------------------------------------
 
 	if (datatype=="iphas" || datatype=="IPHAS"){star_cat=iphas_read(filename,r_min,i_min,ha_min,r_max,i_max,ha_max);}
+	else if (datatype=="2MASS" || datatype=="2mass"){star_cat=TWOMASS_read(filename,J_min, H_min, K_min,J_max,H_max,K_max);}
 	else {cout << "Unrecognised datatype: " << datatype << endl;}
 
 	// Find expected A(d) -------------------------------------------------------------------

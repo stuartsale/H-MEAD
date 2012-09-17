@@ -33,6 +33,9 @@ class sl_obj
 		float r_min, i_min, ha_min;	// iphas min & maxes
 		float r_max, i_max, ha_max;
 
+		float J_min, H_min, K_min;	// 2MASS min & maxes
+		float J_max, H_max, K_max;
+
 		string rootname;
 
 		vector < vector<float> > proposal_sd ;//(150, vector <float> (2));

@@ -114,6 +114,14 @@ float iphas_obj::prob_eval(iso_obj test_iso, float test_A, float test_dist_mod, 
 	// Find P(S|y,x,sigma_y)
 		float current_prob1=0;
 
+		if (r>-98){current_prob1+=-log(exp((r-r_max)*4)+1) ;}
+		if (i>-98){current_prob1+=-log(exp((i-i_max)*4)+1) ;}
+		if (ha>-98){current_prob1+=-log(exp((ha-ha_max)*4)+1) ;}
+
+		if (J>-98){current_prob1+=-log(exp((J-J_max)*4)+1) ;}
+		if (H>-98){current_prob1+=-log(exp((H-H_max)*4)+1) ;}
+		if (K>-98){current_prob1+=-log(exp((K-K_max)*4)+1) ;}
+
 	// Find p(y|x,sigma_y) 
 
 		if (r>-98){current_prob1+=	-pow(r-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_dist_mod-test_iso.r0,2)/(2*d_r*d_r) ;}
@@ -164,129 +172,23 @@ float iphas_obj::prob_eval(iso_obj test_iso, float test_A, float test_dist_mod, 
 float iphas_obj::get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean)
 {
 	// Find P(S|y,x,sigma_y)
-		float current_prob1=0;
+	float current_prob1=0;
 
-		float test_dist=pow(10,test_dist_mod/5+1);
+	float test_dist=pow(10,test_dist_mod/5+1);
 
 	// Also the the contribution to p(x) from the distance-reddening relationship
 
-		if (r>-98)
-		{
-			A_max_r=quadratic(test_iso.u, test_iso.v, test_iso.w + (test_iso.r0+test_dist_mod-r_max), +1);
-			A_min_r=test_A-(r-r_min)/test_iso.v;
-		}
+	if (floor(test_dist*1.0/100)<A_mean.size())
+	{
+		current_prob1+=-log(A_mean[floor(test_dist*1.0/100)][3]*test_A) - pow(log(test_A)-A_mean[floor(test_dist*1.0/100)][2],2)/(2*pow(A_mean[floor(test_dist*1.0/100)][3],2));
 
-		if (i>-98)
-		{
-			A_max_i=quadratic(test_iso.u_i, test_iso.v_i, test_iso.w_i + (test_iso.i0+test_dist_mod-i_max), +1);
-			A_min_i=test_A-(i-i_min)/test_iso.v_i;
-		}
+	}
+	else
+	{
+		current_prob1+=(-log(A_mean[A_mean.size()-1][3]*test_A) - pow(log(test_A)-A_mean[A_mean.size()-1][2],2)/(2*pow(A_mean[A_mean.size()-1][3],2)));
+	}
 
-		if (ha>-98)
-		{
-			A_max_ha=quadratic(test_iso.u_ha, test_iso.v_ha, test_iso.w_ha + (test_iso.ha0+test_dist_mod-ha_max), +1);	
-			A_min_ha=test_A-(ha-ha_min)/test_iso.v_ha;
-		}
-		
-
-		if (J>-98)
-		{
-			A_max_J=quadratic(test_iso.u_J, test_iso.v_J, test_iso.w_J + (test_iso.J0+test_dist_mod-J_max), +1);
-			A_min_J=test_A-(J-J_min)/test_iso.v_J;
-		}
-
-		if (H>-98)
-		{
-			A_max_H=quadratic(test_iso.u_H, test_iso.v_H, test_iso.w_H + (test_iso.H0+test_dist_mod-H_max), +1);
-			A_min_H=test_A-(H-H_min)/test_iso.v_H;
-		}
-
-		if (K>-98)
-		{
-			A_max_K=quadratic(test_iso.u_K, test_iso.v_K, test_iso.w_K + (test_iso.K0+test_dist_mod-K_max), +1);
-			A_min_K=test_A-(K-K_min)/test_iso.v_K;
-		}
-
-
-
-		if (floor(test_dist*1.0/100)<A_mean.size())
-		{
-			A_prob=0;
-			current_prob1+=-log(A_mean[floor(test_dist*1.0/100)][3]*test_A) - pow(log(test_A)-A_mean[floor(test_dist*1.0/100)][2],2)/(2*pow(A_mean[floor(test_dist*1.0/100)][3],2));
-
-	// Correction to prior to account for incompletness due to mag limits
-
-			if (r>-98){
-			if (A_min_r>0){A_prob=-(int_lookup(A_max_r,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_r, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
-			else {A_prob=-(int_lookup(A_max_r,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}}
-
-			if (i>-98){
-			if (A_min_i>0){A_prob=-(int_lookup(A_max_i,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_i, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
-			else {A_prob=-(int_lookup(A_max_i,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}}
-
-			if (ha>-98){
-			if (A_min_ha>0){A_prob=-(int_lookup(A_max_ha,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_ha, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
-			else {A_prob=-(int_lookup(A_max_ha,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}}
-
-			if (J>-98){
-			if (A_min_r>0){A_prob=-(int_lookup(A_max_J,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_J, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
-			else {A_prob=-(int_lookup(A_max_J,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}}
-
-			if (H>-98){
-			if (A_min_r>0){A_prob=-(int_lookup(A_max_H,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_H, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
-			else {A_prob=-(int_lookup(A_max_H,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}}
-
-			if (K>-98){
-			if (A_min_r>0){A_prob=-(int_lookup(A_max_K,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1])-gsl_cdf_lognormal_P(A_min_K, A_mean[floor(test_dist*1.0/100)][2],A_mean[floor(test_dist*1.0/100)][3]));}
-			else {A_prob=-(int_lookup(A_max_K,A_mean[floor(test_dist*1.0/100)][0],A_mean[floor(test_dist*1.0/100)][1]));}}
-
-			if (isinf(A_prob))
-			{
-				A_prob=-1E6;
-			}
-		}
-		else
-		{
-			A_prob=0;
-			current_prob1+=(-log(A_mean[A_mean.size()-1][3]*test_A) - pow(log(test_A)-A_mean[A_mean.size()-1][2],2)/(2*pow(A_mean[A_mean.size()-1][3],2)));
-
-	// Correction to prior to account for incompletness due to mag limits
-
-			if (r>-98){
-			if (A_min_r>0){A_prob=-(int_lookup(A_max_r,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_r,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-(int_lookup(A_max_r,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}}
-
-			if (i>-98){
-			if (A_min_i>0){A_prob=-(int_lookup(A_max_i,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_i,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-(int_lookup(A_max_i,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}}
-
-			if (ha>-98){
-			if (A_min_ha>0){A_prob=-(int_lookup(A_max_ha,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_ha,A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-(int_lookup(A_max_ha,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}}
-
-			if (J>-98){
-			if (A_min_r>0){A_prob=-(int_lookup(A_max_J,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_J, A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-(int_lookup(A_max_J,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}}
-
-			if (H>-98){
-			if (A_min_r>0){A_prob=-(int_lookup(A_max_H,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_H, A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-(int_lookup(A_max_H,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}}
-
-			if (K>-98){
-			if (A_min_r>0){A_prob=-(int_lookup(A_max_K,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1])-gsl_cdf_lognormal_P(A_min_K, A_mean[A_mean.size()-1][2],A_mean[A_mean.size()-1][3]));}
-			else {A_prob=-(int_lookup(A_max_K,A_mean[A_mean.size()-1][0],A_mean[A_mean.size()-1][1]));}}
-
-			if (isinf(A_prob))
-			{
-				A_prob=-1E6;
-			}
-		}
-
-
-	current_prob1+=A_prob ;//- 2*log(A_mean[floor(test_dist*1.04/100)][3]);		// Jeffreys prior term
 	if (current_prob1!=current_prob1){/*cout<< test_dist/100<< " " << " " << A_prob<< " " << current_prob1 << "" "" << A_max <<endl;*/ current_prob1=-1E6;}
-
-
 
 	return current_prob1;
 }
