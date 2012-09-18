@@ -85,3 +85,49 @@ double iso_obj::redline(double r_i1)
 	A_int=(-(r0-i0)+r_i1)/(v-v_i);
 	return (u-u_ha)*pow(A_int,2) + (v-v_ha)*A_int + (w-w_ha)+(r0-ha0);
 }
+
+
+
+
+
+
+
+LF::LF(string filename)
+{
+
+	ifstream input1;
+	input1.open(filename.c_str());
+	if(!input1) { //output file couldn't be opened
+		cerr << "Error: file " << filename << " could not be opened" << endl;
+	}
+
+	while (!input1.eof())				// Running down file - reading it in
+	{
+		string str; 	
+		getline(input1, str);			// grab a line
+		string temp;
+		stringstream sstest(str);
+		sstest>>temp;
+		if (temp!="#")				// check the line isn't commented out
+		{
+
+			float buf;
+			stringstream ss(str);		// turn that line into a stringstream
+		
+			vector<float> fromfile;	//vector to put contents of line into
+		
+			while (ss>>buf)
+			{			// Includes implicit conversion from string to float
+				fromfile.push_back(buf);	
+			}
+			if (fromfile.size()==2)		// check there's something in the line
+			{
+				LF_vec.push_back(fromfile);
+			}
+		}
+	}
+
+	metal_prob=1;
+}
+
+	
