@@ -107,7 +107,7 @@ void iphas_obj::set_mag_weight(float mag_weight_input)
    mag_weight=mag_weight_input;
 }
 
-float iphas_obj::prob_eval(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean)
+float iphas_obj::likelihood_eval(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean)
 {	
 // Find probability of this parameter set - distance
 	//cout << test_iso.Mi << " " << test_iso.logAge << " " << test_A << " " << test_dist_mod << " " ;
@@ -220,7 +220,7 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 
 // Find prob
 
-	last_prob=prob_eval(last_iso, last_A, last_dist_mod, A_mean);
+	last_prob=likelihood_eval(last_iso, last_A, last_dist_mod, A_mean);
 	last_A_prob= get_A_prob(last_iso, last_A, last_dist_mod, A_mean);
 
 	best_prob=last_prob+last_A_prob;
@@ -263,7 +263,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 	test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;
 
 
-	current_prob=prob_eval(test_iso, test_A, test_dist_mod, A_mean);
+	current_prob=likelihood_eval(test_iso, test_A, test_dist_mod, A_mean);
 	current_A_prob=get_A_prob(test_iso, test_A, test_dist_mod, A_mean);
 
 // Metropolis-Hastings algorithm step
