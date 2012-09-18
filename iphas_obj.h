@@ -18,6 +18,10 @@ using namespace std;
 #define PI 3.14159265358979323846
 #endif
 
+#ifndef LN_TEN
+#define LN_TEN 2.302585093
+#endif
+
 
 //#endif
 //#include "iso_obj.h"
@@ -118,6 +122,6 @@ class iphas_obj
 //
 };
 
-float log_prior(float test_dist_mod, float test_feh);
+float log_prior(float test_dist_mod, float test_feh, float l, float b);
 
 #endif

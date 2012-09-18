@@ -43,13 +43,18 @@ float LF::LF_prob(vector < vector <float> > A_rel)
 {
 	float prob=0;
 	float norm=0;
+	float prior;
 
 	for (int it=0; it<A_rel.size(); it++)	// run though A(d)
 	{
-		norm+=
+		prior=exp(log_prior(it*100.+50., feh, 180., 0.));
+		norm+=prior;
 		for (int it2=0; it2<LF_vec.size(); it2++)
 		{
-			prob+=
+			prob+=prior*lookup_table[0][0][0]*LF_vec[it2][1];
+		}
+	}
+	return log(prob/norm);
 
 
 }	
