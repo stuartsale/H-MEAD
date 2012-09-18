@@ -1,11 +1,11 @@
-/*#include <algorithm>
-#include <cstdlib>*/
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cmath>
+/*#include <iostream>
 #include <string>
+#include <fstream>
 #include <vector>
+#include <algorithm>
+#include <cstdlib> 
+#include <sstream>*/
+#include <cmath>
 using namespace std;
 
 
@@ -44,22 +44,5 @@ class iso_obj		// This is a class for holding isochrone points
 	
 //	friend	void iphas_obj::red_dist(vector<bin_obj2> &A_mean, vector<iso_obj> &isochrones, double l, double b);
 };
-
-class LF		// A class for holding LFs
-{
-	public:
-	LF(string filename);
-	float LF_prob(vector < vector <float> > new_rel);
-	float metal_prob;
-
-	private:
-	vector <vector <float> > LF_vec;
-	void metal_prob_set(void);
-};
-
-extern vector <vector <vector <double> > > lookup_table;
-vector <vector <vector <double> > > lookup_creator(void);
-double int_lookup(double A_max, double A_mean, double sd);
-struct params_struct {double A_max; double A_mean; double sigma;};
 
 //#endif
