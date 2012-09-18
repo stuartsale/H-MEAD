@@ -133,33 +133,11 @@ float iphas_obj::likelihood_eval(iso_obj test_iso, float test_A, float test_dist
 		if (K>-98){current_prob1+=	-pow(K-(test_iso.u_K*pow(test_A,2)+test_iso.v_K*test_A+test_iso.w_K)-test_dist_mod-test_iso.K0,2)/(2*d_K*d_K) ;}
 
 
-
-		float test_dist=pow(10,test_dist_mod/5+1);
-
-
 		// IMF - Scalo type?
 		current_prob1+=log(test_iso.IMF());
 		current_prob1-=test_iso.logAge;
 
-
-
-		float /*cosb=1, sinb=0, cosl=-1,*/ R_gal;
-		R_gal=sqrt(test_dist*test_dist*cos(b)*cos(b) + 64000000-16000*test_dist*cos(l)*cos(b));
-
-		// density profile
-	//	current_prob1+=-R_gal/2500 -test_dist*sinb/200;
-		if (R_gal<130000){current_prob1+=-R_gal/3000 -test_dist*sin(b)/200;}	// change back to 13000 for real data
-		else {current_prob1+=-R_gal/1200 +6.5 -test_dist*sin(b)/200;} 		// -6.5=13000/3000 - 13000/1200
-
-		// metallicity profile
-		current_prob1+=-pow(test_iso.feh-(R_gal-8000.)*0.00007,2)/(2*0.5);
-	//	current_prob1+=-pow(test_iso.feh,2)/(2*pow(0.05,2));
-		
-
-
-
-	//	// dist^2 term 
-		current_prob1+=2*log(test_dist);
+		current_prob1+=log_prior(test_dist_mod, test_iso.feh);
 
 		current_prob1+=log(test_dist/(2*test_A*(test_iso.u-test_iso.u_i)+test_iso.v-test_iso.v_i));
 		current_prob1+=log(test_iso.Jac);
@@ -425,3 +403,27 @@ vector <float> iphas_obj::acl_calc(void)
 
 	return acf;
 }
+
+float log_prior(float test_dist_mod, float test_feh)
+{
+	float current_prob=0;
+	float test_dist=pow(10,test_dist_mod/5+1);
+
+	float /*cosb=1, sinb=0, cosl=-1,*/ R_gal;
+	R_gal=sqrt(test_dist*test_dist*cos(b)*cos(b) + 64000000-16000*test_dist*cos(l)*cos(b));
+
+	// density profile
+	//	current_prob1+=-R_gal/2500 -test_dist*sinb/200;
+	if (R_gal<13000){current_prob1+=-R_gal/3000 -test_dist*sin(b)/200;}	// change back to 13000 for real data
+	else {current_prob1+=-R_gal/1200 +6.5 -test_dist*sin(b)/200;} 		// -6.5=13000/3000 - 13000/1200
+
+	// metallicity profile
+	current_prob1+=-pow(test_feh-(R_gal-8000.)*0.00007,2)/(2*0.5);
+	//	current_prob1+=-pow(test_iso.feh,2)/(2*pow(0.05,2));
+
+	//	// dist^2 term 
+	current_prob1+=2*log(test_dist);
+	
+	return current_prob;
+}
+

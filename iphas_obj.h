@@ -118,4 +118,6 @@ class iphas_obj
 //
 };
 
+float log_prior(float test_dist_mod, float test_feh);
+
 #endif
