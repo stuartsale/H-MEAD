@@ -130,4 +130,19 @@ LF::LF(string filename)
 	metal_prob=1;
 }
 
+float LF::LF_prob(vector < vector <float> > A_rel)
+{
+	float prob=0;
+	float norm=0;
+
+	for (int it=0; it<A_rel.size(); it++)	// run though A(d)
+	{
+		norm+=
+		for (int it2=0; it2<LF_vec.size(); it2++)
+		{
+			prob+=
+
+
+}	
+
 	
