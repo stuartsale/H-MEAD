@@ -1,7 +1,7 @@
 
 //#include "helper.cpp"
 //#include "bin_obj.h"
-#include "iphas_obj.h"
+#include "LF.h"
 #include "cat_read.h"
 using namespace std;
 
@@ -15,9 +15,9 @@ class sl_obj
 	public:
 		sl_obj(string filename, float l_in, float b_in, string datatype);
 		sl_obj(void);
-		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set);
-		void dist_redMCMC(vector<iso_obj> &isochrones);
-		void update(vector<iso_obj> &isochrones);
+		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector <LF> &LFs);
+		void dist_redMCMC(vector<iso_obj> &isochrones, vector <LF> &LFs);
+		void update(vector<iso_obj> &isochrones,  vector <LF> &LFs);
 		void mean_intervals(void);
 		void output_write(void);
 		void neighbour_set(sl_obj * neighbour);
@@ -46,6 +46,7 @@ class sl_obj
 
 		float global_previous_prob;
 		float previous_hyperprior_prob, current_hyperprior_prob;
+		float previous_norm_prob, current_norm_prob;
 		float global_current_prob, global_transition_prob;
 		float previous_xsl_prob, current_xsl_prob;
 

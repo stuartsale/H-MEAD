@@ -423,7 +423,7 @@ float log_prior(float test_dist_mod, float test_feh, float l, float b)
 
 	//	// dist^2 term 
 	current_prob+=2*log(test_dist);
-	
+
 	return current_prob;
 }
 

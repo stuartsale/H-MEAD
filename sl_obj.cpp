@@ -103,7 +103,7 @@ void sl_obj::output_write(void)
 }
 
 
-void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set)
+void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector <LF> &LFs)
 {
 	global_previous_prob=0;
 	previous_hyperprior_prob=0;
@@ -186,6 +186,12 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 
 	proposed_probs.resize(star_cat.size());
 
+	previous_norm_prob=0;
+	for (int it_LF=0; it_LF<LFs.size(); it_LF++)
+	{
+		previous_norm_prob+=-LFs[it_LF].LF_prob(previous_rel)*(star_cat.size()+1);
+	}
+
 	if (neighbour_sl)
 	{
 		for (int it=0; it<rel_length; it++)
@@ -200,16 +206,16 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 
 
 
-void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones)
+void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones, vector <LF> &LFs)
 {
 
 	while (it_num<150000 )
 	{
-		update(isochrones);
+		update(isochrones, LFs);
 	}
 }
 
-void sl_obj::update(vector<iso_obj> &isochrones)
+void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 {
 		global_current_prob=0;
 		global_transition_prob=0;
@@ -287,6 +293,16 @@ void sl_obj::update(vector<iso_obj> &isochrones)
 		}
 		global_current_prob=dummy;
 
+// Normalisation term
+
+		current_norm_prob=0;
+		for (int it_LF=0; it_LF<LFs.size(); it_LF++)
+		{
+			current_norm_prob+=-LFs[it_LF].LF_prob(new_rel)*(star_cat.size()+1);
+		}
+
+// Neighbour term
+
 		if (neighbour_sl)
 		{
 			for (int it=0; it<rel_length; it++)
@@ -328,13 +344,15 @@ void sl_obj::update(vector<iso_obj> &isochrones)
 // Accept or reject
 	
 	
-		if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob>0)		// New parameter set better => Accept
+		if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
+			 + current_norm_prob-previous_norm_prob>0)		// New parameter set better => Accept
 		{
 			previous_rel=new_rel;
 			previous_internal_rel=internal_rel;
 			global_previous_prob=global_current_prob;
 			previous_hyperprior_prob=current_hyperprior_prob;
 			previous_xsl_prob=current_xsl_prob;
+			previous_norm_prob=current_norm_prob;
 			without_change=0;
 			accepted++;
 
@@ -343,13 +361,15 @@ void sl_obj::update(vector<iso_obj> &isochrones)
 		//	cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << endl;
 		}
 
-		else if (exp(global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob)>gsl_ran_flat(rng_handle, 0, 1))	// New set worse => accept with P=P(new)/P(old)
+		else if (exp(global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
+			+ current_norm_prob-previous_norm_prob)>gsl_ran_flat(rng_handle, 0, 1))	// New set worse => accept with P=P(new)/P(old)
 		{
 			previous_rel=new_rel;
 			previous_internal_rel=internal_rel;
 			global_previous_prob=global_current_prob;
 			previous_hyperprior_prob=current_hyperprior_prob;
 			previous_xsl_prob=current_xsl_prob;
+			previous_norm_prob=current_norm_prob;
 			without_change=0;
 			accepted++;
 

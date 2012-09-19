@@ -112,6 +112,10 @@ int main(int argc, char* argv[])
 	guess_set.push_back(iso_get_Tg(0.,3.949 ,4.20 , isochrones));	//A3
 	guess_set.push_back(iso_get_Tg(0.,3.961 ,4.16 , isochrones));	//A2
 
+	vector <LF> lfs;
+
+	LF lfzero("config/iphas_LFs/lfp0000_r.dat");
+	lfs.push_back(lfzero);
 
 //	while (1.0648*guess_set[guess_set.size()-1].Mi<2.060){guess_set.push_back(iso_get(0., 1.0648*guess_set[guess_set.size()-1].Mi, 8.5, isochrones));}
 //	guess_set.push_back(iso_get(0., 2.060, 8.5, isochrones));
@@ -133,7 +137,7 @@ int main(int argc, char* argv[])
 		slsl[it_conf]=sl1;
 
 		if (it_conf!=0){slsl[it_conf].neighbour_set(&slsl[it_conf-1]);}
-		slsl[it_conf].initial_guess(isochrones, guess_set);
+		slsl[it_conf].initial_guess(isochrones, guess_set, lfs);
 	}
 
 	clock_t start;
@@ -143,7 +147,7 @@ int main(int argc, char* argv[])
 	{
 		for (int it_conf=0; it_conf<config_file.size(); it_conf++)
 		{
-			slsl[it_conf].update(isochrones);
+			slsl[it_conf].update(isochrones, lfs);
 		}
 	}		
 	
