@@ -382,7 +382,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 		}
 		if (neighbour_sl){if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << " " << neighbour_sl->previous_rel[rel_length-1][0] << endl;}}
-		else {if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << endl;}}
+		else {if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << accepted << " " << accepted/it_num << endl;}}
 
 		if (floor(it_num/100.)==it_num/100){global_A_chain.push_back(previous_rel);}
 		it_num++;

@@ -47,17 +47,19 @@ float LF::LF_prob(vector < vector <float> > A_rel)
 
 	for (int it=0; it<A_rel.size(); it++)	// run though A(d)
 	{
-		prior=exp(log_prior(5*log10(it*100.+50.)-5., feh, 180., 0.));
+		prior=exp(log_prior(5*log10(it*100.+50.)-5., feh, PI, 0.));
 		norm+=prior;
 		for (int it2=0; it2<LF_vec.size(); it2++)
 		{
-			if (LF_vec[it2][0]+5*log10(it*100.+50.)-5.+1.02*A_rel[it][1]<r_max)
+			if (LF_vec[it2][0]+5*log10(it*100.+50.)-5.+1.02*A_rel[it][0]<r_max)
 			{
 				prob+=prior/*lookup_table[0][0][0]*/*LF_vec[it2][1];
 			}
+			else{break;}
+	
 		}
 	}
-	cout << log(prob/norm) << " " << prob << " " << norm << endl;
+	//cout << log(prob/norm) << " " << prob << " " << norm << " " << A_rel.size() << endl;
 
 	return log(prob/norm);
 
