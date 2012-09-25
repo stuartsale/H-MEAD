@@ -41,8 +41,8 @@ iphas_obj::iphas_obj(float r_input, float i_input, float ha_input, float d_r_inp
 	d_r=d_r_input;
 	d_i=d_i_input;
 	d_ha=d_ha_input;
-	l=180;//l_input;
-	b=0;//b_input;
+	l=180* PI/180.;//l_input;
+	b=0* PI/180.;//b_input;
 
 	feh_sd=0.008;
 	logT_sd=0.003*4.;
@@ -414,11 +414,11 @@ float log_prior(float test_dist_mod, float test_feh, float l, float b)
 
 	// density profile
 	//	current_prob1+=-R_gal/2500 -test_dist*sinb/200;
-	if (R_gal<13000){current_prob+=-R_gal/3000 -test_dist*sin(b)/200;}	// change back to 13000 for real data
-	else {current_prob+=-R_gal/1200 +6.5 -test_dist*sin(b)/200;} 		// -6.5=13000/3000 - 13000/1200
+	if (R_gal<13000){current_prob+=-R_gal/3000 /*-test_dist*sin(b)/200*/;}	// change back to 13000 for real data
+	else {current_prob+=-R_gal/1200 +6.5 /*-test_dist*sin(b)/200*/;} 		// -6.5=13000/3000 - 13000/1200
 
 	// metallicity profile
-	current_prob+=-pow(test_feh-(R_gal-8000.)*0.00007,2)/(2*0.5);
+	//current_prob+=-pow(test_feh-(R_gal-8000.)*0.00007,2)/(2*0.5);
 	//	current_prob1+=-pow(test_iso.feh,2)/(2*pow(0.05,2));
 
 	//	// dist^2 term 
