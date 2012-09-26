@@ -12,4 +12,6 @@ class LF		// A class for holding LFs
 	private:
 	vector <vector <float> > LF_vec;
 	void metal_prob_set(void);
+	vector <float> prior_lf;
+	float norm_lf;
 };

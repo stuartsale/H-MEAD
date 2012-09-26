@@ -37,31 +37,52 @@ LF::LF(string filename)
 	}
 
 	metal_prob=1;
+	
+	norm_lf=0;
+	for (int it=0; it<150; it++)
+	{
+		prior_lf.push_back(exp(log_prior(5*log10(it*100.+50.)-5., feh, PI, 0.)));
+		norm_lf+=prior_lf[it];
+	}
+	cout << prior_lf.size() << " " << prior_lf[10] << " " << norm_lf << endl;
+	
+
 }
 
 float LF::LF_prob(vector < vector <float> > A_rel)
 {
 	float prob=0;
-	float norm=0;
-	float prior;
+	//float norm=0;
+	//float prior;
+	float A_max;
 
 	for (int it=0; it<A_rel.size(); it++)	// run though A(d)
 	{
-		prior=exp(log_prior(5*log10(it*100.+50.)-5., feh, PI, 0.));
-		norm+=prior;
+		//prior=exp(log_prior(5*log10(it*100.+50.)-5., feh, PI, 0.));
+		//norm+=prior;
 		for (int it2=0; it2<LF_vec.size(); it2++)
 		{
-			if (LF_vec[it2][0]+5*log10(it*100.+50.)-5.+1.02*A_rel[it][0]<r_max)
+			if (LF_vec[it2][0]+5*log10(it*100.+50.)-5.+1.02*A_rel[it][0]>=r_min)
 			{
-				prob+=prior/*lookup_table[0][0][0]*/*LF_vec[it2][1];
+				A_max=(r_max-(5*log10(it*100.+50.)-5)-LF_vec[it2][0])/1.02;
+				//if (LF_vec[it2][0]+5*log10(it*100.+50.)-5.+1.02*A_rel[it][0]<r_max)
+				if (A_max>12)
+				{
+					prob+=prior_lf[it]/*lookup_table[0][0][0]*/*LF_vec[it2][1];
+				}
+				else if (A_max>0)
+				{
+					prob+=prior_lf[it]*lookup_table[int(A_max*10.)][int(A_rel[it][0]*10.)][int(A_rel[it][1]*10.)]*LF_vec[it2][1];
+					//cout << lookup_table[int(A_max/10.)][int(A_rel[it][0]/10.)][int(A_rel[it][1]/10.)] << endl;
+				}
+				else {break;}
 			}
-			else{break;}
 	
 		}
 	}
-	//cout << log(prob/norm) << " " << prob << " " << norm << " " << A_rel.size() << endl;
+	cout << log(prob/norm_lf) << " " << prob << " " << norm_lf << " " << prior_lf[10] << " " << A_rel.size() << endl;
 
-	return log(prob/norm);
+	return log(prob/norm_lf);
 
 
 }	
