@@ -124,8 +124,8 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	{
 
 		previous_rel[i][0]=backup_A_mean[i].mean_A;
-		if (i==0) {previous_rel[i][1]=0.8;}//5*previous_rel[i][0];}
-		else {previous_rel[i][1]=0.8;}//5*previous_rel[i][0];}//sqrt(pow(previous_rel[i-1][1],2)+pow(previous_rel[i][0]-previous_rel[i-1][0],2));}
+		if (i==0) {previous_rel[i][1]=0.4;}//5*previous_rel[i][0];}
+		else {previous_rel[i][1]=0.4;}//5*previous_rel[i][0];}//sqrt(pow(previous_rel[i-1][1],2)+pow(previous_rel[i][0]-previous_rel[i-1][0],2));}
 		previous_rel[i][3]=sqrt(log(1+pow(previous_rel[i][1]/previous_rel[i][0],2)));
 		previous_rel[i][2]=log(previous_rel[i][0])-pow(previous_rel[i][3],2)/2;
 
@@ -261,7 +261,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		}
 
 		new_rel[0][0]=internal_rel[0][0];
-		new_rel[0][1]=0.4;//pow(new_rel[0][0], 0.4)/3;//internal_rel[0][1];//*internal_rel[0][0];
+		new_rel[0][1]=internal_rel[0][1];//*internal_rel[0][0];
 		new_rel[0][3]=sqrt(log(1+pow(new_rel[0][1]/new_rel[0][0],2)));
 		new_rel[0][2]=log(new_rel[0][0])-pow(new_rel[0][3],2)/2;
 	//	current_hyperprior_prob+=+log(new_rel[0][1]/(exp(pow(new_rel[0][3],2))*pow(new_rel[0][0],3)*new_rel[0][3]))- 2*log(new_rel[0][3]);
