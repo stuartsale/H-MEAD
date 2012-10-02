@@ -26,6 +26,7 @@ iphas_obj::iphas_obj(float r_input, float i_input, float ha_input, float d_r_inp
 	rmag_sd=d_r;
 
 	no_accept=0;
+	cluster_weight=1;
 
 }
 
@@ -62,6 +63,7 @@ iphas_obj::iphas_obj(float r_input, float i_input, float ha_input, float d_r_inp
 	real_logAge=real_logAge_in;
 	real_feh=real_feh_in;
 
+	cluster_weight=1;
 }
 
 iphas_obj::iphas_obj(float d_r_input, float d_i_input, float d_ha_input)
@@ -69,6 +71,7 @@ iphas_obj::iphas_obj(float d_r_input, float d_i_input, float d_ha_input)
 	d_r=d_r_input;
 	d_i=d_i_input;
 	d_ha=d_ha_input;
+	cluster_weight=1;
 }
 
 iphas_obj::iphas_obj(float P1_input, float P2_input, float P3_input, float d_P1_input, float d_P2_input, float d_P3_input, float l_input, float b_input, string source)
@@ -97,6 +100,7 @@ iphas_obj::iphas_obj(float P1_input, float P2_input, float P3_input, float d_P1_
 		rmag_sd=d_r;
 	
 		no_accept=0;
+		cluster_weight=1;
 	}
 }
 
@@ -144,7 +148,7 @@ float iphas_obj::likelihood_eval(iso_obj test_iso, float test_A, float test_dist
 //*/
 
 
-	return current_prob1;
+	return current_prob1*cluster_weight;
 } 
 
 float iphas_obj::get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean)
@@ -168,7 +172,7 @@ float iphas_obj::get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod,
 
 	if (current_prob1!=current_prob1){/*cout<< test_dist/100<< " " << " " << A_prob<< " " << current_prob1 << "" "" << A_max <<endl;*/ current_prob1=-1E6;}
 
-	return current_prob1;
+	return current_prob1*cluster_weight;
 }
 
 void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <float> > &A_mean)
