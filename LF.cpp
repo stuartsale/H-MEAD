@@ -73,7 +73,7 @@ float LF::LF_prob(vector < vector <float> > A_rel)
 				{
 					prob+=prior_lf[it]/*lookup_table[0][0][0]*/*LF_vec[it2][1];
 				}
-				else if (A_max>0)
+				else if (A_max>0 && A_rel[it][0]<10)
 				{
 					prob+=prior_lf[it]*lookup_table[int(A_max*10.)][int(A_rel[it][0]*10.)][int(A_rel[it][1]*10.)]*LF_vec[it2][1];
 				}

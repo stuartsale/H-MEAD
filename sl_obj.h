@@ -43,6 +43,7 @@ class sl_obj
 		vector < vector <float> > internal_rel; //(150, vector <float> (2));
 		vector < vector <float> > previous_internal_rel; //(150, vector <float> (2));
 		vector < vector <float> > first_internal_rel; //(150, vector <float> (2));
+		vector < vector <float> > first_rel; //(150, vector <float> (2));
 
 		float global_previous_prob;
 		float previous_hyperprior_prob, current_hyperprior_prob;
@@ -54,7 +55,7 @@ class sl_obj
 		vector <vector <vector <float> > > global_A_chain;
 
 		vector<bin_obj2> A_mean;
-		vector<bin_obj2> backup_A_mean;				
+		vector<bin_obj2> backup_A_mean;	
 
 		float sigma_fac, accepted;
 // Set up
