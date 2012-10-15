@@ -22,6 +22,7 @@ class sl_obj
 		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector <LF> &LFs);
 		void dist_redMCMC(vector<iso_obj> &isochrones, vector <LF> &LFs);
 		void update(vector<iso_obj> &isochrones,  vector <LF> &LFs);
+		void hyperprior_update(void);
 		void mean_intervals(void);
 		void output_write(void);
 		void neighbour_set(sl_obj * neighbour);
@@ -46,8 +47,8 @@ class sl_obj
 		vector < vector <float> > previous_rel; //(150, vector <float> (4));
 		vector < vector <float> > internal_rel; //(150, vector <float> (2));
 		vector < vector <float> > previous_internal_rel; //(150, vector <float> (2));
-		vector < vector <float> > first_internal_rel; //(150, vector <float> (2));
-		vector < vector <float> > first_rel; //(150, vector <float> (2));
+		vector < vector <float> > hyperprior_internal_rel; //(150, vector <float> (2));
+		vector < vector <float> > hyperprior_rel; //(150, vector <float> (2));
 
 		float global_previous_prob;
 		float previous_hyperprior_prob, current_hyperprior_prob;
@@ -75,5 +76,8 @@ class sl_obj
 
 		sl_obj * neighbour_sl;
 		vector <vector <float> > recv_neighbour_rel;
+
+		float previous_s_R, previous_s_z;
+		vector <float> s_R_chain, s_z_chain;
 
 };
