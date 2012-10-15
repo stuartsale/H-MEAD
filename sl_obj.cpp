@@ -53,7 +53,7 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 
 	//vector<bin_obj2> backup_A_mean (150);
 	backup_A_mean.resize(150);
-	backup_A_mean=backup_A_mean_find(l, b);
+	backup_A_mean=backup_A_mean_find(l, b, 2500, 125, true);
 
 	A_mean.resize(150);
 
@@ -123,7 +123,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	for (int i=0; i<150; i++)
 	{
 
-		previous_rel[i][0]=backup_A_mean[i].mean_A;
+		previous_rel[i][0]=backup_A_mean[i];
 		if (i==0) {previous_rel[i][1]=0.4;}//5*previous_rel[i][0];}
 		else {previous_rel[i][1]=0.4;}//5*previous_rel[i][0];}//sqrt(pow(previous_rel[i-1][1],2)+pow(previous_rel[i][0]-previous_rel[i-1][0],2));}
 		previous_rel[i][3]=sqrt(log(1+pow(previous_rel[i][1]/previous_rel[i][0],2)));
@@ -148,7 +148,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		previous_internal_rel[i][1]=previous_rel[i][1];//sqrt(pow(previous_rel[i][1],2)-pow(previous_rel[i-1][1],2))/previous_internal_rel[i][0];
 		
         	//previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0],log(previous_internal_rel[i][0]),1.));
-		previous_hyperprior_prob+=-pow( ((log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2)) - (log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2))  )/(1) - (previous_rel[i-1][2]-first_rel[i-1][2])/(1/*previous_rel[i-1][3]*/),2)/(2./9.);
+		previous_hyperprior_prob+=-pow( ((log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2)) - (log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2))  )/(1) - (previous_rel[i-1][2]-first_rel[i-1][2])/(1/*previous_rel[i-1][3]*/),2)/(2.*fBm_s);
 	}
 
 	first_internal_rel=previous_internal_rel;
@@ -266,7 +266,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			new_rel[it][3]=sqrt(log(1+pow(new_rel[it][1]/new_rel[it][0],2)));
 			new_rel[it][2]=log(new_rel[it][0])-pow(new_rel[it][3],2)/2;
 
-			current_hyperprior_prob+=-pow( ((log(internal_rel[it][0])-(log(1+pow(1/*internal_rel[it][1]/internal_rel[it][0]*/,2))/2)) - (log(first_internal_rel[it][0])-(log(1+pow(1/*first_internal_rel[it][1]/first_internal_rel[it][0]*/,2))/2))  )/(1) - (new_rel[it-1][2]-first_rel[it-1][2])/(/*first_rel[it-1][3]*/1),2)/(2./9.);
+			current_hyperprior_prob+=-pow( ((log(internal_rel[it][0])-(log(1+pow(1/*internal_rel[it][1]/internal_rel[it][0]*/,2))/2)) - (log(first_internal_rel[it][0])-(log(1+pow(1/*first_internal_rel[it][1]/first_internal_rel[it][0]*/,2))/2))  )/(1) - (new_rel[it-1][2]-first_rel[it-1][2])/(/*first_rel[it-1][3]*/1),2)/(2.*fBm_s);
 		}
 
 // Find probability of this parameter set

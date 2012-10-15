@@ -56,7 +56,7 @@ string getStdoutFromCommand(string cmd);
 void output_write(string filename, vector<bin_obj2> A_mean, vector<iphas_obj> colours);
 string stringify(double x);
 double StrToDbl(string s);
-vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)	;
+vector<float> backup_A_mean_find(double l_gal, double b_gal, float s_R, float s_z, bool Sch_get)	;
 
 vector <vector <string> > config_read(string filename);
 

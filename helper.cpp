@@ -300,43 +300,41 @@ string getStdoutFromCommand(string cmd)
 
 
 
-vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
+vector<float> backup_A_mean_find(double l_gal, double b_gal, float s_R, float s_z, bool Sch_get)
 {
-	double Sch_max, density_dust, A_6250;
-	vector<bin_obj2> backup_A_mean (150);
+	float Sch_max, density_dust;
+	vector<float> backup_A_mean (150);
 
 	// retrieve Schlegel et al limit
-	string Sch_string="./CodeC/lambert_getval CodeC/SFD_dust_4096_ngp.fits CodeC/SFD_dust_4096_sgp.fits 1 "; 	
-	Sch_string.append(stringify(l_gal));
-	Sch_string.append(" ");
-	Sch_string.append(stringify(b_gal));
-	//Sch_max=atof(getStdoutFromCommand(Sch_string).c_str())*2.944;		// 2.944 to convert E(B-V) given by Schlegel to A_6250
-	Sch_max=4.0;
-//   cout << "Sch_max = " << Sch_max << endl;
+	if (Sch_get)
+	{
+		string Sch_string="./CodeC/lambert_getval CodeC/SFD_dust_4096_ngp.fits CodeC/SFD_dust_4096_sgp.fits 1 "; 	
+		Sch_string.append(stringify(l_gal));
+		Sch_string.append(" ");
+		Sch_string.append(stringify(b_gal));
+		//Sch_max=atof(getStdoutFromCommand(Sch_string).c_str())*2.944;		// 2.944 to convert E(B-V) given by Schlegel to A_6250
+		Sch_max=4.0;
+	}
+	else {Sch_max=1.;}
 
 	// integrate dust density to ~infinity, used to normalise the dust distribution so that at infinity it gives the Schlegel value
-	double dust_inf=0;
-	for (double d=0; d<50000; d+=10)
-	{
-		dust_inf+=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8080.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/2500 - fabs(d*sin(b_gal*PI/180.)+17)/125)*10;	// Dust scale height and lengh from Marshall et al 2006
+	density_dust=0;
+	for (double d=0; d<30001.0; d+=10)
+	{	// Dust scale height and lengh from Marshall et al 2006
+		//dust_inf+=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8080.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/2500 - fabs(d*sin(b_gal*PI/180.)+17)/125)*10;
+		density_dust+=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8080.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/s_R - fabs(d*sin(b_gal*PI/180.)+17)/s_z)*10.;
+		if (d/100!=int(d/100) && d/50==int(d/50) && d<15000)				
+		{
+			backup_A_mean[int((d-50)/100)]=density_dust;
+		}
 	}
 
-	double const_term=Sch_max/dust_inf;
+	float const_term=Sch_max/backup_A_mean[149];
 
-	A_6250=0;
-	for (double d=0.0; d<=15001.0; d+=10.0)
+	for (int it=0.0; it<150; it++)
 	{
-		density_dust=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8080.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/2500 - fabs(d*sin(b_gal*PI/180.)+17)/125);
-		A_6250+=const_term*10*density_dust;		// max/total_int * delta_d * rho(d)
-
-		if (d/100!=int(d/100) && d/50==int(d/50))				
-		{
-         		//cout << "d/100=" << d/100 << " A=" << A_6250 << " " << backup_A_mean.size() << endl; 
-										// also make backup_A_mean at this point
-			backup_A_mean[int((d-50)/100)].mean_A=A_6250;
-			backup_A_mean[int((d-50)/100)].sigma=0.1*A_6250;
-			backup_A_mean[int((d-50)/100)].d_mean=0.1;
-		}
+		backup_A_mean[it]*=const_term;
+		cout << it << "\t" << backup_A_mean[it] << endl;
 	}
 	return backup_A_mean;   
 }

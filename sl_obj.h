@@ -9,6 +9,10 @@ using namespace std;
 #define PI 3.14159265358979323846
 #endif
 
+#ifndef fBm_s
+#define fBm_s 0.36
+#endif
+
 class sl_obj
 {
 
@@ -55,7 +59,7 @@ class sl_obj
 		vector <vector <vector <float> > > global_A_chain;
 
 		vector<bin_obj2> A_mean;
-		vector<bin_obj2> backup_A_mean;	
+		vector<float> backup_A_mean;	
 
 		float sigma_fac, accepted;
 // Set up
