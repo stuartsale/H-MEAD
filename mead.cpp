@@ -149,6 +149,7 @@ int main(int argc, char* argv[])
 		{
 			slsl[it_conf].update(isochrones, lfs);
 		}
+		//if (slsl[0].it_num/1000==floor(slsl[0].it_num/1000.)){slsl[0].hyperprior_update();}
 	}		
 	
 	cout << "total time: " << (time(NULL)-start) <<"s\n";

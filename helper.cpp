@@ -334,7 +334,6 @@ vector<float> backup_A_mean_find(double l_gal, double b_gal, float s_R, float s_
 	for (int it=0.0; it<150; it++)
 	{
 		backup_A_mean[it]*=const_term;
-		cout << it << "\t" << backup_A_mean[it] << endl;
 	}
 	return backup_A_mean;   
 }
