@@ -106,6 +106,19 @@ void sl_obj::output_write(void)
 			<< star_cat[y].ix << "\t" << star_cat[y].hax << "\n";
 	}
 	output.close();
+
+	ofstream rho_out;
+	dummy_string=rootname+".rho";
+	rho_out.open(dummy_string.c_str(), ios::trunc);
+	//A_out << "#\tdist\tA\tsigma_A\n";
+
+	rho_out << 25 << "\t" << (A_mean[0].mean_A)/0.05 << "\n";
+	for (int x=1; x<A_mean.size(); x++)
+	{
+		rho_out << x*100 << "\t" << (A_mean[x].mean_A - A_mean[x-1].mean_A)/0.1 << "\n";
+	}
+	rho_out.close();
+	
 }
 
 
@@ -410,7 +423,7 @@ void sl_obj::hyperprior_update(void)
 		current_hyperprior_prob+=-pow( ((log(previous_internal_rel[it][0])-(log(1+pow(1/*previous_internal_rel[it][1]/previous_internal_rel[it][0]*/,2))/2)) - (log(current_hyperprior_internal_rel[it][0])-(log(1+pow(1/*current_hyperprior_internal_rel[it][1]/current_hyperprior_internal_rel[it][0]*/,2))/2))  )/(1) - (previous_rel[it-1][2]-current_hyperprior_rel[it-1][2])/(/*current_hyperprior_rel[it-1][3]*/1),2)/(2.*fBm_s);
 	}
 
-	if (current_hyperprior_prob+150/current_s_R>previous_hyperprior_prob+150/previous_s_R)
+	if (current_hyperprior_prob>previous_hyperprior_prob)
 	{
 		hyperprior_rel=current_hyperprior_rel;
 		hyperprior_internal_rel=current_hyperprior_internal_rel;
@@ -418,7 +431,7 @@ void sl_obj::hyperprior_update(void)
 		previous_s_R=current_s_R;
 		previous_s_z=current_s_z;
 	}
-	else if (exp(current_hyperprior_prob+150/current_s_R-previous_hyperprior_prob-150/previous_s_R)>gsl_ran_flat(rng_handle, 0, 1))
+	else if (exp(current_hyperprior_prob-previous_hyperprior_prob)>gsl_ran_flat(rng_handle, 0, 1))
 	{
 		hyperprior_rel=current_hyperprior_rel;
 		hyperprior_internal_rel=current_hyperprior_internal_rel;
@@ -439,16 +452,16 @@ void sl_obj::mean_intervals(void)
 	for (int it=0; it<150; it++)
 	{
 		float A_sum=0., sigma_sum=0.;
-		for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)
+		for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
 		{
 			A_sum+=global_A_chain[m][it][0];
 			sigma_sum+=log(global_A_chain[m][it][1]);
 		}
-		A_mean[it].mean_A=A_sum/ceil(0.30*global_A_chain.size());
-		A_mean[it].sigma=exp(sigma_sum/ceil(0.30*global_A_chain.size()));
+		A_mean[it].mean_A=A_sum/ceil(0.50*global_A_chain.size());
+		A_mean[it].sigma=exp(sigma_sum/ceil(0.50*global_A_chain.size()));
 
 		vector <float> A_diffs, sigma_diffs;
-		for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)
+		for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
 		{
 			A_diffs.push_back(abs(global_A_chain[m][it][0]-A_mean[it].mean_A));
 			sigma_diffs.push_back(abs(global_A_chain[m][it][1]-A_mean[it].sigma));
@@ -462,6 +475,14 @@ void sl_obj::mean_intervals(void)
 		A_mean[it].error_measure=sqrt(pow(A_mean[it].d_mean/A_mean[it].mean_A,2)+pow(A_mean[it].d_sigma/A_mean[it].sigma,2));
 	}
 
+	float s_R_sum=0., s_z_sum=0;
+	for (int it=floor(0.5*s_R_chain.size()); it<s_R_chain.size(); it++)
+	{
+		s_R_sum+=s_R_chain[it];
+		s_z_sum+=s_z_chain[it];
+	}
+	s_R_mean=s_R_sum/ceil(0.5*s_R_chain.size());
+	s_z_mean=s_z_sum/ceil(0.5*s_z_chain.size());
 }
 
 void sl_obj::neighbour_set(sl_obj * neighbour)

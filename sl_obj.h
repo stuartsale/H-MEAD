@@ -79,5 +79,6 @@ class sl_obj
 
 		float previous_s_R, previous_s_z;
 		vector <float> s_R_chain, s_z_chain;
+		float s_R_mean, s_z_mean;
 
 };
