@@ -298,6 +298,15 @@ string getStdoutFromCommand(string cmd)
 	return str;
 }
 
+vector<float> density_find(double l_gal, double b_gal, float s_R, float s_z, float res)
+{
+	vector <float> density (int(20000/res));
+	for (int it=0; it<density.size(); it++)
+	{
+		density[it]=exp(-sqrt(pow(8080.,2)+pow(it*res*cos(b_gal*PI/180.),2)-2.*8080.*it*res*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/s_R - fabs(it*res*sin(b_gal*PI/180.)+17)/s_z);
+	}
+	return density;
+}
 
 
 vector<float> backup_A_mean_find(double l_gal, double b_gal, float s_R, float s_z, bool Sch_get)
