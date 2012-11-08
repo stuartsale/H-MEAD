@@ -10,7 +10,11 @@ using namespace std;
 #endif
 
 #ifndef fBm_s
-#define fBm_s 0.36
+#define fBm_s 0.555
+#endif
+
+#ifndef fBm_x2
+#define fBm_x2 0.622
 #endif
 
 class sl_obj
