@@ -169,19 +169,20 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	previous_internal_rel[0][0]=previous_rel[0][0];//log(previous_rel[0][0]);//
 	previous_internal_rel[0][1]=previous_rel[0][1];///previous_internal_rel[0][0];
 
-
-        //previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[0][0],log(previous_internal_rel[0][0]),1.));
-
+	previous_hyperprior_prob+=-log(previous_internal_rel[0][0])- pow(log(previous_internal_rel[0][0]/previous_internal_rel[0][0]),2)/(2*pow(fBm_s,2))
 		
-//	previous_hyperprior_prob+=-1*log(previous_internal_rel[0][0]);//-previous_internal_rel[0][0];//
 	for (int i=1; i<150; i++)
 	{
+		float mu_t, sig_t;
 		previous_internal_rel[i][0]=previous_rel[i][0]-previous_rel[i-1][0];//log(previous_rel[i][0]-previous_rel[i-1][0]);//
 		previous_internal_rel[i][1]=previous_rel[i][1];//sqrt(pow(previous_rel[i][1],2)-pow(previous_rel[i-1][1],2))/previous_internal_rel[i][0];
 		
-        	//previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0],log(previous_internal_rel[i][0]),1.));
-		previous_hyperprior_prob+=-pow( ((log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2)) - (log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2))  )/(1) - (previous_rel[i-1][2]-hyperprior_rel[i-1][2])/(1/*previous_rel[i-1][3]*/),2)/(2.*fBm_s);
-		//previous_hyperprior_prob+=-pow( ((log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2)) - (log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2))  )/(1) - ((log(previous_internal_rel[i-1][0])-(log(1+pow(1/*previous_internal_rel[i-1][1]/previous_internal_rel[i-1][0]*/,2))/2)) - (log(previous_internal_rel[i-1][0])-(log(1+pow(1/*previous_internal_rel[i-1][1]/previous_internal_rel[i-1][0]*/,2))/2))  )/(1),2)/(2.*fBm_s);
+
+	//	previous_hyperprior_prob+=-pow( ((log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2)) - (log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2))  )/(1) - (previous_rel[i-1][2]-hyperprior_rel[i-1][2])/(1/*previous_rel[i-1][3]*/),2)/(2.*fBm_s);
+		mu_t=
+		sig_t=
+
+		previous_hyperprior_prob+=-log(previous_internal_rel[0][0]/previous_internal_rel[0][0])- pow(log(previous_internal_rel[0][0]/previous_internal_rel[0][0]),2)/(2*pow(fBm_s,2))
 	}
 
 	hyperprior_internal_rel=previous_internal_rel;
