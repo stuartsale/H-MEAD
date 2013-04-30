@@ -80,6 +80,15 @@ vector<iphas_obj> TWOMASS_read(string filename,float &J_min1,float &H_min1,float
 		cerr << "Error: 2MASS catalogue file could not be opened \n";
 		exit(1);
 	}
+
+	J_max1=8;
+	H_max1=8;
+	K_max1=8;
+
+	J_min1=16;
+	H_min1=16;
+	K_min1=16;
+
 	while (!TWOMASS_data.eof())				// Running down file
 	{
 		string str1; 	
@@ -98,11 +107,17 @@ vector<iphas_obj> TWOMASS_read(string filename,float &J_min1,float &H_min1,float
 				infromfile.push_back(buffer);	
 				if (infromfile.size()==9)
 				{
-					iphas_obj new_obj(infromfile[3], infromfile[5], infromfile[7], infromfile[4], infromfile[6], infromfile[7], infromfile[0], infromfile[1], "2MASS");
+					if (infromfile[10]<0.5){infromfile[4]=-99;}
+					if (infromfile[11]<0.5){infromfile[5]=-99;}
+					if (infromfile[12]<0.5){infromfile[6]=-99;}
+
+					iphas_obj new_obj(infromfile[4], infromfile[5], infromfile[6], infromfile[7], infromfile[8], infromfile[9], infromfile[2], infromfile[3], "2MASS");
 					TWOMASS_colours.push_back(new_obj);
 				}
 			}
 
 		}
 	}	
+	TWOMASS_data.close();
+	return TWOMASS_colours;
 }
