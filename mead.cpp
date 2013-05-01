@@ -20,6 +20,7 @@ using namespace std;
 
 vector<iso_obj> iso_read(const string &filename);
 vector<iso_obj> iso_read_Tg(const string &filename);
+vector<iso_obj> iso_read_Tg_2MASS(const string &filename);
 
 
 	
@@ -87,14 +88,15 @@ int main(int argc, char* argv[])
       //Reading in isochrones data into a vector
 
 	//vector<iso_obj> isochrones=iso_read("padova-iso_reg.dat");
-	vector<iso_obj> isochrones=iso_read_Tg("padova-iso_tefflogg3.dat");
+	//vector<iso_obj> isochrones=iso_read_Tg("padova-iso_tefflogg3.dat");
+	vector<iso_obj> isochrones=iso_read_Tg_2MASS("padova-iso_tefflogg-JHK.dat");
 
 	vector<iso_obj> guess_set;
 //	guess_set.push_back(iso_get_Tg(0.,3.574 ,5.00 , isochrones));	//M1
 //	guess_set.push_back(iso_get_Tg(0.,3.591 ,4.95 , isochrones));	//M0
 //	guess_set.push_back(iso_get_Tg(0.,3.602 ,4.90 , isochrones));	//K7
 //	guess_set.push_back(iso_get_Tg(0.,3.643 ,4.65 , isochrones));	//K5
-	guess_set.push_back(iso_get_Tg(0.,3.663 ,4.57 , isochrones));	//K4
+/*	guess_set.push_back(iso_get_Tg(0.,3.663 ,4.57 , isochrones));	//K4
 	guess_set.push_back(iso_get_Tg(0.,3.672 ,4.56 , isochrones));	//K3
 	guess_set.push_back(iso_get_Tg(0.,3.686 ,4.55 , isochrones));	//K2
 	guess_set.push_back(iso_get_Tg(0.,3.695 ,4.55 , isochrones));	//K1
@@ -110,7 +112,7 @@ int main(int argc, char* argv[])
 	guess_set.push_back(iso_get_Tg(0.,3.903 ,4.26 , isochrones));	//A7
 	guess_set.push_back(iso_get_Tg(0.,3.924 ,4.22 , isochrones));	//A5
 	guess_set.push_back(iso_get_Tg(0.,3.949 ,4.20 , isochrones));	//A3
-	guess_set.push_back(iso_get_Tg(0.,3.961 ,4.16 , isochrones));	//A2
+	guess_set.push_back(iso_get_Tg(0.,3.961 ,4.16 , isochrones));	//A2 */
 
 	vector <LF> lfs;
 
@@ -207,7 +209,7 @@ vector<iso_obj> iso_read(const string &filename)		// Function to read in calibra
 			}
 			if (fromfile.size()==8)		// check there's something in the line
 			{
-         			iso_obj objnew(fromfile[0], fromfile[1], fromfile[2], fromfile[3], fromfile[4], fromfile[5], fromfile[6], fromfile[7],1);
+         			iso_obj objnew(fromfile[0], fromfile[1], fromfile[2], fromfile[3], fromfile[4], fromfile[5], fromfile[6], fromfile[7],1, "IPHAS");
 				totalfile.push_back(objnew);
 			}		
 		}
@@ -252,11 +254,52 @@ vector<iso_obj> iso_read_Tg(const string &filename)		// Function to read in cali
 					jac=abs(fromfile[5]*fromfile[8]-fromfile[6]*fromfile[7]);
 				}
 				else {jac=0;}
-         			iso_obj objnew(fromfile[0], fromfile[1], fromfile[2], fromfile[3], fromfile[4], fromfile[9], fromfile[10], fromfile[11], jac);
+         			iso_obj objnew(fromfile[0], fromfile[1], fromfile[2], fromfile[3], fromfile[4], fromfile[9], fromfile[10], fromfile[11], jac, "IPHAS");
 				totalfile.push_back(objnew);
 			}		
 		}
 	}
+	return totalfile;
+	input1.close();
+}
+
+vector<iso_obj> iso_read_Tg_2MASS(const string &filename)		// Function to read in calibration data
+{
+	ifstream input1;
+	input1.open(filename.c_str());
+	if(!input1) { //output file couldn't be opened
+		cerr << "Error: file could not be opened" << endl;
+		exit(1);
+	}
+
+	vector<iso_obj> totalfile;		// making a vector to store the calibration_obj
+	
+	while (!input1.eof())				// Running down file - reading it in
+	{
+		double jac;
+		string str; 	
+		getline(input1, str);			// grab a line
+		string temp;
+		stringstream sstest(str);
+		sstest>>temp;
+		if (temp!="#")				// check the line isn't commented out
+		{		
+			double buf;
+			stringstream ss(str);		// turn that line into a stringstream
+		
+			vector<double> fromfile;	//vector to put contents of line into
+		
+			while (ss>>buf){			// Includes implicit conversion from string to double
+				fromfile.push_back(buf);	
+			}
+			if (fromfile.size()==11)		// check there's something in the line
+			{
+				iso_obj objnew(fromfile[0], fromfile[1], fromfile[2], fromfile[3], fromfile[4], fromfile[6], fromfile[7], fromfile[8], fromfile[5], "2MASS");
+				totalfile.push_back(objnew);
+			}
+		}
+	}
+	cout << "iso length:" << totalfile.size() << endl;
 	return totalfile;
 	input1.close();
 }

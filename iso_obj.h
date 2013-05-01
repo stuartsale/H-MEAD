@@ -6,6 +6,7 @@
 #include <cstdlib> 
 #include <sstream>*/
 #include <cmath>
+#include <string>
 using namespace std;
 
 
@@ -27,7 +28,8 @@ class bin_obj2;
 class iso_obj		// This is a class for holding isochrone points
 {
 	public:
-	iso_obj(double feh_in, double Mi_in, double age_in, double logT_in, double logg_in, double r0_in, double i0_in, double ha0_in, double Jac_in);
+	iso_obj(double feh_in, double Mi_in, double age_in, double logT_in, double logg_in, double r0_in, double i0_in, double ha0_in, double J0_in, double H0_in, double K0_in, double Jac_in);
+	iso_obj(double feh_in, double Mi_in, double age_in, double logT_in, double logg_in, double P1_in, double P2_in, double P3_in, double Jac_in, string survey);
 	iso_obj(void);
 	double IMF();
 	double redline(double r_i1);

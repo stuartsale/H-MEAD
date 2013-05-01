@@ -133,7 +133,7 @@ iso_obj iso_get(double targ_feh, double targ_Mi, double targ_logAge, vector<iso_
 	  + (feh_weight)*(age_weight)*(mass_weight) * isochrones[feh_line2+age_line2+mass_line+1].ha0;
 
 	if (r1<-10||i1<-10||ha1<-10){throw(7);}
-	iso_obj new_iso(targ_feh, targ_Mi, targ_logAge, 0., 0., r1, i1, ha1,1);
+	iso_obj new_iso(targ_feh, targ_Mi, targ_logAge, 0., 0., r1, i1, ha1, -99, -99, -99,1);
 
 //*/
 	//if ((r1>15||i1>15||ha1>15)){cout <<targ_feh << " " << targ_Mi << " " << targ_logAge << " "<<feh_weight << " " <<(targ_feh+0.914)/0.136 << " " << age_weight  << " " << r1 << " " << i1 << " " << ha1 << endl;}
@@ -271,7 +271,7 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 
 
 	if (r1<-10||i1<-10||ha1<-10||isochrones[feh_line2+logT_line2+logg_line].Jac==0.||isochrones[feh_line2+logT_line2+logg_line+1].Jac==0.){throw(7);}
-	iso_obj new_iso(targ_feh, Mi1, logAge1, targ_logT, targ_logg, r1, i1, ha1, Jac1);
+	iso_obj new_iso(targ_feh, Mi1, logAge1, targ_logT, targ_logg, r1, i1, ha1, -99, -99, -99, Jac1);
 
 //*/
 	//if ((r1>15||i1>15||ha1>15)){cout <<targ_feh << " " << targ_Mi << " " << targ_logAge << " "<<feh_weight << " " <<(targ_feh+0.914)/0.136 << " " << age_weight  << " " << r1 << " " << i1 << " " << ha1 << endl;}

@@ -50,7 +50,9 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 	// Read in data	-------------------------------------------------------------------------
 
 	if (datatype=="iphas" || datatype=="IPHAS"){star_cat=iphas_read(filename,r_min,i_min,ha_min,r_max,i_max,ha_max);}
-	else if (datatype=="2MASS" || datatype=="2mass"){star_cat=TWOMASS_read(filename,J_min, H_min, K_min,J_max,H_max,K_max);}
+	else if (datatype=="2MASS" || datatype=="2mass"){star_cat=TWOMASS_read(filename,J_min, H_min, K_min,J_max,H_max,K_max);
+							cout << "size " << star_cat.size() << endl;
+							exit(0);}
 	else {cout << "Unrecognised datatype: " << datatype << endl;}
 
 	// Find expected A(d) -------------------------------------------------------------------
@@ -169,7 +171,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	previous_internal_rel[0][0]=previous_rel[0][0];//log(previous_rel[0][0]);//
 	previous_internal_rel[0][1]=previous_rel[0][1];///previous_internal_rel[0][0];
 
-	previous_hyperprior_prob+=-log(previous_internal_rel[0][0])- pow(log(previous_internal_rel[0][0]/previous_internal_rel[0][0]),2)/(2*pow(fBm_s,2))
+	previous_hyperprior_prob+=-log(previous_internal_rel[0][0])- pow(log(previous_internal_rel[0][0]/previous_internal_rel[0][0]),2)/(2*pow(fBm_s,2));
 		
 	for (int i=1; i<150; i++)
 	{
@@ -182,7 +184,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		mu_t=
 		sig_t=
 
-		previous_hyperprior_prob+=-log(previous_internal_rel[0][0]/previous_internal_rel[0][0])- pow(log(previous_internal_rel[0][0]/previous_internal_rel[0][0]),2)/(2*pow(fBm_s,2))
+		previous_hyperprior_prob+=-log(previous_internal_rel[0][0]/previous_internal_rel[0][0])- pow(log(previous_internal_rel[0][0]/previous_internal_rel[0][0]),2)/(2*pow(fBm_s,2));
 	}
 
 	hyperprior_internal_rel=previous_internal_rel;
