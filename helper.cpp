@@ -175,33 +175,21 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	double logg_weight, feh_weight, logT_weight;
 	double r1=0, i1=0, ha1=0, Jac1=0, Mi1=0, logAge1=0;
 
-	if (targ_feh<-0.914 || targ_feh>0.417 || targ_logT<3.5 || targ_logT>4.495 || targ_logg<-0.5 || targ_logg>5.495)
+	if (targ_feh<-1.0 || targ_feh>0.2 || targ_logT<3.4 || targ_logT>4.49 || targ_logg<-1.0 || targ_logg>5.480)
 	{
 		throw (5);
 	}
 
+	feh_line1=floor((targ_feh+1)/0.1)*35750; 
+	feh_line2=feh_line1+35750;
+	feh_weight=targ_feh/0.1 - floor(targ_feh/0.1);
 
-	if (targ_feh>=-0.914 && targ_feh<-0.778){feh_line1=0; feh_line2=240000;feh_weight=(targ_feh+0.914)/0.136;}
-	else if (targ_feh>=-0.778 && targ_feh<-0.652){feh_line1=240000; feh_line2=480000;feh_weight=(targ_feh+0.778)/0.126;}
-	else if (targ_feh>=-0.652 && targ_feh<-0.472){feh_line1=480000; feh_line2=720000;feh_weight=(targ_feh+0.652)/0.180;}
-	else if (targ_feh>=-0.472 && targ_feh<-0.343){feh_line1=720000; feh_line2=960000;feh_weight=(targ_feh+0.472)/0.129;}
-	else if (targ_feh>=-0.343 && targ_feh<-0.243){feh_line1=1200000; feh_line2=1440000;feh_weight=(targ_feh+0.343)/0.100;}
-	else if (targ_feh>=-0.243 && targ_feh<-0.160){feh_line1=1440000; feh_line2=1680000;feh_weight=(targ_feh+0.243)/0.083;}
-	else if (targ_feh>=-0.160 && targ_feh<-0.090){feh_line1=1680000; feh_line2=1920000;feh_weight=(targ_feh+0.160)/0.070;}
-	else if (targ_feh>=-0.090 && targ_feh<0.000){feh_line1=1920000; feh_line2=2160000;feh_weight=(targ_feh+0.090)/0.090;}
-	else if (targ_feh>=0.000 && targ_feh<0.077){feh_line1=2160000; feh_line2=2400000;feh_weight=(targ_feh)/0.077;}
-	else if (targ_feh>=0.077 && targ_feh<0.202){feh_line1=2400000; feh_line2=2640000;feh_weight=(targ_feh-0.077)/0.125;}
-	else if (targ_feh>=0.202 && targ_feh<0.363){feh_line1=2640000; feh_line2=2880000;feh_weight=(targ_feh-0.202)/0.161;}
-	else if (targ_feh>=0.363 && targ_feh<0.417){feh_line1=288000; feh_line2=3120000;feh_weight=(targ_feh-0.363)/0.054;}
-	else {throw(5);}
+	logT_line1=floor((targ_logT-3.4)/0.01)*1200;
+	logT_line2=logT_line1+325;
+	logT_weight=(targ_logT-3.4)/0.01-logT_line1/325;
 
-
-	logT_line1=floor((targ_logT-3.5)/0.005)*1200;
-	logT_line2=logT_line1+1200;
-	logT_weight=(targ_logT-3.5)/0.005-logT_line1/1200;
-
-	logg_line=floor((targ_logg+0.5)/0.005);
-	logg_weight=(targ_logg+0.5)/0.005 - logg_line;
+	logg_line=floor((targ_logg+1.0)/0.02);
+	logg_weight=(targ_logg+1.0)/0.02 - logg_line;
 
 	// 1,1
 
@@ -215,6 +203,12 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	  + (1-feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].i0;
 	ha1+=(1-feh_weight)*(1-logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].ha0
 	  + (1-feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].ha0;
+	J1+=(1-feh_weight)*(1-logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].J0
+	  + (1-feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].J0;
+	H1+=(1-feh_weight)*(1-logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].H0
+	  + (1-feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].H0;
+	K1+=(1-feh_weight)*(1-logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].K0
+	  + (1-feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].K0;
 	Jac1+=(1-feh_weight)*(1-logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].Jac
 	  + (1-feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].Jac;
 
@@ -232,6 +226,12 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	  + (1-feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line2+logg_line+1].i0;
 	ha1+=(1-feh_weight)*(logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line2+logg_line].ha0
 	  + (1-feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line2+logg_line+1].ha0;
+	J1+=(1-feh_weight)*(logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].J0
+	  + (1-feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].J0;
+	H1+=(1-feh_weight)*(logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].H0
+	  + (1-feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].H0;
+	K1+=(1-feh_weight)*(logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].K0
+	  + (1-feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].K0;
 	Jac1+=(1-feh_weight)*(logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line2+logg_line].Jac
 	  + (1-feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line2+logg_line+1].Jac;
 
@@ -249,6 +249,12 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	  + (feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line2+logT_line1+logg_line+1].i0;
 	ha1+=(feh_weight)*(1-logT_weight)*(1-logg_weight) * isochrones[feh_line2+logT_line1+logg_line].ha0
 	  + (feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line2+logT_line1+logg_line+1].ha0;
+	J1+=(feh_weight)*(1-logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].J0
+	  + (feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].J0;
+	H1+=(feh_weight)*(1-logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].H0
+	  + (feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].H0;
+	K1+=(feh_weight)*(1-logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].K0
+	  + (feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].K0;
 	Jac1+=(feh_weight)*(1-logT_weight)*(1-logg_weight) * isochrones[feh_line2+logT_line1+logg_line].Jac
 	  + (feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line2+logT_line1+logg_line+1].Jac;
 
@@ -266,6 +272,12 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	  + (feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line2+logT_line2+logg_line+1].i0;
 	ha1+=(feh_weight)*(logT_weight)*(1-logg_weight) * isochrones[feh_line2+logT_line2+logg_line].ha0
 	  + (feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line2+logT_line2+logg_line+1].ha0;
+	J1+=(feh_weight)*(logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].J0
+	  + (feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].J0;
+	H1+=(feh_weight)*(logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].H0
+	  + (feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].H0;
+	K1+=(feh_weight)*(logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].K0
+	  + (feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].K0;
 	Jac1+=(feh_weight)*(logT_weight)*(1-logg_weight) * isochrones[feh_line2+logT_line2+logg_line].Jac
 	  + (feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line2+logT_line2+logg_line+1].Jac;
 
