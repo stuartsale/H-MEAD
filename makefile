@@ -14,6 +14,12 @@ else
 		linking_flags= -lgsl -lgslcblas -lm -fopenmp -g
 		gsl_include=/usr/local/shared/gsl-1.12/include/
 		gsl_lib=/usr/local/shared/gsl-1.12/lib/
+	ifeq ($(HOST),hydra.physics.ox.ac.uk)
+		RUN_DIR=../../
+		flags= -g -fopenmp
+		linking_flags= -lgsl -lgslcblas -lm -fopenmp -g
+		gsl_include=/usr/local/shared/gsl-1.12/include/
+		gsl_lib=/usr/local/shared/gsl-1.12/lib/
 	else	#defaults
 		RUN_DIR=../../
 		flags= -g -fopenmp
