@@ -107,7 +107,15 @@ int main(int argc, char* argv[])
 	guess_set.push_back(iso_get_Tg(0.,3.903 ,4.26 , isochrones));	//A7
 	guess_set.push_back(iso_get_Tg(0.,3.924 ,4.22 , isochrones));	//A5
 	guess_set.push_back(iso_get_Tg(0.,3.949 ,4.20 , isochrones));	//A3
-	guess_set.push_back(iso_get_Tg(0.,3.961 ,4.16 , isochrones));	//A2 */
+	guess_set.push_back(iso_get_Tg(0.,3.961 ,4.16 , isochrones));	//A2 
+	guess_set.push_back(iso_get_Tg(0.,3.982 ,4.07 , isochrones));	//A0 
+	guess_set.push_back(iso_get_Tg(0.,4.061 ,4.07 , isochrones));	//B8
+	guess_set.push_back(iso_get_Tg(0.,4.188 ,4.10 , isochrones));	//B5 
+	guess_set.push_back(iso_get_Tg(0.,4.362 ,4.06 , isochrones));	//B2 	
+	guess_set.push_back(iso_get_Tg(0.,4.498 ,4.00 , isochrones));	//B0 
+
+
+*/
 
 	vector <LF> lfs;
 
