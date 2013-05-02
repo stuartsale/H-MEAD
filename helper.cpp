@@ -173,7 +173,8 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	int logT_line1, logT_line2;
 	int logg_line;
 	double logg_weight, feh_weight, logT_weight;
-	double r1=0, i1=0, ha1=0, Jac1=0, Mi1=0, logAge1=0;
+	double r1=0, i1=0, ha1=0, J1=0, H1=0, K1=0;
+	double Jac1=0, Mi1=0, logAge1=0;
 
 	if (targ_feh<-1.0 || targ_feh>0.2 || targ_logT<3.4 || targ_logT>4.49 || targ_logg<-1.0 || targ_logg>5.480)
 	{
@@ -184,7 +185,7 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	feh_line2=feh_line1+35750;
 	feh_weight=targ_feh/0.1 - floor(targ_feh/0.1);
 
-	logT_line1=floor((targ_logT-3.4)/0.01)*1200;
+	logT_line1=floor((targ_logT-3.4)/0.01)*325;
 	logT_line2=logT_line1+325;
 	logT_weight=(targ_logT-3.4)/0.01-logT_line1/325;
 
@@ -212,7 +213,8 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	Jac1+=(1-feh_weight)*(1-logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line1+logg_line].Jac
 	  + (1-feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line1+logg_line+1].Jac;
 
-	if (r1<-10||i1<-10||ha1<-10||isochrones[feh_line1+logT_line1+logg_line].Jac==0.||isochrones[feh_line1+logT_line1+logg_line+1].Jac==0.){throw(7);}
+	if (((r1<-10||i1<-10||ha1<-10)&&(J1<-10||H1<-10||K1<-10))||
+		isochrones[feh_line1+logT_line1+logg_line].Jac==0.||isochrones[feh_line1+logT_line1+logg_line+1].Jac==0.){throw(7);}
 
 	// 1,2
 
@@ -235,7 +237,8 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	Jac1+=(1-feh_weight)*(logT_weight)*(1-logg_weight) * isochrones[feh_line1+logT_line2+logg_line].Jac
 	  + (1-feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line1+logT_line2+logg_line+1].Jac;
 
-	if (r1<-10||i1<-10||ha1<-10||isochrones[feh_line1+logT_line2+logg_line].Jac==0.||isochrones[feh_line1+logT_line2+logg_line+1].Jac==0.){throw(7);}
+	if (((r1<-10||i1<-10||ha1<-10)&&(J1<-10||H1<-10||K1<-10))||
+		isochrones[feh_line1+logT_line2+logg_line].Jac==0.||isochrones[feh_line1+logT_line2+logg_line+1].Jac==0.){throw(7);}
 
 	// 2,1
 
@@ -258,7 +261,8 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	Jac1+=(feh_weight)*(1-logT_weight)*(1-logg_weight) * isochrones[feh_line2+logT_line1+logg_line].Jac
 	  + (feh_weight)*(1-logT_weight)*(logg_weight) * isochrones[feh_line2+logT_line1+logg_line+1].Jac;
 
-	if (r1<-10||i1<-10||ha1<-10||isochrones[feh_line2+logT_line1+logg_line].Jac==0.||isochrones[feh_line2+logT_line1+logg_line+1].Jac==0.){throw(7);}
+	if (((r1<-10||i1<-10||ha1<-10)&&(J1<-10||H1<-10||K1<-10))||
+		isochrones[feh_line2+logT_line1+logg_line].Jac==0.||isochrones[feh_line2+logT_line1+logg_line+1].Jac==0.){throw(7);}
 
 	// 2,2
 
@@ -282,8 +286,9 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	  + (feh_weight)*(logT_weight)*(logg_weight) * isochrones[feh_line2+logT_line2+logg_line+1].Jac;
 
 
-	if (r1<-10||i1<-10||ha1<-10||isochrones[feh_line2+logT_line2+logg_line].Jac==0.||isochrones[feh_line2+logT_line2+logg_line+1].Jac==0.){throw(7);}
-	iso_obj new_iso(targ_feh, Mi1, logAge1, targ_logT, targ_logg, r1, i1, ha1, -99, -99, -99, Jac1);
+	if (((r1<-10||i1<-10||ha1<-10)&&(J1<-10||H1<-10||K1<-10))||
+		isochrones[feh_line2+logT_line2+logg_line].Jac==0.||isochrones[feh_line2+logT_line2+logg_line+1].Jac==0.){throw(7);}
+	iso_obj new_iso(targ_feh, Mi1, logAge1, targ_logT, targ_logg, r1, i1, ha1, J1, H1, K1, Jac1);
 
 //*/
 	//if ((r1>15||i1>15||ha1>15)){cout <<targ_feh << " " << targ_Mi << " " << targ_logAge << " "<<feh_weight << " " <<(targ_feh+0.914)/0.136 << " " << age_weight  << " " << r1 << " " << i1 << " " << ha1 << endl;}
