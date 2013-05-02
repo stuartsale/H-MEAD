@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 //	guess_set.push_back(iso_get_Tg(0.,3.591 ,4.95 , isochrones));	//M0
 //	guess_set.push_back(iso_get_Tg(0.,3.602 ,4.90 , isochrones));	//K7
 //	guess_set.push_back(iso_get_Tg(0.,3.643 ,4.65 , isochrones));	//K5
-/*	guess_set.push_back(iso_get_Tg(0.,3.663 ,4.57 , isochrones));	//K4
+	guess_set.push_back(iso_get_Tg(0.,3.663 ,4.57 , isochrones));	//K4
 	guess_set.push_back(iso_get_Tg(0.,3.672 ,4.56 , isochrones));	//K3
 	guess_set.push_back(iso_get_Tg(0.,3.686 ,4.55 , isochrones));	//K2
 	guess_set.push_back(iso_get_Tg(0.,3.695 ,4.55 , isochrones));	//K1
@@ -112,10 +112,7 @@ int main(int argc, char* argv[])
 	guess_set.push_back(iso_get_Tg(0.,4.061 ,4.07 , isochrones));	//B8
 	guess_set.push_back(iso_get_Tg(0.,4.188 ,4.10 , isochrones));	//B5 
 	guess_set.push_back(iso_get_Tg(0.,4.362 ,4.06 , isochrones));	//B2 	
-	guess_set.push_back(iso_get_Tg(0.,4.498 ,4.00 , isochrones));	//B0 
-
-
-*/
+//	guess_set.push_back(iso_get_Tg(0.,4.498 ,4.00 , isochrones));	//B0 
 
 	vector <LF> lfs;
 

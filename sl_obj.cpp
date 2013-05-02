@@ -50,9 +50,7 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 	// Read in data	-------------------------------------------------------------------------
 
 	if (datatype=="iphas" || datatype=="IPHAS"){star_cat=iphas_read(filename,r_min,i_min,ha_min,r_max,i_max,ha_max);}
-	else if (datatype=="2MASS" || datatype=="2mass"){star_cat=TWOMASS_read(filename,J_min, H_min, K_min,J_max,H_max,K_max);
-							cout << "size " << star_cat.size() << endl;
-							exit(0);}
+	else if (datatype=="2MASS" || datatype=="2mass"){star_cat=TWOMASS_read(filename,J_min, H_min, K_min,J_max,H_max,K_max);}
 	else {cout << "Unrecognised datatype: " << datatype << endl;}
 
 	// Find expected A(d) -------------------------------------------------------------------
@@ -96,11 +94,13 @@ void sl_obj::output_write(void)
 	ofstream output;
 	dummy_string=rootname+"-090.dat";
 	output.open(dummy_string.c_str(), ios::trunc);
-	output << "#\tr\ti\tha\tr_i0\tdist\tA\tdistbin\td_A\td_r_i0\td_dist\td_r\td_i\td_ha\tmag_weight\tprob\tA_prob\tMi\tlogAge\tfeh\td_Mi\td_lagAge\td_feh\tlogT\tlogg\trx\tix\thax\n" ;
+	output << "#\tr\ti\tha\tJ\tH\tK\tr_i0\tdist\tA\tdistbin\td_A\td_r_i0\td_dist\td_r\td_i\td_ha\tmag_weight\tprob\tA_prob\tMi\tlogAge\tfeh\td_Mi\td_lagAge\td_feh\tlogT\tlogg\trx\tix\thax\n" ;
 	for (int y=0; y<star_cat.size(); y++)
 	{
 		
-		output << star_cat[y].r << "\t" << star_cat[y].i << "\t" << star_cat[y].ha << "\t"<< star_cat[y].r_i0 << "\t" << star_cat[y].dist << "\t" << star_cat[y].A << "\t" 
+		output << star_cat[y].r << "\t" << star_cat[y].i << "\t" << star_cat[y].ha << "\t"
+			<< star_cat[y].J << "\t" << star_cat[y].H << "\t"<< star_cat[y].K << "\t"
+			<< star_cat[y].r_i0 << "\t" << star_cat[y].dist << "\t" << star_cat[y].A << "\t" 
 			<< star_cat[y].distbin << "\t" << star_cat[y].d_A << "\t" << star_cat[y].d_r_i0 << "\t" << star_cat[y].d_dist << "\t" << star_cat[y].d_r << "\t"
 			<< star_cat[y].d_i << "\t" << star_cat[y].d_ha << "\t" << star_cat[y].last_iso.Mi  << "\t" << star_cat[y].mean_prob  << "\t" 
 			<< star_cat[y].mean_A_prob  << "\t" << star_cat[y].Mi  << "\t" << star_cat[y].logAge  << "\t" << star_cat[y].feh  << "\t" << star_cat[y].d_Mi  << "\t" 
@@ -194,14 +194,36 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 // Dump sources not in required region of c-c
 
 	int it_stars=0;
-	while (it_stars<star_cat.size())
+
+	// IPHAS based filter
+/*	while (it_stars<star_cat.size())
 	{
 		if (star_cat[it_stars].r-star_cat[it_stars].ha>guess_set[0].redline(star_cat[it_stars].r-star_cat[it_stars].i) || star_cat[it_stars].r-star_cat[it_stars].ha<guess_set[guess_set.size()-1].redline(star_cat[it_stars].r-star_cat[it_stars].i))
 		{
 			star_cat.erase(star_cat.begin()+it_stars);
 		}
 		else {it_stars++;}
-	}
+	}*/
+
+	// 2MASS based filter
+	while (it_stars<star_cat.size())
+	{
+		if (star_cat[it_stars].J<0 || star_cat[it_stars].H<0 || star_cat[it_stars].K<0)
+		{
+			star_cat.erase(star_cat.begin()+it_stars);
+		}
+		else if (star_cat[it_stars].J-star_cat[it_stars].H < (star_cat[it_stars].H - star_cat[it_stars].K)*1.55 -.05 )
+		{
+			star_cat.erase(star_cat.begin()+it_stars);
+		}
+		else if (star_cat[it_stars].J-star_cat[it_stars].H > (star_cat[it_stars].H - star_cat[it_stars].K)*1.55 +1.0 )
+		{
+			star_cat.erase(star_cat.begin()+it_stars);
+		}
+		else {it_stars++;}
+	}			
+
+	cout << "unfiltered:" << star_cat.size() << endl;
 
 // Make initial guess
 
