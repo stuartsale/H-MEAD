@@ -129,7 +129,9 @@ int main(int argc, char* argv[])
 
 	vector <LF> lfs;
 
-	LF lfzero("config/iphas_LFs/lfp0000_r.dat");
+//	LF lfzero("config/iphas_LFs/lfp0000_r.dat");
+//	lfs.push_back(lfzero);
+	LF lfzero("config/2MASS_LFs/lfp0000_J.dat");
 	lfs.push_back(lfzero);
 
 //	while (1.0648*guess_set[guess_set.size()-1].Mi<2.060){guess_set.push_back(iso_get(0., 1.0648*guess_set[guess_set.size()-1].Mi, 8.5, isochrones));}

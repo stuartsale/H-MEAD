@@ -488,8 +488,8 @@ float log_prior(float test_dist_mod, float test_feh, float l, float b)
 
 	// density profile
 	//	current_prob1+=-R_gal/2500 -test_dist*sinb/200;
-	if (R_gal<13000){current_prob+=-R_gal/3000 /*-test_dist*sin(b)/200*/;}	// change back to 13000 for real data
-	else {current_prob+=-R_gal/1200 +6.5 /*-test_dist*sin(b)/200*/;} 		// -6.5=13000/3000 - 13000/1200
+	if (R_gal<13000){current_prob+=-R_gal/3000 -test_dist*sin(b)/200;}	// change back to 13000 for real data
+	else {current_prob+=-R_gal/1200 +6.5 -test_dist*sin(b)/200;} 		// -6.5=13000/3000 - 13000/1200
 
 	// metallicity profile
 	//current_prob+=-pow(test_feh-(R_gal-8000.)*0.00007,2)/(2*0.5);

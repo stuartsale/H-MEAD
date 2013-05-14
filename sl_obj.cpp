@@ -253,10 +253,10 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	proposed_probs.resize(star_cat.size());
 
 	previous_norm_prob=0;
-//	for (int it_LF=0; it_LF<LFs.size(); it_LF++)
-//	{
-//		previous_norm_prob+=-LFs[it_LF].LF_prob(previous_rel)*(star_cat.size()+1);
-//	}
+	for (int it_LF=0; it_LF<LFs.size(); it_LF++)
+	{
+		previous_norm_prob+=-LFs[it_LF].LF_prob(previous_rel)*(star_cat.size()+1);
+	}
 
 	if (neighbour_sl)
 	{
@@ -357,10 +357,10 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 // Normalisation term
 
 		current_norm_prob=0;
-//		for (int it_LF=0; it_LF<LFs.size(); it_LF++)
-//		{
-//			current_norm_prob+=-LFs[it_LF].LF_prob(new_rel)*(star_cat.size()+1);
-//		}
+		for (int it_LF=0; it_LF<LFs.size(); it_LF++)
+		{
+			current_norm_prob+=-LFs[it_LF].LF_prob(new_rel)*(star_cat.size()+1);
+		}
 
 // Neighbour term
 

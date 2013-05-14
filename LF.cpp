@@ -58,6 +58,32 @@ float LF::LF_prob(vector < vector <float> > A_rel)
 
 	float dist_mod_lf;
 
+//	for (int it=0; it<A_rel.size(); it++)	// run though A(d)
+//	{
+//		dist_mod_lf=5*log10(it*100.+50.)-5;
+//		//prior=exp(log_prior(5*log10(it*100.+50.)-5., feh, PI, 0.));
+//		//norm+=prior;
+//		for (int it2=0; it2<LF_vec.size(); it2++)
+//		{
+//			if (LF_vec[it2][0]+dist_mod_lf+1.02*A_rel[it][0]>=r_min)
+//			{
+//				A_max=(r_max-dist_mod_lf-LF_vec[it2][0])/1.02;
+//				//if (LF_vec[it2][0]+5*log10(it*100.+50.)-5.+1.02*A_rel[it][0]<r_max)
+//				if (A_max>10)
+//				{
+//					prob+=prior_lf[it]/*lookup_table[0][0][0]*/*LF_vec[it2][1];
+//				}
+//				else if (A_max>0 && A_rel[it][0]<10)
+//				{
+//					prob+=prior_lf[it]*lookup_table[int(A_max*10.)][int(A_rel[it][0]*10.)][int(A_rel[it][1]*10.)]*LF_vec[it2][1];
+//				}
+//				else {break;}
+//			}
+//	
+//		}
+//	}
+//	//cout << log(prob/norm_lf) << " " << prob << " " << norm_lf << " " << prior_lf[10] << " " << A_rel.size() << endl;
+
 	for (int it=0; it<A_rel.size(); it++)	// run though A(d)
 	{
 		dist_mod_lf=5*log10(it*100.+50.)-5;
@@ -65,11 +91,11 @@ float LF::LF_prob(vector < vector <float> > A_rel)
 		//norm+=prior;
 		for (int it2=0; it2<LF_vec.size(); it2++)
 		{
-			if (LF_vec[it2][0]+dist_mod_lf+1.02*A_rel[it][0]>=r_min)
+			if (LF_vec[it2][0]+dist_mod_lf+0.276*A_rel[it][0]>=J_min)
 			{
-				A_max=(r_max-dist_mod_lf-LF_vec[it2][0])/1.02;
+				A_max=(r_max-dist_mod_lf-LF_vec[it2][0])/0.276;
 				//if (LF_vec[it2][0]+5*log10(it*100.+50.)-5.+1.02*A_rel[it][0]<r_max)
-				if (A_max>12)
+				if (A_max>10)
 				{
 					prob+=prior_lf[it]/*lookup_table[0][0][0]*/*LF_vec[it2][1];
 				}
@@ -82,7 +108,6 @@ float LF::LF_prob(vector < vector <float> > A_rel)
 	
 		}
 	}
-	//cout << log(prob/norm_lf) << " " << prob << " " << norm_lf << " " << prior_lf[10] << " " << A_rel.size() << endl;
 
 	return log(prob/norm_lf);
 
