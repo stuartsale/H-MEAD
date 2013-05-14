@@ -93,8 +93,8 @@ iphas_obj::iphas_obj(float P1_input, float P2_input, float P3_input, float d_P1_
 		feh_sd=0.008;
 		logT_sd=0.003;
 		logg_sd=0.008;
-		A_sd=sqrt(d_r*d_r+d_i*d_i)/4;
-		dist_mod_sd=0.5*d_r;
+		A_sd=sqrt(d_J*d_J+d_H*d_H)/4;
+		dist_mod_sd=0.5*d_J;
 
 		ri_sd=min(sqrt(d_r*d_r+d_i*d_i), 0.04f);
 		rmag_sd=d_r;
@@ -177,7 +177,8 @@ float iphas_obj::get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod,
 
 void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <float> > &A_mean)
 {
-	for (int it=0; it<guess_set.size();it++)
+	//IPHAS version
+/*	for (int it=0; it<guess_set.size();it++)
 	{
 		if (r-ha>guess_set[it].redline(r-i))
 		{
@@ -194,6 +195,62 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 //	last_iso=iso_get(0.,real_Mi, 7.08, isochrones);
 //	last_A=real_A;
 //	last_dist_mod=5*log10(real_dist/10);
+*/
+// 2MASS version
+	int best_it=0, best_A=0, best_dist_mod=0;
+	float best_diff=-9999;
+	int prob_sum=0;
+	float prob1;
+	
+	int index;
+	for (int it=0; it<guess_set.size();it++)
+	{
+		index=pow(10, (K - ((J-K)-(guess_set[it].J0-guess_set[it].K0))*0.68 - guess_set[it].K0)/5.+1)/100.;
+		if (int(index) < 150)
+		{
+//			if (abs(((J-K)-(guess_set[it].J0-guess_set[it].K0))/0.164 - 
+//			A_mean[int(index)][0] )<best_diff)
+//			{
+//				best_diff=abs(((J-K)-(guess_set[it].J0-guess_set[it].K0))/0.164 - A_mean[int(index)][0]);
+//				best_it=it;
+//			cout << it  << " " << K << " " << J-K << " " << ((J-K)-(guess_set[it].J0-guess_set[it].K0))/0.164 << " " << pow(10, (K - ((J-K)-(guess_set[it].J0-guess_set[it].K0))*0.68 - guess_set[it].K0)/5.+1) 
+//			<< " " << (((J-K)-(guess_set[it].J0-guess_set[it].K0))/0.164 - A_mean[int(index)][0]) << " new" << endl;
+//			}
+//			else
+//			{
+//				cout << it  << " " << K << " " << J-K << " " << ((J-K)-(guess_set[it].J0-guess_set[it].K0))/0.164 << " " << pow(10, (K - ((J-K)-(guess_set[it].J0-guess_set[it].K0))*0.68 - guess_set[it].K0)/5.+1) 
+//				<< " " << (((J-K)-(guess_set[it].J0-guess_set[it].K0))/0.164 - A_mean[int(index)][0]) << " " << best_diff << endl;
+//			}
+			prob1=-pow((H-K)-(guess_set[it].H0-guess_set[it].K0) - ((J-K)-(guess_set[it].J0-guess_set[it].K0))*.390,2)/(d_H*d_H+d_K*d_K)
+				-pow(( ((J-K)-(guess_set[it].J0-guess_set[it].K0))/0.164 - A_mean[int(index)][0] )/(A_mean[int(index)][1]),2 );
+			if (prob1>best_diff)
+			{
+				best_diff=prob1;
+				best_it=it;
+			}
+			//	cout << it << " " << pow((H-K)-(guess_set[it].H0-guess_set[it].K0) - ((J-K)-(guess_set[it].J0-guess_set[it].K0))*.390,2)/(d_H*d_H+d_K*d_K) << " " << prob1 << " " << best_it  << " " << best_diff<< endl;
+		}
+
+//		for (float A_test=((J-K)-(guess_set[it].J0-guess_set[it].K0))/0.164 - 3*(dJ+dK)/0.164;
+//			A_test<((J-K)-(guess_set[it].J0-guess_set[it].K0))/0.164 + 3*(dJ+dK)/0.164; A_test+=(dJ+dK)/(3*0.164) )
+//		{
+//			for (float mod_test=K-A_test*0.112-guess_set[it].K0-dK*3; mod_test<mod_test=K-A_test*0.112-guess_set[it].K0+dK*3
+//				mod_test+=dK/3.)
+//			{
+
+	}
+
+	last_logT=guess_set[best_it].logT;	
+	last_logg=guess_set[best_it].logg;
+	last_iso=guess_set[best_it];
+
+	last_A=((J-K)-(last_iso.J0-last_iso.K0))/0.164;
+	last_dist_mod = K - last_A*0.112 -last_iso.K0;
+	last_dist=pow(10,last_dist_mod/5+1);
+
+	//cout << last_dist << " " << last_A << " " << last_dist_mod << " " << best_it << endl;
+
+
 
 	last_rmag=r;
 	last_ri=(last_iso.r0-last_iso.i0)+(last_iso.u-last_iso.u_i)*pow(last_A,2) + (last_iso.v-last_iso.v_i)*last_A + (last_iso.w-last_iso.w_i);
@@ -230,19 +287,32 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 // First isochrone posn.
 
 	test_feh=last_iso.feh;//+gsl_ran_gaussian_ziggurat(rng_handle,feh_sd);//Z.Next()*feh_sd;
-	test_logT=last_iso.logT+gsl_ran_gaussian_ziggurat(rng_handle,logT_sd);//Z.Next()*logT_sd;
-	test_logg=last_iso.logg+gsl_ran_gaussian_ziggurat(rng_handle,logg_sd);//Z.Next()*logg_sd;
-	try {test_iso=iso_get_Tg(test_feh, test_logT, test_logg, isochrones);}
-	catch (int e){no_accept++; return;}
-	//test_A=last_A;//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
-	//test_dist_mod=last_dist_mod ;//+ Z.Next()*dist_mod_sd;
+	if (gsl_ran_flat(rng_handle,0.,1.)<0.95)
+	{
+		test_logT=last_iso.logT+gsl_ran_gaussian_ziggurat(rng_handle,logT_sd);//Z.Next()*logT_sd;
+		test_logg=last_iso.logg+gsl_ran_gaussian_ziggurat(rng_handle,logg_sd);//Z.Next()*logg_sd;
+		try {test_iso=iso_get_Tg(test_feh, test_logT, test_logg, isochrones);}
+		catch (int e){no_accept++; return;}
+		test_A=last_A+gsl_ran_gaussian_ziggurat(rng_handle,A_sd);//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
+		test_dist_mod=last_dist_mod+gsl_ran_gaussian_ziggurat(rng_handle,dist_mod_sd);//+ Z.Next()*dist_mod_sd;
+	}
+	else
+	{
+		test_logT=last_iso.logT+gsl_ran_gaussian_ziggurat(rng_handle,5*logT_sd);//Z.Next()*logT_sd;
+		test_logg=last_iso.logg+gsl_ran_gaussian_ziggurat(rng_handle,5*logg_sd);//Z.Next()*logg_sd;
+		try {test_iso=iso_get_Tg(test_feh, test_logT, test_logg, isochrones);}
+		catch (int e){no_accept++; return;}
+		test_A=last_A+gsl_ran_gaussian_ziggurat(rng_handle,5*A_sd);//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
+		test_dist_mod=last_dist_mod+gsl_ran_gaussian_ziggurat(rng_handle,5*dist_mod_sd);//+ Z.Next()*dist_mod_sd;
+	}
 
-	test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,rmag_sd);//Z.Next()*d_r/2;
+
+/*	test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,rmag_sd);//Z.Next()*d_r/2;
 	test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
 
 	test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.w-test_iso.w_i)+(test_iso.r0-test_iso.i0)-test_ri, +1);
 	if (test_A<0){no_accept++; return;}
-	test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;
+	test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;*/
 
 
 	current_prob=likelihood_eval(test_iso, test_A, test_dist_mod, A_mean);

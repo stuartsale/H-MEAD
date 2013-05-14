@@ -5,11 +5,17 @@ sl_obj::sl_obj(void)
 	// set default MIN vals
 	r_min=13.5; 
 	i_min=12.0;
-	ha_min=12.0;				
+	ha_min=12.0;
+	J_min=8.;
+	H_min=7.;
+	K_min=6.;
 	// set default MAX vals
 	r_max=21.;
 	i_max=20.;
 	ha_max=20.;
+	J_max=17.;
+	H_max=16.;
+	K_max=15.5;
 
 	sigma_fac=0.05;
 	accepted=0;
@@ -34,11 +40,17 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 	// set default MIN vals
 	r_min=13.5; 
 	i_min=12.0;
-	ha_min=12.0;				
+	ha_min=12.0;	
+	J_min=8.;
+	H_min=7.;
+	K_min=6.;			
 	// set default MAX vals
 	r_max=21.;
 	i_max=20.;
 	ha_max=20.;
+	J_max=17.;
+	H_max=16.;
+	K_max=15.5;
 
 	previous_s_R=2500.;
 	previous_s_z=125.;
@@ -171,7 +183,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	previous_internal_rel[0][0]=previous_rel[0][0];//log(previous_rel[0][0]);//
 	previous_internal_rel[0][1]=previous_rel[0][1];///previous_internal_rel[0][0];
 
-	previous_hyperprior_prob+=-log(previous_internal_rel[0][0])- pow(log(previous_internal_rel[0][0]/previous_internal_rel[0][0]),2)/(2*pow(fBm_s,2));
+//	previous_hyperprior_prob+=-log(previous_internal_rel[0][0])- pow(log(previous_internal_rel[0][0]/previous_internal_rel[0][0]),2)/(2*pow(fBm_s,2));
 		
 	for (int i=1; i<150; i++)
 	{
@@ -181,10 +193,10 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		
 
 	//	previous_hyperprior_prob+=-pow( ((log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2)) - (log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2))  )/(1) - (previous_rel[i-1][2]-hyperprior_rel[i-1][2])/(1/*previous_rel[i-1][3]*/),2)/(2.*fBm_s);
-		mu_t=
-		sig_t=
+//		mu_t=
+//		sig_t=
 
-		previous_hyperprior_prob+=-log(previous_internal_rel[0][0]/previous_internal_rel[0][0])- pow(log(previous_internal_rel[0][0]/previous_internal_rel[0][0]),2)/(2*pow(fBm_s,2));
+//		previous_hyperprior_prob+=-log(previous_internal_rel[0][0]/previous_internal_rel[0][0])- pow(log(previous_internal_rel[0][0]/previous_internal_rel[0][0]),2)/(2*pow(fBm_s,2));
 	}
 
 	hyperprior_internal_rel=previous_internal_rel;
@@ -241,10 +253,10 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	proposed_probs.resize(star_cat.size());
 
 	previous_norm_prob=0;
-	for (int it_LF=0; it_LF<LFs.size(); it_LF++)
-	{
-		previous_norm_prob+=-LFs[it_LF].LF_prob(previous_rel)*(star_cat.size()+1);
-	}
+//	for (int it_LF=0; it_LF<LFs.size(); it_LF++)
+//	{
+//		previous_norm_prob+=-LFs[it_LF].LF_prob(previous_rel)*(star_cat.size()+1);
+//	}
 
 	if (neighbour_sl)
 	{
@@ -315,7 +327,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		}
 
 		new_rel[0][0]=internal_rel[0][0];
-		new_rel[0][1]=internal_rel[0][1];//*internal_rel[0][0];
+		new_rel[0][1]=0.4;//internal_rel[0][1];//*internal_rel[0][0];
 		new_rel[0][3]=sqrt(log(1+pow(new_rel[0][1]/new_rel[0][0],2)));
 		new_rel[0][2]=log(new_rel[0][0])-pow(new_rel[0][3],2)/2;
 		
@@ -323,11 +335,11 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		{			
 
 			new_rel[it][0]=internal_rel[it][0]+new_rel[it-1][0];//exp(internal_rel[it][0])+new_rel[it-1][0];//
-			new_rel[it][1]=internal_rel[it][1];//sqrt(pow(internal_rel[it][1]*internal_rel[it][0],2)+pow(new_rel[it-1][1],2));
+			new_rel[it][1]=0.4;//internal_rel[it][1];//sqrt(pow(internal_rel[it][1]*internal_rel[it][0],2)+pow(new_rel[it-1][1],2));
 			new_rel[it][3]=sqrt(log(1+pow(new_rel[it][1]/new_rel[it][0],2)));
 			new_rel[it][2]=log(new_rel[it][0])-pow(new_rel[it][3],2)/2;
 
-			current_hyperprior_prob+=-pow( ((log(internal_rel[it][0])-(log(1+pow(1/*internal_rel[it][1]/internal_rel[it][0]*/,2))/2)) - (log(hyperprior_internal_rel[it][0])-(log(1+pow(1/*hyperprior_internal_rel[it][1]/hyperprior_internal_rel[it][0]*/,2))/2))  )/(1) - (new_rel[it-1][2]-hyperprior_rel[it-1][2])/(/*hyperprior_rel[it-1][3]*/1),2)/(2.*fBm_s);
+//			current_hyperprior_prob+=-pow( ((log(internal_rel[it][0])-(log(1+pow(1/*internal_rel[it][1]/internal_rel[it][0]*/,2))/2)) - (log(hyperprior_internal_rel[it][0])-(log(1+pow(1/*hyperprior_internal_rel[it][1]/hyperprior_internal_rel[it][0]*/,2))/2))  )/(1) - (new_rel[it-1][2]-hyperprior_rel[it-1][2])/(/*hyperprior_rel[it-1][3]*/1),2)/(2.*fBm_s);
 			//current_hyperprior_prob+=-pow( ((log(internal_rel[it][0])-(log(1+pow(1/*internal_rel[it][1]/internal_rel[it][0]*/,2))/2)) - (log(hyperprior_internal_rel[it][0])-(log(1+pow(1/*hyperprior_internal_rel[it][1]/hyperprior_internal_rel[it][0]*/,2))/2))  )/(1) - ((log(internal_rel[it-1][0])-(log(1+pow(1/*internal_rel[it-1][1]/internal_rel[it-1][0]*/,2))/2)) - (log(hyperprior_internal_rel[it-1][0])-(log(1+pow(1/*hyperprior_internal_rel[it-1][1]/hyperprior_internal_rel[it-1][0]*/,2))/2))  )/(1) ,2)/(2.*fBm_s);
 		}
 
@@ -345,10 +357,10 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 // Normalisation term
 
 		current_norm_prob=0;
-		for (int it_LF=0; it_LF<LFs.size(); it_LF++)
-		{
-			current_norm_prob+=-LFs[it_LF].LF_prob(new_rel)*(star_cat.size()+1);
-		}
+//		for (int it_LF=0; it_LF<LFs.size(); it_LF++)
+//		{
+//			current_norm_prob+=-LFs[it_LF].LF_prob(new_rel)*(star_cat.size()+1);
+//		}
 
 // Neighbour term
 

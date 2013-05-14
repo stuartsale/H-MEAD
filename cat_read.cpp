@@ -81,13 +81,13 @@ vector<iphas_obj> TWOMASS_read(string filename,float &J_min1,float &H_min1,float
 		exit(1);
 	}
 
-	J_max1=8;
-	H_max1=8;
-	K_max1=8;
+//	J_max1=8;
+//	H_max1=8;
+//	K_max1=8;
 
-	J_min1=16;
-	H_min1=16;
-	K_min1=16;
+//	J_min1=16;
+//	H_min1=16;
+//	K_min1=16;
 
 	while (!TWOMASS_data.eof())				// Running down file
 	{

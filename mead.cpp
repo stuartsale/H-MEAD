@@ -87,10 +87,10 @@ int main(int argc, char* argv[])
 	vector<iso_obj> isochrones=iso_read_Tg_2MASS("padova-iso_tefflogg-JHK.dat");
 
 	vector<iso_obj> guess_set;
-//	guess_set.push_back(iso_get_Tg(0.,3.574 ,5.00 , isochrones));	//M1
-//	guess_set.push_back(iso_get_Tg(0.,3.591 ,4.95 , isochrones));	//M0
-//	guess_set.push_back(iso_get_Tg(0.,3.602 ,4.90 , isochrones));	//K7
-//	guess_set.push_back(iso_get_Tg(0.,3.643 ,4.65 , isochrones));	//K5
+	guess_set.push_back(iso_get_Tg(0.,3.574 ,5.00 , isochrones));	//M1
+	guess_set.push_back(iso_get_Tg(0.,3.591 ,4.95 , isochrones));	//M0
+	guess_set.push_back(iso_get_Tg(0.,3.602 ,4.90 , isochrones));	//K7
+	guess_set.push_back(iso_get_Tg(0.,3.643 ,4.65 , isochrones));	//K5
 	guess_set.push_back(iso_get_Tg(0.,3.663 ,4.57 , isochrones));	//K4
 	guess_set.push_back(iso_get_Tg(0.,3.672 ,4.56 , isochrones));	//K3
 	guess_set.push_back(iso_get_Tg(0.,3.686 ,4.55 , isochrones));	//K2
@@ -113,6 +113,19 @@ int main(int argc, char* argv[])
 	guess_set.push_back(iso_get_Tg(0.,4.188 ,4.10 , isochrones));	//B5 
 	guess_set.push_back(iso_get_Tg(0.,4.362 ,4.06 , isochrones));	//B2 	
 //	guess_set.push_back(iso_get_Tg(0.,4.498 ,4.00 , isochrones));	//B0 
+
+	guess_set.push_back(iso_get_Tg(0.,3.580 ,1.41 , isochrones));	//M1 III
+	guess_set.push_back(iso_get_Tg(0.,3.591 ,1.63 , isochrones));	//M0 III	
+	guess_set.push_back(iso_get_Tg(0.,3.602 ,1.93 , isochrones));	//K5 III	
+	guess_set.push_back(iso_get_Tg(0.,3.613 ,2.16 , isochrones));	//K4 III	
+	guess_set.push_back(iso_get_Tg(0.,3.628 ,2.36 , isochrones));	//K3 III	
+	guess_set.push_back(iso_get_Tg(0.,3.648 ,2.63 , isochrones));	//K2 III	
+	guess_set.push_back(iso_get_Tg(0.,3.663 ,2.78 , isochrones));	//K1 III	
+	guess_set.push_back(iso_get_Tg(0.,3.681 ,2.89 , isochrones));	//K0 III		
+	guess_set.push_back(iso_get_Tg(0.,3.695 ,2.95 , isochrones));	//G8 III		
+	guess_set.push_back(iso_get_Tg(0.,3.712 ,3.07 , isochrones));	//G5 III		
+	guess_set.push_back(iso_get_Tg(0.,3.740 ,3.20 , isochrones));	//G2 III		
+
 
 	vector <LF> lfs;
 
