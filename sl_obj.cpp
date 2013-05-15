@@ -133,12 +133,18 @@ void sl_obj::output_write(void)
 
 	cout << s_R_mean << " " << s_z_mean << endl;
 
-	//rho_out << 25 << "\t" << (A_mean[0].mean_A)/0.05 << "\t" << mean_rho[0] << "\n";
-	rho_out << 25 << "\t" << (previous_rel[0][0])/0.05 << "\t0\t" << mean_rho[0] << "\t0\n";
-	for (int x=1; x<A_mean.size(); x++)
+//	//rho_out << 25 << "\t" << (A_mean[0].mean_A)/0.05 << "\t" << mean_rho[0] << "\n";
+//	rho_out << 25 << "\t" << (previous_rel[0][0])/0.05 << "\t0\t" << mean_rho[0] << "\t0\n";
+//	for (int x=1; x<A_mean.size(); x++)
+//	{
+//	//	rho_out << x*100 << "\t" << (A_mean[x].mean_A - A_mean[x-1].mean_A)/0.1 << "\t" << mean_rho[x] << "\n";
+//		rho_out << x*100 << "\t" << (previous_internal_rel[x][0]) << "\t" << (previous_rel[x-1][0]) <<"\t" << mean_rel[x]-mean_rel[x-1] << "\t" << mean_rel[x-1] << "\n";
+//	}
+
+	for (int x=0; x<rho_mean.size(); x++)
 	{
 	//	rho_out << x*100 << "\t" << (A_mean[x].mean_A - A_mean[x-1].mean_A)/0.1 << "\t" << mean_rho[x] << "\n";
-		rho_out << x*100 << "\t" << (previous_internal_rel[x][0]) << "\t" << (previous_rel[x-1][0]) <<"\t" << mean_rel[x]-mean_rel[x-1] << "\t" << mean_rel[x-1] << "\n";
+		rho_out << x*100 << "\t" << rho_mean[x][0] << "\t" << rho_mean[x][1] <<"\t" << mean_rel[x]-mean_rel[x-1] << "\t" << mean_rel[x-1] << "\n";
 	}
 	rho_out.close();
 	
@@ -543,6 +549,46 @@ void sl_obj::mean_intervals(void)
 		A_mean[it].d_sigma=sigma_diffs[int(0.682*A_diffs.size())];
 
 		A_mean[it].error_measure=sqrt(pow(A_mean[it].d_mean/A_mean[it].mean_A,2)+pow(A_mean[it].d_sigma/A_mean[it].sigma,2));
+
+		
+		vector <float> rho_line(2);
+		float rho_sum=0;
+		if (it==0)
+		{
+			for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
+			{
+				rho_sum+=global_A_chain[m][it][0];
+			}	
+		}
+		else
+		{
+			for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
+			{
+				rho_sum+=global_A_chain[m][it][0]-global_A_chain[m][it-1][0];
+			}	
+		}
+		rho_line[0]=rho_sum/ceil(0.50*global_A_chain.size());
+
+		vector <float> rho_diffs;
+		if (it==0)
+		{
+			for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
+			{
+				rho_diffs.push_back(abs(global_A_chain[m][it][0]-rho_line[0]));
+			}
+		}
+		else
+		{
+			for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
+			{
+				rho_diffs.push_back(abs((global_A_chain[m][it][0]-global_A_chain[m][it-1][0])-rho_line[0]));
+			}
+		}		
+
+		sort(rho_diffs.begin(),rho_diffs.end());
+		rho_line[1]=rho_diffs[int(0.682*rho_diffs.size())];
+		rho_mean.push_back(rho_line);
+
 	}
 
 	float s_R_sum=0., s_z_sum=0;

@@ -47,7 +47,7 @@ class sl_obj
 
 		string rootname;
 
-		vector < vector<float> > proposal_sd ;//(150, vector <float> (2));
+		vector < vector <float> > proposal_sd ;//(150, vector <float> (2));
 		vector < vector <float> > previous_rel; //(150, vector <float> (4));
 		vector < vector <float> > internal_rel; //(150, vector <float> (2));
 		vector < vector <float> > previous_internal_rel; //(150, vector <float> (2));
@@ -64,7 +64,8 @@ class sl_obj
 		vector <vector <vector <float> > > global_A_chain;
 
 		vector<bin_obj2> A_mean;
-		vector<float> backup_A_mean;	
+		vector<float> backup_A_mean;
+		vector < vector <float> > rho_mean;
 
 		float sigma_fac, accepted;
 // Set up
