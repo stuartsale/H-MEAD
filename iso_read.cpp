@@ -6,7 +6,7 @@ vector<iso_obj> iso_read(const string &filename)		// Function to read in calibra
 	ifstream input1;
 	input1.open(filename.c_str());
 	if(!input1) { //output file couldn't be opened
-		cerr << "Error: file could not be opened" << endl;
+		cerr << "Error: file " << filename << " could not be opened" << endl;
 		exit(1);
 	}
 
@@ -45,7 +45,7 @@ vector<iso_obj> iso_read_Tg(const string &filename)		// Function to read in cali
 	ifstream input1;
 	input1.open(filename.c_str());
 	if(!input1) { //output file couldn't be opened
-		cerr << "Error: file could not be opened" << endl;
+		cerr << "Error: file " << filename << " could not be opened" << endl;
 		exit(1);
 	}
 
@@ -90,7 +90,7 @@ vector<iso_obj> iso_read_Tg_2MASS(const string &filename)		// Function to read i
 	ifstream input1;
 	input1.open(filename.c_str());
 	if(!input1) { //output file couldn't be opened
-		cerr << "Error: file could not be opened" << endl;
+		cerr << "Error: file " << filename << " could not be opened" << endl;
 		exit(1);
 	}
 
