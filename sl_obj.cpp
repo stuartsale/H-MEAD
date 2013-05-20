@@ -264,16 +264,16 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		previous_norm_prob+=-LFs[it_LF].LF_prob(previous_rel)*(star_cat.size()+1);
 	}
 
-	if (neighbour_sl)
-	{
-		for (int it=0; it<rel_length; it++)
-		{
-			previous_xsl_prob+=-pow( (log(previous_internal_rel[it][0])-log(1+pow(0.75/previous_internal_rel[it][0],2))/2)/(log(1+pow(0.75/previous_internal_rel[it][0],2))) 
-					- (log(neighbour_sl->previous_internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->previous_internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->previous_internal_rel[it][0],2))) ,2)/(2.*fBm_s);
-		//	previous_xsl_prob+=pow(previous_internal_rel[it][0] - neighbour_sl->previous_internal_rel[it][0],2)/(0.125);
+//	if (neighbour_sl)
+//	{
+//		for (int it=0; it<rel_length; it++)
+//		{
+//			previous_xsl_prob+=-pow( (log(previous_internal_rel[it][0])-log(1+pow(0.75/previous_internal_rel[it][0],2))/2)/(log(1+pow(0.75/previous_internal_rel[it][0],2))) 
+//					- (log(neighbour_sl->previous_internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->previous_internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->previous_internal_rel[it][0],2))) ,2)/(2.*fBm_s);
+//		//	previous_xsl_prob+=pow(previous_internal_rel[it][0] - neighbour_sl->previous_internal_rel[it][0],2)/(0.125);
 
-		}
-	}
+//		}
+//	}
 }
 
 
@@ -370,22 +370,22 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 // Neighbour term
 
-		if (neighbour_sl)
-		{
-			for (int it=0; it<rel_length; it++)
-			{
-				current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2))) - (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./fBm_s);
-			//	current_xsl_prob+=pow(internal_rel[it][0] - neighbour_sl->internal_rel[it][0],2)/(0.125);
-			}
-		}
-		else if (!recv_neighbour_rel.empty())
-		{
-			for (int it=0; it<rel_length; it++)
-			{
-				current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2)))- (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./fBm_s);
-			//	current_xsl_prob+=pow(internal_rel[it][0] -recv_neighbour_rel[it][0],2)/(0.125);
-			}
-		}	
+//		if (neighbour_sl)
+//		{
+//			for (int it=0; it<rel_length; it++)
+//			{
+//				current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2))) - (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./fBm_s);
+//			//	current_xsl_prob+=pow(internal_rel[it][0] - neighbour_sl->internal_rel[it][0],2)/(0.125);
+//			}
+//		}
+//		else if (!recv_neighbour_rel.empty())
+//		{
+//			for (int it=0; it<rel_length; it++)
+//			{
+//				current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2)))- (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./fBm_s);
+//			//	current_xsl_prob+=pow(internal_rel[it][0] -recv_neighbour_rel[it][0],2)/(0.125);
+//			}
+//		}	
 
 // Metropolis-Hastings algorithm step
 
@@ -496,7 +496,7 @@ void sl_obj::hyperprior_update(void)
 	{
 		current_hyperprior_internal_rel[it][0]=current_hyperprior_rel[it][0]-current_hyperprior_rel[it-1][0];
 		current_hyperprior_internal_rel[it][1]=current_hyperprior_rel[it][1];
-		current_hyperprior_prob+=-pow( ((log(previous_internal_rel[it][0])-(log(1+pow(1/*previous_internal_rel[it][1]/previous_internal_rel[it][0]*/,2))/2)) - (log(current_hyperprior_internal_rel[it][0])-(log(1+pow(1/*current_hyperprior_internal_rel[it][1]/current_hyperprior_internal_rel[it][0]*/,2))/2))  )/(1) - (previous_rel[it-1][2]-current_hyperprior_rel[it-1][2])/(/*current_hyperprior_rel[it-1][3]*/1),2)/(2.*fBm_s);
+		current_hyperprior_prob+=-pow( ((log(previous_internal_rel[it][0])-(log(1.+pow(1./*previous_internal_rel[it][1]/previous_internal_rel[it][0]*/,2.))/2)) - (log(current_hyperprior_internal_rel[it][0])-(log(1.+pow(1./*current_hyperprior_internal_rel[it][1]/current_hyperprior_internal_rel[it][0]*/,2.))/2.))  )/(1) - (previous_rel[it-1][2]-current_hyperprior_rel[it-1][2])/(/*current_hyperprior_rel[it-1][3]*/1),2.)/(2.*fBm_s);
 	}
 
 	if (current_hyperprior_prob>previous_hyperprior_prob)
