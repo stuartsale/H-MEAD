@@ -338,12 +338,7 @@ vector<float> backup_A_mean_find(double l_gal, double b_gal, float s_R, float s_
 	// retrieve Schlegel et al limit
 	if (Sch_get)
 	{
-		string Sch_string="./CodeC/lambert_getval CodeC/SFD_dust_4096_ngp.fits CodeC/SFD_dust_4096_sgp.fits 1 "; 	
-		Sch_string.append(stringify(l_gal));
-		Sch_string.append(" ");
-		Sch_string.append(stringify(b_gal));
-		//Sch_max=atof(getStdoutFromCommand(Sch_string).c_str())*2.944;		// 2.944 to convert E(B-V) given by Schlegel to A_6250
-		Sch_max=10.0;
+		Sch_max=SFD_read(l_gal, b_gal)*3.1;		// 3.1ish to convert E(B-V) given by Schlegel to A_0
 	}
 	else {Sch_max=1.;}
 
@@ -351,7 +346,6 @@ vector<float> backup_A_mean_find(double l_gal, double b_gal, float s_R, float s_
 	density_dust=0;
 	for (double d=0; d<30001.0; d+=10)
 	{	// Dust scale height and lengh from Marshall et al 2006
-		//dust_inf+=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8080.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/2500 - fabs(d*sin(b_gal*PI/180.)+17)/125)*10;
 		density_dust+=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8080.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/s_R - fabs(d*sin(b_gal*PI/180.)+17)/s_z)*10.;
 		if (d/100!=int(d/100) && d/50==int(d/50) && d<15000)				
 		{
