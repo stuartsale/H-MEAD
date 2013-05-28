@@ -27,6 +27,8 @@ vector <vector <vector <double> > > lookup_table;
 
 gsl_rng* rng_handle;
 
+string config_dir;
+
 //--------------------------------
 // MAIN 
 //--------------------------------
@@ -35,6 +37,23 @@ gsl_rng* rng_handle;
 
 int main(int argc, char* argv[]) 
 {	
+	// Set up
+
+	char hostname[1024];
+	gethostname(hostname, 1023);
+	string hostname_s=hostname;
+	if (hostname_s=="orion")
+	{
+		cout << "hostname is " << hostname_s << endl;
+		config_dir="/home/stuart/work/work-oxford/distance_red/config/";
+	}
+	else
+	{
+		cout << "hostname is " << hostname_s << endl;	
+		config_dir="/usersVol1/sale/distance_red/config/";
+	}
+
+
 	// Initialise MPI
 
 	int numprocs, rank, namelen, rc;
@@ -84,7 +103,7 @@ int main(int argc, char* argv[])
 
 	//vector<iso_obj> isochrones=iso_read("padova-iso_reg.dat");
 	//vector<iso_obj> isochrones=iso_read_Tg("padova-iso_tefflogg3.dat");
-	vector<iso_obj> isochrones=iso_read_Tg_2MASS("padova-iso_tefflogg-JHK.dat");
+	vector<iso_obj> isochrones=iso_read_Tg_2MASS(config_dir+"padova-iso_tefflogg-JHK.dat");
 
 	vector<iso_obj> guess_set;
 	guess_set.push_back(iso_get_Tg(0.,3.574 ,5.00 , isochrones));	//M1
@@ -131,7 +150,7 @@ int main(int argc, char* argv[])
 
 //	LF lfzero("config/iphas_LFs/lfp0000_r.dat");
 //	lfs.push_back(lfzero);
-	LF lfzero("config/2MASS_LFs/lfp0000_J.dat");
+	LF lfzero(config_dir+"2MASS_LFs/lfp0000_J.dat");
 	lfs.push_back(lfzero);
 
 //	while (1.0648*guess_set[guess_set.size()-1].Mi<2.060){guess_set.push_back(iso_get(0., 1.0648*guess_set[guess_set.size()-1].Mi, 8.5, isochrones));}

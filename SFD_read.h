@@ -10,3 +10,5 @@ using namespace std;
 
 
 float SFD_read(float l, float b);
+
+extern string config_dir;

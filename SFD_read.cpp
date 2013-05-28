@@ -31,7 +31,7 @@ float SFD_read(float l, float b)
 	vector <long> stride (2, 1);
 
 	// Open file
-		auto_ptr<CCfits::FITS> pInfile(new CCfits::FITS("config/SFD_dust_4096_ngp.fits",CCfits::Read,true));
+		auto_ptr<CCfits::FITS> pInfile(new CCfits::FITS(config_dir+"SFD_dust_4096_ngp.fits",CCfits::Read,true));
         	CCfits::PHDU& image = pInfile->pHDU(); 
 	// Read in required section of file
 		image.read(contents, start, end, stride);
@@ -80,7 +80,7 @@ float SFD_read(float l, float b)
 	vector <long> stride (2, 1);
 
 	// Open file
-		auto_ptr<CCfits::FITS> pInfile(new CCfits::FITS("config/SFD_dust_4096_ngp.fits",CCfits::Read,true));
+		auto_ptr<CCfits::FITS> pInfile(new CCfits::FITS(config_dir+"SFD_dust_4096_ngp.fits",CCfits::Read,true));
         	CCfits::PHDU& image = pInfile->pHDU(); 
 	// Read in required section of file
 		image.read(contents, start, end, stride);
