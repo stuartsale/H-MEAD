@@ -12,21 +12,21 @@ ifeq ($(HOST),orion)
 else 
 	ifeq ($(HOST),newhydra.physics.ox.ac.uk)
 		RUN_DIR=../../
-		flags= -g -fopenmp
-		linking_flags= -lgsl -lgslcblas -lm -fopenmp -lCCfits -g
+		flags= -fopenmp -O3
+		linking_flags= -lgsl -lgslcblas -lm -fopenmp  -lCCfits
 		gsl_include=/usr/local/shared/gsl-1.12/include/
 		gsl_lib=/usr/local/shared/gsl-1.12/lib/
-		CCfits_include=/usr/include/
-		CCfits_lib=/usr/lib/x86_64-linux-gnu/
+		CCfits_include=/usersVol1/sale/soft9/include/
+		CCfits_lib=/usersVol1/sale/soft9/lib/
 	else
 		ifeq ($(HOST),hydra.physics.ox.ac.uk)
 			RUN_DIR=../../
-			flags= -g -fopenmp
-			linking_flags= -lgsl -lgslcblas -lm -fopenmp -lCCfits -g
+			flags= -fopenmp -O3
+			linking_flags= -lgsl -lgslcblas -lm -fopenmp -lCCfits
 			gsl_include=/usr/local/shared/gsl-1.12/include/
 			gsl_lib=/usr/local/shared/gsl-1.12/lib/
-			CCfits_include=/usr/include/
-			CCfits_lib=/usr/lib/x86_64-linux-gnu/
+			CCfits_include=/usersVol1/sale/soft9/include/
+			CCfits_lib=/usersVol1/sale/soft9/lib/
 		else	#defaults
 			RUN_DIR=../../
 			flags= -g -fopenmp
@@ -45,7 +45,7 @@ COMPILER=mpic++
 
 
 MEAD: bin_obj.o iso_obj.o helper.o iphas_obj.o mead.o sl_obj.o cat_read.o LF.o iso_read.o SFD_read.o
-	$(COMPILER) -o H-MEAD bin_obj.o iso_obj.o helper.o iphas_obj.o sl_obj.o cat_read.o LF.o iso_read.o mead.o SFD_read.o -I$(gsl_include) -L$(gsl_lib) $(linking_flags)
+	$(COMPILER) -o H-MEAD bin_obj.o iso_obj.o helper.o iphas_obj.o sl_obj.o cat_read.o LF.o iso_read.o mead.o SFD_read.o -I$(gsl_include) -L$(gsl_lib) -I$(CCfits_include) -L$(CCfits_lib) $(linking_flags)
 	cp H-MEAD $(RUN_DIR)
 
 bin_obj.o: bin_obj.cpp bin_obj.h
