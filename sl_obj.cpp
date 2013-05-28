@@ -31,6 +31,8 @@ sl_obj::sl_obj(void)
 
 sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 {
+	cout << "Working on " << filename << endl;
+
 	// Set up variables ---------------------------------------------------------------------
 	l=l_in;
 	b=b_in;
