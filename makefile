@@ -10,6 +10,7 @@ ifeq ($(HOST),orion)
 	CCfits_include=/usr/include/
 	CCfits_lib=/usr/lib/x86_64-linux-gnu/
 	COMPILER=mpic++
+	OMPI_CXX :=icpc
 else 
 	ifeq ($(HOST),newhydra.physics.ox.ac.uk)
 		RUN_DIR=../../
