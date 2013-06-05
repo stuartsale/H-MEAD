@@ -3,12 +3,13 @@
 HOST=$(shell hostname)
 ifeq ($(HOST),orion)
 	RUN_DIR=../../
-	flags= -g -fopenmp
-	linking_flags= -lgsl -lgslcblas -lm -lprofiler -fopenmp -lCCfits -g
+	flags= -O3 -fopenmp
+	linking_flags= -lgsl -lgslcblas -lm -lprofiler -fopenmp -lCCfits
 	gsl_lib=/usr/lib/
 	gsl_include=/usr/include/
 	CCfits_include=/usr/include/
 	CCfits_lib=/usr/lib/x86_64-linux-gnu/
+	COMPILER=mpic++
 else 
 	ifeq ($(HOST),newhydra.physics.ox.ac.uk)
 		RUN_DIR=../../
@@ -18,6 +19,7 @@ else
 		gsl_lib=/usr/local/shared/gsl-1.12/lib/
 		CCfits_include=/usersVol1/sale/soft9/include/
 		CCfits_lib=/usersVol1/sale/soft9/lib/
+		COMPILER=mpicxxintel
 	else
 		ifeq ($(HOST),hydra.physics.ox.ac.uk)
 			RUN_DIR=../../
@@ -27,6 +29,7 @@ else
 			gsl_lib=/usr/local/shared/gsl-1.12/lib/
 			CCfits_include=/usersVol1/sale/soft9/include/
 			CCfits_lib=/usersVol1/sale/soft9/lib/
+			COMPILER=mpicxxintel
 		else	#defaults
 			RUN_DIR=../../
 			flags= -g -fopenmp
@@ -35,12 +38,13 @@ else
 			gsl_include=/usr/include/
 			CCfits_include=/usr/include/
 			CCfits_lib=/usr/lib/x86_64-linux-gnu/
+			COMPILER=mpic++
 		endif
 	endif
 
 endif
 
-COMPILER=mpic++
+
 
 
 
