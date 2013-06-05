@@ -330,8 +330,8 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		last_A=test_A;
 		last_dist_mod=test_dist_mod;
 
-		last_rmag=test_rmag;
-		last_ri=test_ri;
+//		last_rmag=test_rmag;
+//		last_ri=test_ri;
 
 		last_prob=current_prob;
 		last_A_prob=current_A_prob;
@@ -356,8 +356,8 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		last_A=test_A;
 		last_dist_mod=test_dist_mod;
 
-		last_rmag=test_rmag;
-		last_ri=test_ri;
+//		last_rmag=test_rmag;
+//		last_ri=test_ri;
 
 		last_prob=current_prob;
 		last_A_prob=current_A_prob;
