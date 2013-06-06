@@ -49,10 +49,14 @@ class sl_obj
 
 		vector < vector <float> > proposal_sd ;//(150, vector <float> (2));
 		vector < vector <float> > previous_rel; //(150, vector <float> (4));
+		vector < vector <float> > new_rel; //(150, vector <float> (4));
 		vector < vector <float> > internal_rel; //(150, vector <float> (2));
 		vector < vector <float> > previous_internal_rel; //(150, vector <float> (2));
 		vector < vector <float> > hyperprior_internal_rel; //(150, vector <float> (2));
 		vector < vector <float> > hyperprior_rel; //(150, vector <float> (2));
+
+		vector < vector <float> > gen_internal_rel(vector < vector <float> > old_rel, int rel_length);
+		vector < vector <float> > internal_to_external(vector < vector <float> > int_rel, int rel_length);
 
 		float global_previous_prob;
 		float previous_hyperprior_prob, current_hyperprior_prob;
