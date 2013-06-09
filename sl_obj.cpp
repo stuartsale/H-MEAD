@@ -311,127 +311,123 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		global_previous_prob=dummy;
 
 // Now vary hyper-parameters
+
+		move_on=false;	
+		threshold=log( gsl_ran_flat(rng_handle, 0, 1) );
+		trial_rel=mvn_gen_internal_rel(previous_internal_rel, rel_length);
+
+		theta=gsl_ran_flat(rng_handle, 0, 2*PI);
+		theta_min=theta-2*PI; 
+		theta_max=theta;
+
+		while (!move_on)
+		{
+			for (int i=0; i<rel_length; i++)
+			{
+				internal_rel[i][0] = previous_internal_rel[i][0]*cos(theta) + trial_rel[i][0]*sin(theta);
+				internal_rel[i][1] = previous_internal_rel[i][1]*cos(theta) + trial_rel[i][1]*sin(theta);	
+			}
+			new_rel=internal_to_external(internal_rel, rel_length);
+
+	// Find probability of this parameter set
+
+
+			dummy=0;
+	//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
+			for (int it=0; it<star_cat.size(); it++)
+			{
+				proposed_probs[it]=star_cat[it].get_A_prob(star_cat[it].last_iso, star_cat[it].last_A, star_cat[it].last_dist_mod, new_rel);
+				dummy+= proposed_probs[it];
+			}
+			global_current_prob=dummy;
+
+	// Normalisation term
+
+			current_norm_prob=0;
+			for (int it_LF=0; it_LF<LFs.size(); it_LF++)
+			{
+				current_norm_prob+=-LFs[it_LF].LF_prob(new_rel)*(star_cat.size()+1);
+			}
+
+	// Neighbour term
+
+	//		if (neighbour_sl)
+	//		{
+	//			for (int it=0; it<rel_length; it++)
+	//			{
+	//				current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2))) - (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./fBm_s);
+	//			//	current_xsl_prob+=pow(internal_rel[it][0] - neighbour_sl->internal_rel[it][0],2)/(0.125);
+	//			}
+	//		}
+	//		else if (!recv_neighbour_rel.empty())
+	//		{
+	//			for (int it=0; it<rel_length; it++)
+	//			{
+	//				current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2)))- (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./fBm_s);
+	//			//	current_xsl_prob+=pow(internal_rel[it][0] -recv_neighbour_rel[it][0],2)/(0.125);
+	//			}
+	//		}	
+
+	// Metropolis-Hastings algorithm step
+
+			global_transition_prob=0;
+
+			dummy=0;
+	//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
+//			for (int it=1; it<150; it++)
+//			{
+//			// From new to old
+//			// mean_A
+//				dummy+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][0], log(internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
+//				dummy+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][1], log(internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
+//			// From old to new
+//			// mean_A
+//				dummy-=log(gsl_ran_lognormal_pdf(internal_rel[it][0], log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
+//				dummy-=log(gsl_ran_lognormal_pdf(internal_rel[it][1], log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
+//			}
+			global_transition_prob=dummy;
 	
-
-		internal_rel = gen_internal_rel(previous_internal_rel, rel_length);
-		new_rel=internal_to_external(internal_rel, rel_length);
-
-// Find probability of this parameter set
-		current_hyperprior_prob=hyperprior_prob_get(internal_rel);
-
-		dummy=0;
-//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
-		for (int it=0; it<star_cat.size(); it++)
-		{
-			proposed_probs[it]=star_cat[it].get_A_prob(star_cat[it].last_iso, star_cat[it].last_A, star_cat[it].last_dist_mod, new_rel);
-			dummy+= proposed_probs[it];
-		}
-		global_current_prob=dummy;
-
-// Normalisation term
-
-		current_norm_prob=0;
-		for (int it_LF=0; it_LF<LFs.size(); it_LF++)
-		{
-			current_norm_prob+=-LFs[it_LF].LF_prob(new_rel)*(star_cat.size()+1);
-		}
-
-// Neighbour term
-
-//		if (neighbour_sl)
-//		{
-//			for (int it=0; it<rel_length; it++)
-//			{
-//				current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2))) - (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./fBm_s);
-//			//	current_xsl_prob+=pow(internal_rel[it][0] - neighbour_sl->internal_rel[it][0],2)/(0.125);
-//			}
-//		}
-//		else if (!recv_neighbour_rel.empty())
-//		{
-//			for (int it=0; it<rel_length; it++)
-//			{
-//				current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2)))- (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./fBm_s);
-//			//	current_xsl_prob+=pow(internal_rel[it][0] -recv_neighbour_rel[it][0],2)/(0.125);
-//			}
-//		}	
-
-// Metropolis-Hastings algorithm step
-
-		global_transition_prob=0;
-
-		dummy=0;
-//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
-		for (int it=1; it<150; it++)
-		{
-		// From new to old
-		// mean_A
-			dummy+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][0], log(internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
-			dummy+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][1], log(internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
-		// From old to new
-		// mean_A
-			dummy-=log(gsl_ran_lognormal_pdf(internal_rel[it][0], log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
-			dummy-=log(gsl_ran_lognormal_pdf(internal_rel[it][1], log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
-		}
-		global_transition_prob=dummy;
 
 // Accept or reject
 
-		float dummy2;
-		dummy2=new_rel[149][0]-previous_rel[149][0];	
-		int dummy3;
-	
-		if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
-			 + current_norm_prob-previous_norm_prob>0)		// New parameter set better => Accept
-		{
-			previous_rel=new_rel;
-			previous_internal_rel=internal_rel;
-			global_previous_prob=global_current_prob;
-			previous_hyperprior_prob=current_hyperprior_prob;
-			previous_xsl_prob=current_xsl_prob;
-			previous_norm_prob=current_norm_prob;
-			without_change=0;
 			accepted++;
-			dummy3=1;
+			if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
+				 + current_norm_prob-previous_norm_prob>threshold)		// New parameter set better => Accept
+			{
+				previous_rel=new_rel;
+				previous_internal_rel=internal_rel;
+				global_previous_prob=global_current_prob;
+				previous_hyperprior_prob=current_hyperprior_prob;
+				previous_xsl_prob=current_xsl_prob;
+				previous_norm_prob=current_norm_prob;
 
-			for (int stars_it=0; stars_it<star_cat.size(); stars_it++){star_cat[stars_it].last_A_prob=proposed_probs[stars_it];}
+				for (int stars_it=0; stars_it<star_cat.size(); stars_it++){star_cat[stars_it].last_A_prob=proposed_probs[stars_it];}
+
+				move_on=true;
 		
-		//	cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << endl;
+				cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << endl;
+			}
+
+			else 
+			{
+			if (theta>0){theta_max=theta;}
+			else {theta_min=theta;}
+			theta=gsl_ran_flat(rng_handle, theta_min, theta_max);
+
+			//	cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << star_cat.size() << endl;//*/
+			}
 		}
 
-		else if (exp(global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
-			+ current_norm_prob-previous_norm_prob)>gsl_ran_flat(rng_handle, 0, 1))	// New set worse => accept with P=P(new)/P(old)
-		{
-			previous_rel=new_rel;
-			previous_internal_rel=internal_rel;
-			global_previous_prob=global_current_prob;
-			previous_hyperprior_prob=current_hyperprior_prob;
-			previous_xsl_prob=current_xsl_prob;
-			previous_norm_prob=current_norm_prob;
-			without_change=0;
-			accepted++;
-			dummy3=1;
-
-			for (int stars_it=0; stars_it<star_cat.size(); stars_it++){star_cat[stars_it].last_A_prob=proposed_probs[stars_it];}
-
-		//	cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() <<  endl;
-		}
-		else 
-		{
-			without_change++;
-			dummy3=0;
-		//	cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << star_cat.size() << endl;//*/
-
-		}
 		if (neighbour_sl){if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << " " << neighbour_sl->previous_rel[rel_length-1][0] << endl;}}
 		else {if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << previous_s_R << " " << accepted << " " << accepted/it_num << endl;}}
 
-		if (it_num/10.==floor(it_num/10.))
-		{
-			ofstream trace1;
-			trace1.open("trace1.txt", ios::app);
-			trace1 <<it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[80][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << previous_s_R << " " << accepted << " " << accepted/it_num << " " << global_transition_prob << " " << dummy2 << " " << previous_xsl_prob << " " <<dummy3 << endl;
-			trace1.close();
-		}
+//		if (it_num/10.==floor(it_num/10.))
+//		{
+//			ofstream trace1;
+//			trace1.open("trace1.txt", ios::app);
+//			trace1 <<it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[80][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << previous_s_R << " " << accepted << " " << accepted/it_num << " " << global_transition_prob << " " << dummy2 << " " << previous_xsl_prob << " " <<dummy3 << endl;
+//			trace1.close();
+//		}
 
 		if (floor(it_num/100.)==it_num/100){global_A_chain.push_back(previous_rel);}
 		it_num++;
@@ -453,6 +449,22 @@ vector < vector <float> > sl_obj::gen_internal_rel(vector < vector <float> > old
 	{	
 		new_rel[it][0]=gsl_ran_lognormal(rng_handle,log(old_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);
 		new_rel[it][1]=gsl_ran_lognormal(rng_handle,log(old_rel[it][1])-pow(proposal_sd[it][1],2)/2,proposal_sd[it][1]);
+	}
+	return new_rel;
+}
+
+vector < vector <float> > sl_obj::mvn_gen_internal_rel(vector < vector <float> > old_rel, int rel_length)
+{
+	vector < vector <float> > new_rel(rel_length,vector <float> (2));
+	Eigen::Matrix<float, 150, 1> int_vec, temp_vec;
+
+	for (int i=0; i<rel_length; i++){temp_vec[i]=gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
+	int_vec=temp_vec.transpose()*Cov_Mat + Mean_vec.transpose();
+
+	for (int i=0; i<rel_length; i++)
+	{
+		new_rel[i][0]=exp(int_vec[i]);
+		new_rel[i][1]=0.4;//*new_rel[i][0];
 	}
 	return new_rel;
 }
@@ -656,6 +668,7 @@ float sl_obj::hyperprior_prob_get(vector < vector <float> > internal_rel)
 
 void sl_obj::define_cov_mat(void)
 {
+	typedef Eigen::SparseMatrix<float> spMat;
 	vector <float> mean_rel;
 
 	vector <float> mean_rho(150,0);
@@ -667,14 +680,27 @@ void sl_obj::define_cov_mat(void)
 
 	typedef Eigen::Triplet<float> T;
 	Eigen::SparseMatrix<float> CM(150,150);
-	std::vector<T> tripletList;
+	std::vector<T> tripletList, tripletList2;
 	tripletList.reserve(150);
 
-	for (int i=0; i<150; i++){tripletList.push_back(T(i, i, log(1+100/pow(mean_rho[i],2.) ) ) );}
+	for (int i=0; i<150; i++){tripletList.push_back(T(i, i, log(1+pow(10.,2*(-1-i/100.))) ) ) ;}
 	CM.setFromTriplets(tripletList.begin(), tripletList.end());
-	for (int i=0; i<150; i++){Mean_vec[i]=log(mean_rho[i]) - log(1+100/pow(mean_rho[i],2.) ) ;}
+	for (int i=0; i<150; i++){Mean_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i) ;}
+
+	float dummy=0;
+	for (int i=0; i<150; i++){dummy+=exp(Mean_vec[i]+CM.coeffRef(i,i)/2);
+					cout << i << " " << dummy << endl;}
 
 	Cov_Mat=CM;
+	//Cov_Mat.coeffRef(0,0)=1.;
+
+	//Eigen::SimplicialLDLT<spMat> chol(CM);
+
+	Eigen::SparseMatrix<float> chol(150,150);
+	for (int i=0; i<150; i++){tripletList2.push_back(T(i, i, Cov_Mat.coeffRef(i,i) ) ) ;}
+	chol.setFromTriplets(tripletList2.begin(), tripletList2.end());
+
+	cout << Cov_Mat.nonZeros() << " CM " << Cov_Mat.coeffRef(0,0) << endl;
 }
 
 

@@ -5,6 +5,7 @@
 #include "cat_read.h"
 #include <Eigen/SparseCore>
 #include <Eigen/Dense>
+#include <Eigen/SparseCholesky>
 
 
 using namespace std;
@@ -40,6 +41,7 @@ class sl_obj
 
 	private:
 		bool move_on;
+		float threshold;
 		vector <iphas_obj> star_cat;
 
 		float l, b;
@@ -59,8 +61,10 @@ class sl_obj
 		vector < vector <float> > previous_internal_rel; //(150, vector <float> (2));
 		vector < vector <float> > hyperprior_internal_rel; //(150, vector <float> (2));
 		vector < vector <float> > hyperprior_rel; //(150, vector <float> (2));
+		vector < vector <float> > trial_rel; //(150, vector <float> (2));
 
 		vector < vector <float> > gen_internal_rel(vector < vector <float> > old_rel, int rel_length);
+		vector < vector <float> > mvn_gen_internal_rel(vector < vector <float> > old_rel, int rel_length);
 		vector < vector <float> > internal_to_external(vector < vector <float> > int_rel, int rel_length);
 		float hyperprior_prob_get(vector < vector <float> > internal_rel);
 
@@ -69,6 +73,8 @@ class sl_obj
 		float previous_norm_prob, current_norm_prob;
 		float global_current_prob, global_transition_prob;
 		float previous_xsl_prob, current_xsl_prob;
+
+		double theta, theta_min, theta_max;
 
 		// hold chains too
 		vector <vector <vector <float> > > global_A_chain;
