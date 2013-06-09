@@ -2,6 +2,9 @@
 
 sl_obj::sl_obj(void)
 {
+	Cov_Mat.reserve(150);
+
+
 	// set default MIN vals
 	r_min=13.5; 
 	i_min=12.0;
@@ -26,11 +29,14 @@ sl_obj::sl_obj(void)
 	it_num=0.;
 
 	neighbour_sl=NULL;
+	define_cov_mat();
 
 }
 
 sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 {
+	Cov_Mat.reserve(150);
+
 	cout << "Working on " << filename << endl;
 
 	// Set up variables ---------------------------------------------------------------------
@@ -83,6 +89,8 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 
 	it_num=0.;
 	neighbour_sl=NULL;
+
+	define_cov_mat();
 
 
 }
@@ -183,7 +191,6 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		previous_rel[i][3]=sqrt(log(1+pow(previous_rel[i][1]/previous_rel[i][0],2)));
 		previous_rel[i][2]=log(previous_rel[i][0])-pow(previous_rel[i][3],2)/2;
 
-	//	previous_hyperprior_prob+=log(previous_rel[i][1]/(exp(pow(previous_rel[i][3],2))*pow(previous_rel[i][0],3)*previous_rel[i][3])) - 2*log(previous_rel[i][3]);
 	}
 
 	hyperprior_rel=previous_rel;
@@ -191,7 +198,6 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	previous_internal_rel[0][0]=previous_rel[0][0];//log(previous_rel[0][0]);//
 	previous_internal_rel[0][1]=previous_rel[0][1];///previous_internal_rel[0][0];
 
-//	previous_hyperprior_prob+=-log(previous_internal_rel[0][0])- pow(log(previous_internal_rel[0][0]/previous_internal_rel[0][0]),2)/(2*pow(fBm_s,2));
 		
 	for (int i=1; i<150; i++)
 	{
@@ -199,12 +205,6 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		previous_internal_rel[i][0]=previous_rel[i][0]-previous_rel[i-1][0];//log(previous_rel[i][0]-previous_rel[i-1][0]);//
 		previous_internal_rel[i][1]=previous_rel[i][1];//sqrt(pow(previous_rel[i][1],2)-pow(previous_rel[i-1][1],2))/previous_internal_rel[i][0];
 		
-
-	//	previous_hyperprior_prob+=-pow( ((log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2)) - (log(previous_internal_rel[i][0])-(log(1+pow(1/*previous_internal_rel[i][1]/previous_internal_rel[i][0]*/,2))/2))  )/(1) - (previous_rel[i-1][2]-hyperprior_rel[i-1][2])/(1/*previous_rel[i-1][3]*/),2)/(2.*fBm_s);
-//		mu_t=
-//		sig_t=
-
-//		previous_hyperprior_prob+=-log(previous_internal_rel[0][0]/previous_internal_rel[0][0])- pow(log(previous_internal_rel[0][0]/previous_internal_rel[0][0]),2)/(2*pow(fBm_s,2));
 	}
 
 	hyperprior_internal_rel=previous_internal_rel;
@@ -310,16 +310,14 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		}
 		global_previous_prob=dummy;
 
-	//	cout << star_cat[161].last_A << " " << star_cat[161].last_dist_mod << " " << star_cat[161].last_prob << " " << star_cat[161].last_iso.logT << " " << star_cat[161].last_iso.logg << " " << star_cat[161].last_iso.r0-star_cat[161].last_iso.i0 << " " << star_cat[161].last_iso.r0-star_cat[161].last_iso.ha0 << " " << it_num  << " " << star_cat[161].last_iso.Mi << " " << log(star_cat[161].last_iso.Jac) << " " << log(star_cat[161].last_iso.IMF())  << " " 
-//<< star_cat[161].last_iso.r0+star_cat[161].last_iso.u*pow(star_cat[161].last_A,2)+star_cat[161].last_iso.v*star_cat[161].last_A+star_cat[161].last_iso.w+star_cat[161].last_dist_mod  << " " 
-//<< star_cat[161].last_iso.i0+star_cat[161].last_iso.u_i*pow(star_cat[161].last_A,2)+star_cat[161].last_iso.v_i*star_cat[161].last_A+star_cat[161].last_iso.w_i+star_cat[161].last_dist_mod  << " " << star_cat[161].last_iso.ha0+star_cat[161].last_iso.u_ha*pow(star_cat[161].last_A,2)+star_cat[161].last_iso.v_ha*star_cat[161].last_A+star_cat[161].last_iso.w_ha+star_cat[161].last_dist_mod << endl;
-
 // Now vary hyper-parameters
 	
+
 		internal_rel = gen_internal_rel(previous_internal_rel, rel_length);
 		new_rel=internal_to_external(internal_rel, rel_length);
 
 // Find probability of this parameter set
+		current_hyperprior_prob=hyperprior_prob_get(internal_rel);
 
 		dummy=0;
 //		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
@@ -421,7 +419,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		{
 			without_change++;
 			dummy3=0;
-			cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << star_cat.size() << endl;//*/
+		//	cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << star_cat.size() << endl;//*/
 
 		}
 		if (neighbour_sl){if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << " " << neighbour_sl->previous_rel[rel_length-1][0] << endl;}}
@@ -455,7 +453,6 @@ vector < vector <float> > sl_obj::gen_internal_rel(vector < vector <float> > old
 	{	
 		new_rel[it][0]=gsl_ran_lognormal(rng_handle,log(old_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);
 		new_rel[it][1]=gsl_ran_lognormal(rng_handle,log(old_rel[it][1])-pow(proposal_sd[it][1],2)/2,proposal_sd[it][1]);
-//		current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(hyperprior_internal_rel[it][0]),1.));
 	}
 	return new_rel;
 }
@@ -476,9 +473,6 @@ vector < vector <float> > sl_obj::internal_to_external(vector < vector <float> >
 		ext_rel[it][1]=int_rel[it][1];
 		ext_rel[it][3]=sqrt(log(1+pow(ext_rel[it][1]/ext_rel[it][0],2)));
 		ext_rel[it][2]=log(ext_rel[it][0])-pow(ext_rel[it][3],2)/2;
-
-//		current_hyperprior_prob+=-pow( ((log(internal_rel[it][0])-(log(1+pow(1/*internal_rel[it][1]/internal_rel[it][0]*/,2))/2)) - (log(hyperprior_internal_rel[it][0])-(log(1+pow(1/*hyperprior_internal_rel[it][1]/hyperprior_internal_rel[it][0]*/,2))/2))  )/(1) - (new_rel[it-1][2]-hyperprior_rel[it-1][2])/(/*hyperprior_rel[it-1][3]*/1),2)/(2.*fBm_s);
-//		current_hyperprior_prob+=-pow( ((log(internal_rel[it][0])-(log(1+pow(1/*internal_rel[it][1]/internal_rel[it][0]*/,2))/2)) - (log(hyperprior_internal_rel[it][0])-(log(1+pow(1/*hyperprior_internal_rel[it][1]/hyperprior_internal_rel[it][0]*/,2))/2))  )/(1) - ((log(internal_rel[it-1][0])-(log(1+pow(1/*internal_rel[it-1][1]/internal_rel[it-1][0]*/,2))/2)) - (log(hyperprior_internal_rel[it-1][0])-(log(1+pow(1/*hyperprior_internal_rel[it-1][1]/hyperprior_internal_rel[it-1][0]*/,2))/2))  )/(1) ,2)/(2.*fBm_s);
 	}
 	return ext_rel;
 }
@@ -501,7 +495,6 @@ void sl_obj::hyperprior_update(void)
 		current_hyperprior_rel[it][0]=backup_rel[it];
 		current_hyperprior_rel[it][1]=hyperprior_rel[it][1];
 		current_hyperprior_rel[it][3]=sqrt(log(1+pow(current_hyperprior_rel[it][1]/current_hyperprior_rel[it][0],2)));
-		current_hyperprior_rel[it][2]=log(current_hyperprior_rel[it][0])-pow(current_hyperprior_rel[it][3],2)/2;
 	}
 
 	current_hyperprior_internal_rel[0][0]=current_hyperprior_rel[0][0];
@@ -510,7 +503,6 @@ void sl_obj::hyperprior_update(void)
 	{
 		current_hyperprior_internal_rel[it][0]=current_hyperprior_rel[it][0]-current_hyperprior_rel[it-1][0];
 		current_hyperprior_internal_rel[it][1]=current_hyperprior_rel[it][1];
-		current_hyperprior_prob+=-pow( ((log(previous_internal_rel[it][0])-(log(1.+pow(1./*previous_internal_rel[it][1]/previous_internal_rel[it][0]*/,2.))/2)) - (log(current_hyperprior_internal_rel[it][0])-(log(1.+pow(1./*current_hyperprior_internal_rel[it][1]/current_hyperprior_internal_rel[it][0]*/,2.))/2.))  )/(1) - (previous_rel[it-1][2]-current_hyperprior_rel[it-1][2])/(/*current_hyperprior_rel[it-1][3]*/1),2.)/(2.*fBm_s);
 	}
 
 	if (current_hyperprior_prob>previous_hyperprior_prob)
@@ -649,6 +641,40 @@ void sl_obj::acl_calc(void)
 		acl_out << it+1 << " " << acl[it] << endl;
 	}
 	acl_out.close();
+}
+
+float sl_obj::hyperprior_prob_get(vector < vector <float> > internal_rel)
+{
+	Eigen::Matrix<float, 150, 1> int_vec, temp_vec;
+	for (int i=1; i<150; i++){int_vec[i]=internal_rel[i][0];}
+
+	temp_vec=int_vec-Mean_vec;
+	return temp_vec.transpose()*temp_vec;
+
+}
+
+
+void sl_obj::define_cov_mat(void)
+{
+	vector <float> mean_rel;
+
+	vector <float> mean_rho(150,0);
+
+	mean_rel=backup_A_mean_find(l,b,2500, 125, true);
+	mean_rho[0]=mean_rel[0];
+
+	for (int i=1; i<150; i++){mean_rho[i]=mean_rel[i]-mean_rel[i-1];}
+
+	typedef Eigen::Triplet<float> T;
+	Eigen::SparseMatrix<float> CM(150,150);
+	std::vector<T> tripletList;
+	tripletList.reserve(150);
+
+	for (int i=0; i<150; i++){tripletList.push_back(T(i, i, log(1+100/pow(mean_rho[i],2.) ) ) );}
+	CM.setFromTriplets(tripletList.begin(), tripletList.end());
+	for (int i=0; i<150; i++){Mean_vec[i]=log(mean_rho[i]) - log(1+100/pow(mean_rho[i],2.) ) ;}
+
+	Cov_Mat=CM;
 }
 
 

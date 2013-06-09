@@ -3,6 +3,10 @@
 //#include "bin_obj.h"
 #include "LF.h"
 #include "cat_read.h"
+#include <Eigen/SparseCore>
+#include <Eigen/Dense>
+
+
 using namespace std;
 
 #ifndef PI
@@ -35,6 +39,7 @@ class sl_obj
 
 
 	private:
+		bool move_on;
 		vector <iphas_obj> star_cat;
 
 		float l, b;
@@ -57,6 +62,7 @@ class sl_obj
 
 		vector < vector <float> > gen_internal_rel(vector < vector <float> > old_rel, int rel_length);
 		vector < vector <float> > internal_to_external(vector < vector <float> > int_rel, int rel_length);
+		float hyperprior_prob_get(vector < vector <float> > internal_rel);
 
 		float global_previous_prob;
 		float previous_hyperprior_prob, current_hyperprior_prob;
@@ -86,8 +92,21 @@ class sl_obj
 		sl_obj * neighbour_sl;
 		vector <vector <float> > recv_neighbour_rel;
 
-		float previous_s_R, previous_s_z;
-		vector <float> s_R_chain, s_z_chain;
-		float s_R_mean, s_z_mean;
+	// Covariance matrix
+
+		Eigen::SparseMatrix<float> Cov_Mat; 
+
+		Eigen::Matrix<float, 150, 1> Mean_vec;
+
+		void define_cov_mat(void);
+
+
+	// Wider disc params
+
+		float previous_s_R, previous_s_z, previous_A_0;
+		vector <float> s_R_chain, s_z_chain, A_0_chain;
+		float s_R_mean, s_z_mean, A_0_mean;
+
+
 
 };
