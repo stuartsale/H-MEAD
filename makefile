@@ -3,8 +3,8 @@
 HOST=$(shell hostname)
 ifeq ($(HOST),orion)
 	RUN_DIR=../../
-	flags= -O3 -fopenmp
-	linking_flags= -lgsl -lgslcblas -lm -lprofiler -fopenmp -lCCfits
+	flags= -wd2196 -fopenmp -g
+	linking_flags= -lgsl -lgslcblas -lm -lprofiler -fopenmp -lCCfits -g
 	gsl_lib=/usr/lib/
 	gsl_include=/usr/include/
 	CCfits_include=/usr/include/

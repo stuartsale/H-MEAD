@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
 	clock_t start;
 	start=time(NULL);
 
-	while (slsl[0].it_num<150000)
+	while (slsl[0].it_num<40000)
 	{
 		for (int it_conf=0; it_conf<config_file.size(); it_conf++)
 		{

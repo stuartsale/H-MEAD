@@ -316,7 +316,9 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		threshold=log( gsl_ran_flat(rng_handle, 0, 1) );
 		trial_rel=mvn_gen_internal_rel(previous_internal_rel, rel_length);
 
-		theta=gsl_ran_flat(rng_handle, 0, 2*PI);
+		float sss=0.01;
+		//theta=gsl_ran_flat(rng_handle, 0, 2*PI);
+		theta=gsl_ran_gaussian_ziggurat(rng_handle, sss);
 		theta_min=theta-2*PI; 
 		theta_max=theta;
 
@@ -324,8 +326,8 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		{
 			for (int i=0; i<rel_length; i++)
 			{
-				internal_rel[i][0] = previous_internal_rel[i][0]*cos(theta) + trial_rel[i][0]*sin(theta);
-				internal_rel[i][1] = previous_internal_rel[i][1]*cos(theta) + trial_rel[i][1]*sin(theta);	
+				internal_rel[i][0] = exp(log(previous_internal_rel[i][0])*cos(theta) + log(trial_rel[i][0])*sin(theta));
+				internal_rel[i][1] = exp(log(previous_internal_rel[i][1])*cos(theta) + log(trial_rel[i][1])*sin(theta));	
 			}
 			new_rel=internal_to_external(internal_rel, rel_length);
 
@@ -405,14 +407,16 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 				move_on=true;
 		
-				cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << endl;
+		//		cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << " " << theta << endl;
 			}
 
 			else 
 			{
 			if (theta>0){theta_max=theta;}
 			else {theta_min=theta;}
-			theta=gsl_ran_flat(rng_handle, theta_min, theta_max);
+		//	theta=gsl_ran_flat(rng_handle, theta_min, theta_max);
+			sss/=10;	
+			theta=gsl_ran_gaussian_ziggurat(rng_handle, sss);
 
 			//	cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << star_cat.size() << endl;//*/
 			}
@@ -688,19 +692,22 @@ void sl_obj::define_cov_mat(void)
 	for (int i=0; i<150; i++){Mean_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i) ;}
 
 	float dummy=0;
-	for (int i=0; i<150; i++){dummy+=exp(Mean_vec[i]+CM.coeffRef(i,i)/2);
-					cout << i << " " << dummy << endl;}
+	for (int i=0; i<150; i++){dummy+=exp(Mean_vec[i]+CM.coeffRef(i,i)/2);}
+					//cout << i << " " << dummy << endl;}
 
 	Cov_Mat=CM;
 	//Cov_Mat.coeffRef(0,0)=1.;
 
 	//Eigen::SimplicialLDLT<spMat> chol(CM);
 
-	Eigen::SparseMatrix<float> chol(150,150);
-	for (int i=0; i<150; i++){tripletList2.push_back(T(i, i, Cov_Mat.coeffRef(i,i) ) ) ;}
-	chol.setFromTriplets(tripletList2.begin(), tripletList2.end());
+	Eigen::SparseMatrix<float> chol1(150,150);
+	for (int i=0; i<150; i++){tripletList2.push_back(T(i, i, sqrt(Cov_Mat.coeffRef(i,i)) ) ) ; }
+	chol1.setFromTriplets(tripletList2.begin(), tripletList2.end());
+	chol=chol1;
 
-	cout << Cov_Mat.nonZeros() << " CM " << Cov_Mat.coeffRef(0,0) << endl;
+	Eigen::SimplicialLDLT<spMat> chol2(CM);
+
+	//cout << Cov_Mat.nonZeros() << " CM " << Cov_Mat.coeffRef(0,0) << endl;
 }
 
 

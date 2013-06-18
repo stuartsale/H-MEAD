@@ -100,7 +100,7 @@ class sl_obj
 
 	// Covariance matrix
 
-		Eigen::SparseMatrix<float> Cov_Mat; 
+		Eigen::SparseMatrix<float> Cov_Mat, chol; 
 
 		Eigen::Matrix<float, 150, 1> Mean_vec;
 
