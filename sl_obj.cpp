@@ -31,6 +31,8 @@ sl_obj::sl_obj(void)
 	neighbour_sl=NULL;
 	define_cov_mat();
 
+	vector<bin_obj> previous_A_mean(150);
+
 }
 
 sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
@@ -92,7 +94,7 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 
 	define_cov_mat();
 
-
+	previous_A_mean.resize(150);
 }
 
 
@@ -105,7 +107,7 @@ void sl_obj::output_write(void)
 	A_out.open(dummy_string.c_str(), ios::trunc);
 	//A_out << "#\tdist\tA\tsigma_A\n";
 
-	for (int x=0; x<A_mean.size(); x++)
+	for (int x=0; x<previous_A_mean.size(); x++)
 	{
 		A_out << x*100 + 50 << "\t" << A_mean[x].mean_A << "\t" << A_mean[x].sigma <<"\t"<<A_mean[x].d_mean<<"\t"<<A_mean[x].d_sigma<<"\t"
 			<<A_mean[x].size<<"\t"<<A_mean[x].error_measure<<"\t"<<A_mean[x].sum<<"\t"<<A_mean[x].diff<<"\t"<<A_mean[x].d_diff<<"\n";
@@ -232,6 +234,10 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		{
 			star_cat.erase(star_cat.begin()+it_stars);
 		}
+		else if (star_cat[it_stars].d_J<0 || star_cat[it_stars].d_H<0 || star_cat[it_stars].d_K<0)
+		{
+			star_cat.erase(star_cat.begin()+it_stars);
+		}
 		else if (star_cat[it_stars].J-star_cat[it_stars].H < (star_cat[it_stars].H - star_cat[it_stars].K)*1.55 -.05 )
 		{
 			star_cat.erase(star_cat.begin()+it_stars);
@@ -250,7 +256,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	it_stars=0;
 	while (it_stars<star_cat.size())
 	{
-		star_cat[it_stars].initial_guess(isochrones, guess_set, previous_rel);
+		star_cat[it_stars].initial_guess(isochrones, guess_set, previous_rel, previous_A_mean);
 		if (star_cat[it_stars].last_A<0){star_cat[it_stars].last_A = 0.02;} 
 		it_stars++;
 	}
@@ -305,7 +311,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 //		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 		for (int it=0; it<star_cat.size(); it++)
 		{
-			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, previous_rel);//};
+			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, previous_rel, previous_A_mean);//};
 			dummy+=star_cat[it].last_A_prob;
 		}
 		global_previous_prob=dummy;

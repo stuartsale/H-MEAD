@@ -53,8 +53,8 @@ class iphas_obj
 		void dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, float l, float b, vector<bin_obj2> &A_mean);
 		float likelihood_eval(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean);
 		void new_func(vector<iso_obj> &isochrones, float l, float b, vector<bin_obj2> &A_mean, int flag);
-		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <float> > &A_mean);
-		void star_try1(vector<iso_obj> &isochrones, float &l, float &b, vector<vector <float> > &A_mean);
+		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <float> > &A_mean, vector<bin_obj> &bin_mean);
+		void star_try1(vector<iso_obj> &isochrones, float &l, float &b, vector<vector <float> > &A_mean, vector<bin_obj> &bin_mean);
 		void mean_intervals(void);
 		float get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean);
 	//
@@ -107,6 +107,9 @@ class iphas_obj
 	float rx, ix, hax;
 
 	vector<float> acl_calc(void);
+
+	bin_obj* last_bin;
+//	bin_obj* test_bin;
 	
    // BRIGHT LIMITS (default)
  //  float r_min, i_min, ha_min;				

@@ -3,9 +3,11 @@
 //#include "bin_obj.h"
 #include "LF.h"
 #include "cat_read.h"
+#include <Eigen/Sparse>
 #include <Eigen/SparseCore>
 #include <Eigen/Dense>
 #include <Eigen/SparseCholesky>
+
 
 
 using namespace std;
@@ -79,6 +81,7 @@ class sl_obj
 		// hold chains too
 		vector <vector <vector <float> > > global_A_chain;
 
+		vector<bin_obj> previous_A_mean;
 		vector<bin_obj2> A_mean;
 		vector<float> backup_A_mean;
 		vector < vector <float> > rho_mean;

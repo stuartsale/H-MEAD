@@ -175,7 +175,7 @@ float iphas_obj::get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod,
 	return current_prob1*cluster_weight;
 }
 
-void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <float> > &A_mean)
+void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <float> > &A_mean, vector<bin_obj> &bin_mean)
 {
 	//IPHAS version
 /*	for (int it=0; it<guess_set.size();it++)
@@ -248,6 +248,9 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 	last_dist_mod = K - last_A*0.112 -last_iso.K0;
 	last_dist=pow(10,last_dist_mod/5+1);
 
+	last_bin = &bin_mean[floor(last_dist/100.)];
+	last_bin->initial_add(this);
+
 	//cout << last_dist << " " << last_A << " " << last_dist_mod << " " << best_it << endl;
 
 
@@ -273,12 +276,13 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 
 
 
-void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vector<vector <float> > &A_mean)
+void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vector<vector <float> > &A_mean, vector<bin_obj> &bin_mean )
 {
 	iso_obj test_iso;
 	float test_dist_mod, test_A, test_dist;
 	float test_feh, test_logT, test_logg;
 	float test_rmag, test_ri;
+	bin_obj* test_bin;
 
 	float current_prob, current_A_prob, transition_prob=0;
 	float sigma2_LN, mu_LN;
@@ -305,17 +309,17 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		test_A=last_A+gsl_ran_gaussian_ziggurat(rng_handle,5*A_sd);//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
 		test_dist_mod=last_dist_mod+gsl_ran_gaussian_ziggurat(rng_handle,5*dist_mod_sd);//+ Z.Next()*dist_mod_sd;
 	}
+	while (test_dist_mod>15.88){test_dist_mod=last_dist_mod+gsl_ran_gaussian_ziggurat(rng_handle,dist_mod_sd);}
+	test_dist=pow(10, test_dist_mod/5.+1);
+	test_bin=&bin_mean[floor(test_dist/100.)];
 
-
-/*	test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,rmag_sd);//Z.Next()*d_r/2;
-	test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
-
-	test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.w-test_iso.w_i)+(test_iso.r0-test_iso.i0)-test_ri, +1);
-	if (test_A<0){no_accept++; return;}
-	test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;*/
+	test_bin->try_add(this);
+	last_bin->try_remove(this);
 
 
 	current_prob=likelihood_eval(test_iso, test_A, test_dist_mod, A_mean);
+//	if (test_bin!=last_bin){ current_A_prob=get_A_prob(test_iso, test_A, test_dist_mod, A_mean); }
+//	else {current_A_prob=last_A_prob;}
 	current_A_prob=get_A_prob(test_iso, test_A, test_dist_mod, A_mean);
 
 // Metropolis-Hastings algorithm step
@@ -329,6 +333,9 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		last_iso=test_iso;
 		last_A=test_A;
 		last_dist_mod=test_dist_mod;
+		test_bin->accept();
+		last_bin->accept();
+		last_bin=test_bin;
 
 //		last_rmag=test_rmag;
 //		last_ri=test_ri;
@@ -355,6 +362,9 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		last_iso=test_iso;
 		last_A=test_A;
 		last_dist_mod=test_dist_mod;
+		test_bin->accept();
+		last_bin->accept();
+		last_bin=test_bin;
 
 //		last_rmag=test_rmag;
 //		last_ri=test_ri;
