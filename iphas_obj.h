@@ -38,6 +38,7 @@ using namespace std;
 class iphas_obj
 {	
 
+	friend class bin_obj;
 	friend class bin_obj2;
 	friend class sl_obj;
 	public:
@@ -91,6 +92,9 @@ class iphas_obj
 	float last_dist_mod, last_A, last_logT, last_logg, last_dist;
 	float last_prob, last_A_prob;
 	float last_rmag, last_ri;
+
+	float test_dist_mod, test_A, test_dist;
+	float test_feh, test_logT, test_logg;
 
 	float best_prob, best_A_prob;
 	iso_obj best_iso;

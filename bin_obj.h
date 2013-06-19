@@ -41,6 +41,7 @@ class bin_obj
 		vector<iphas_obj *>::iterator it_found;
 		
 		int last_n, test_n;
+		float last_A_sum, last_A2_sum,  test_A_sum, test_A2_sum;
 
 
 };

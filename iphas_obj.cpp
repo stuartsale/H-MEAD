@@ -279,8 +279,7 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vector<vector <float> > &A_mean, vector<bin_obj> &bin_mean )
 {
 	iso_obj test_iso;
-	float test_dist_mod, test_A, test_dist;
-	float test_feh, test_logT, test_logg;
+
 	float test_rmag, test_ri;
 	bin_obj* test_bin;
 

@@ -1,4 +1,5 @@
 #include "bin_obj.h"
+#include "iphas_obj.h"
 
 
 bin_obj::bin_obj(void)
@@ -7,36 +8,39 @@ bin_obj::bin_obj(void)
 	sigma=0;
 
 	last_n=0;
-	
-	test_star_list.reserve(1000);
-	last_star_list.reserve(1000);
+	last_A_sum=0.;
+	last_A2_sum=0.;
+	test_A_sum=0.; 
+	test_A2_sum=0.;
+
 }
 
 void bin_obj::initial_add(iphas_obj * star)
 {
-	last_star_list.push_back(star);
 	last_n++;
+	last_A_sum+=star->last_A;
+	last_A2_sum+=pow(star->last_A,2.);
 }
 
 void bin_obj::try_add(iphas_obj * star)
 {
-	test_star_list=last_star_list;
-	test_star_list.push_back(star);
 	test_n=last_n+1;
+	test_A_sum=last_A_sum+star->test_A;
+	test_A2_sum=last_A2_sum+pow(star->test_A,2.);
 }
 
 void bin_obj::try_remove(iphas_obj * star)
 {
-	test_star_list=last_star_list;
-	it_found=find (test_star_list.begin(), test_star_list.end(), star);
-	test_star_list.erase(it_found);
 	test_n=last_n-1;
+	test_A_sum=last_A_sum-star->test_A;
+	test_A2_sum=last_A2_sum-pow(star->test_A,2.);
 }
 
 void bin_obj::accept(void)
 {
-	//last_star_list=test_star_list;
 	last_n=test_n;
+	last_A_sum=test_A_sum;
+	last_A2_sum=test_A2_sum;
 }
 
 
