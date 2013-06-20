@@ -280,6 +280,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	for (int it=0; it<running_A_mean.size(); it++)
 	{
 		running_A_mean[it].set_last_prob(); 
+		running_A_mean[it].reject(); 		
 		global_previous_prob+=running_A_mean[it].last_prob;
 	}
 
@@ -290,6 +291,8 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	{
 		previous_norm_prob+=-LFs[it_LF].LF_prob(previous_rel)*(star_cat.size()+1);
 	}
+
+
 
 //	if (neighbour_sl)
 //	{
@@ -351,10 +354,11 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		{
 			for (int i=0; i<rel_length; i++)
 			{
-				internal_rel[i][0] = exp(log(previous_internal_rel[i][0])*cos(theta) + log(trial_rel[i][0])*sin(theta));
+				running_A_mean[i].test_mean_rho=exp(log(running_A_mean[i].last_mean_rho)*cos(theta) + log(trial_rel[i][0])*sin(theta));
+				internal_rel[i][0] = running_A_mean[i].test_mean_rho;
 				internal_rel[i][1] = exp(log(previous_internal_rel[i][1])*cos(theta) + log(trial_rel[i][1])*sin(theta));
 
-				running_A_mean[i].test_mean_rho=internal_rel[i][0];	
+//				cout << i << " " << previous_internal_rel[i][0] << " " << running_A_mean[i].last_mean_rho << " " << running_A_mean[i].test_n << endl;
 			}
 			new_rel=internal_to_external(internal_rel, rel_length);
 			rho_to_A();
@@ -431,6 +435,8 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 				previous_xsl_prob=current_xsl_prob;
 				previous_norm_prob=current_norm_prob;
 
+				for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].accept();}
+
 				for (int stars_it=0; stars_it<star_cat.size(); stars_it++){star_cat[stars_it].last_A_prob=proposed_probs[stars_it];}
 
 				move_on=true;
@@ -445,8 +451,9 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		//	theta=gsl_ran_flat(rng_handle, theta_min, theta_max);
 			sss/=10;	
 			theta=gsl_ran_gaussian_ziggurat(rng_handle, sss);
+			for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].reject();}
 
-			//	cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << star_cat.size() << endl;//*/
+				cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << star_cat.size() << endl;//*/
 			}
 		}
 
@@ -506,7 +513,7 @@ vector < vector <float> > sl_obj::internal_to_external(vector < vector <float> >
 	vector < vector <float> > ext_rel(rel_length,vector <float> (4));
 
 	ext_rel[0][0]=int_rel[0][0];
-	ext_rel[0][1]=int_rel[0][1];
+	ext_rel[0][1]=0.4;//int_rel[0][1];
 	ext_rel[0][3]=sqrt(log(1+pow(ext_rel[0][1]/ext_rel[0][0],2)));
 	ext_rel[0][2]=log(ext_rel[0][0])-pow(ext_rel[0][3],2)/2;
 	
