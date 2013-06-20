@@ -212,13 +212,14 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	}
 
 
+
 	vector<float> backup_rho_mean;
 	float rho_sum=0., Sch_max;
-	Sch_max==SFD_read(l, b)*3.1;
+	Sch_max=SFD_read(l, b)*3.1;
 	backup_rho_mean=backup_rho_mean_find(l, b, previous_s_R, previous_s_z, 1.);
 	for (int it=0; it<backup_rho_mean.size(); it++){rho_sum+=backup_rho_mean[it];}
 
-	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[i].test_mean_rho=backup_rho_mean * Sch_max/rho_sum ;}
+	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].last_mean_rho=backup_rho_mean[it] * Sch_max/rho_sum ;}
 	initial_rho_to_A();
 
 	
@@ -276,8 +277,11 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		it_stars++;
 	}
 
-
-	for (int star_it=0; star_it<star_cat.size(); star_it++){global_previous_prob+=star_cat[star_it].last_A_prob;}
+	for (int it=0; it<running_A_mean.size(); it++)
+	{
+		running_A_mean[it].set_last_prob(); 
+		global_previous_prob+=running_A_mean[it].last_prob;
+	}
 
 	proposed_probs.resize(star_cat.size());
 

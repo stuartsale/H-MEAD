@@ -248,6 +248,8 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 	last_dist_mod = K - last_A*0.112 -last_iso.K0;
 	last_dist=pow(10,last_dist_mod/5+1);
 
+	if (last_A<0){last_A=0.02;}
+
 	last_bin = &bin_mean[floor(last_dist/100.)];
 	last_bin->initial_add(this);
 
@@ -258,7 +260,7 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 	last_rmag=r;
 	last_ri=(last_iso.r0-last_iso.i0)+(last_iso.u-last_iso.u_i)*pow(last_A,2) + (last_iso.v-last_iso.v_i)*last_A + (last_iso.w-last_iso.w_i);
 
-	if (last_A<0){last_A=0.02;}
+
 
 // Find prob
 
