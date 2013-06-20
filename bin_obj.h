@@ -27,21 +27,33 @@ class bin_obj
 //	friend vector <bin_obj> MCMC_bin_guts(vector<iphas_obj>& included, vector<bin_obj> &backup_A_mean);
 
 	public:
-		double mean_A, sigma;
-		bin_obj();
+		bin_obj(); 	// base constructor
+
+		float last_mean_A, last_sd_A, last_mu, last_sigma;
+		float test_mean_A, test_sd_A, test_mu, test_sigma;
+
+		float last_mean_rho, test_mean_rho;
+
+		float last_prob, test_prob;
+		void set_test_prob(void);
+		void set_last_prob(void);
 
 		void initial_add(iphas_obj * star);
+
+		void rho_to_A(float near_A);
+		void initial_rho_to_A(float near_A);
 	
 		void try_add(iphas_obj * star);
 		void try_remove(iphas_obj * star);
 		void accept(void);		
+		void reject(void);		
 
 //	private:
 
 		vector<iphas_obj *>::iterator it_found;
 		
 		int last_n, test_n;
-		float last_A_sum, last_A2_sum,  test_A_sum, test_A2_sum;
+		float last_lnA_sum, last_lnA2_sum,  test_lnA_sum, test_lnA2_sum;
 
 
 };

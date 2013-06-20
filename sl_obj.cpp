@@ -31,7 +31,7 @@ sl_obj::sl_obj(void)
 	neighbour_sl=NULL;
 	define_cov_mat();
 
-	vector<bin_obj> previous_A_mean(150);
+	vector<bin_obj> running_A_mean(150);
 
 }
 
@@ -94,7 +94,7 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 
 	define_cov_mat();
 
-	previous_A_mean.resize(150);
+	running_A_mean.resize(150);
 }
 
 
@@ -107,7 +107,7 @@ void sl_obj::output_write(void)
 	A_out.open(dummy_string.c_str(), ios::trunc);
 	//A_out << "#\tdist\tA\tsigma_A\n";
 
-	for (int x=0; x<previous_A_mean.size(); x++)
+	for (int x=0; x<running_A_mean.size(); x++)
 	{
 		A_out << x*100 + 50 << "\t" << A_mean[x].mean_A << "\t" << A_mean[x].sigma <<"\t"<<A_mean[x].d_mean<<"\t"<<A_mean[x].d_sigma<<"\t"
 			<<A_mean[x].size<<"\t"<<A_mean[x].error_measure<<"\t"<<A_mean[x].sum<<"\t"<<A_mean[x].diff<<"\t"<<A_mean[x].d_diff<<"\n";
@@ -200,14 +200,29 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	previous_internal_rel[0][0]=previous_rel[0][0];//log(previous_rel[0][0]);//
 	previous_internal_rel[0][1]=previous_rel[0][1];///previous_internal_rel[0][0];
 
+	running_A_mean[0].test_mean_rho=previous_internal_rel[0][0];	
+
 		
 	for (int i=1; i<150; i++)
 	{
 		float mu_t, sig_t;
 		previous_internal_rel[i][0]=previous_rel[i][0]-previous_rel[i-1][0];//log(previous_rel[i][0]-previous_rel[i-1][0]);//
 		previous_internal_rel[i][1]=previous_rel[i][1];//sqrt(pow(previous_rel[i][1],2)-pow(previous_rel[i-1][1],2))/previous_internal_rel[i][0];
-		
+
 	}
+
+
+	vector<float> backup_rho_mean;
+	float rho_sum=0., Sch_max;
+	Sch_max==SFD_read(l, b)*3.1;
+	backup_rho_mean=backup_rho_mean_find(l, b, previous_s_R, previous_s_z, 1.);
+	for (int it=0; it<backup_rho_mean.size(); it++){rho_sum+=backup_rho_mean[it];}
+
+	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[i].test_mean_rho=backup_rho_mean * Sch_max/rho_sum ;}
+	initial_rho_to_A();
+
+	
+
 
 	hyperprior_internal_rel=previous_internal_rel;
 
@@ -256,7 +271,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	it_stars=0;
 	while (it_stars<star_cat.size())
 	{
-		star_cat[it_stars].initial_guess(isochrones, guess_set, previous_rel, previous_A_mean);
+		star_cat[it_stars].initial_guess(isochrones, guess_set, previous_rel, running_A_mean);
 		if (star_cat[it_stars].last_A<0){star_cat[it_stars].last_A = 0.02;} 
 		it_stars++;
 	}
@@ -311,7 +326,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 //		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 		for (int it=0; it<star_cat.size(); it++)
 		{
-			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, previous_rel, previous_A_mean);//};
+			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, previous_rel, running_A_mean);//};
 			dummy+=star_cat[it].last_A_prob;
 		}
 		global_previous_prob=dummy;
@@ -333,9 +348,12 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			for (int i=0; i<rel_length; i++)
 			{
 				internal_rel[i][0] = exp(log(previous_internal_rel[i][0])*cos(theta) + log(trial_rel[i][0])*sin(theta));
-				internal_rel[i][1] = exp(log(previous_internal_rel[i][1])*cos(theta) + log(trial_rel[i][1])*sin(theta));	
+				internal_rel[i][1] = exp(log(previous_internal_rel[i][1])*cos(theta) + log(trial_rel[i][1])*sin(theta));
+
+				running_A_mean[i].test_mean_rho=internal_rel[i][0];	
 			}
 			new_rel=internal_to_external(internal_rel, rel_length);
+			rho_to_A();
 
 	// Find probability of this parameter set
 
@@ -498,6 +516,19 @@ vector < vector <float> > sl_obj::internal_to_external(vector < vector <float> >
 	}
 	return ext_rel;
 }
+
+void sl_obj::rho_to_A(void)
+{
+	running_A_mean[0].rho_to_A(0.);
+	for (int it=1; it<running_A_mean.size(); it++){running_A_mean[it].rho_to_A(running_A_mean[it-1].test_mean_A);}
+}
+
+void sl_obj::initial_rho_to_A(void)
+{
+	running_A_mean[0].initial_rho_to_A(0.);
+	for (int it=1; it<running_A_mean.size(); it++){running_A_mean[it].initial_rho_to_A(running_A_mean[it-1].last_mean_A);}
+}
+
 
 void sl_obj::hyperprior_update(void)
 {

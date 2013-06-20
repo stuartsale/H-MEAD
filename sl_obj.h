@@ -69,6 +69,8 @@ class sl_obj
 		vector < vector <float> > mvn_gen_internal_rel(vector < vector <float> > old_rel, int rel_length);
 		vector < vector <float> > internal_to_external(vector < vector <float> > int_rel, int rel_length);
 		float hyperprior_prob_get(vector < vector <float> > internal_rel);
+		void rho_to_A(void);
+		void initial_rho_to_A(void);
 
 		float global_previous_prob;
 		float previous_hyperprior_prob, current_hyperprior_prob;
@@ -81,7 +83,7 @@ class sl_obj
 		// hold chains too
 		vector <vector <vector <float> > > global_A_chain;
 
-		vector<bin_obj> previous_A_mean;
+		vector<bin_obj> running_A_mean;
 		vector<bin_obj2> A_mean;
 		vector<float> backup_A_mean;
 		vector < vector <float> > rho_mean;

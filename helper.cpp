@@ -362,6 +362,27 @@ vector<float> backup_A_mean_find(double l_gal, double b_gal, float s_R, float s_
 	return backup_A_mean;   
 }
 
+vector<float> backup_rho_mean_find(double l_gal, double b_gal, float s_R, float s_z, float rho_0)
+{
+	float const_term, density_dust;
+	vector<float> backup_rho_mean (150);
+
+	const_term=rho_0 / exp(-8080./s_R - 17./s_z);
+
+	// integrate dust density to ~infinity, used to normalise the dust distribution so that at infinity it gives the Schlegel value
+	density_dust=0;
+	for (double d=0; d<30001.0; d+=10)
+	{	// Dust scale height and lengh from Marshall et al 2006
+		density_dust=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8080.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/s_R - fabs(d*sin(b_gal*PI/180.)+17)/s_z);
+		if (d/100!=int(d/100) && d/50==int(d/50) && d<15000)				
+		{
+			backup_rho_mean[int((d-50)/100)]=const_term*density_dust;
+		}
+	}
+
+	return backup_rho_mean;   
+}
+
 string stringify(double x)		
 {  
 	ostringstream o;
