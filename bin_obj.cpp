@@ -107,6 +107,37 @@ void bin_obj::chain_push_back(void)
 	rho_chain.push_back(last_mean_rho);
 }
 
+void bin_obj::mean_intervals(void)
+{
+	float A_sum=0., sd_sum=0., rho_sum=0.;
+	for (int m=floor(0.50*A_chain.size()); m<A_chain.size(); m++)
+	{
+		A_sum+=A_chain[m];
+		sd_sum+=sd_chain[m];
+		rho_sum+=rho_chain[m];
+	}
+	final_A=A_sum/ceil(0.50*A_chain.size());
+	final_sd=sd_sum/ceil(0.50*sd_chain.size());
+	final_rho=rho_sum/ceil(0.50*rho_chain.size());
+
+	vector <float> A_diffs, sd_diffs, rho_diffs;
+	for (int m=floor(0.50*A_chain.size()); m<A_chain.size(); m++)
+	{
+		A_diffs.push_back(abs(A_chain[m]-final_A));
+		sd_diffs.push_back(abs(sd_chain[m]-final_sd));
+		rho_diffs.push_back(abs(rho_chain[m]-final_rho));
+	}
+	sort(A_diffs.begin(), A_diffs.end());
+	sort(sd_diffs.begin(), sd_diffs.end());
+	sort(rho_diffs.begin(), rho_diffs.end());
+
+	final_dA=A_diffs[int(0.682*A_diffs.size())];
+	final_dsd=sd_diffs[int(0.682*sd_diffs.size())];
+	final_drho=rho_diffs[int(0.682*rho_diffs.size())];
+
+	//A_mean[it].error_measure=sqrt(pow(A_mean[it].d_mean/A_mean[it].mean_A,2)+pow(A_mean[it].d_sigma/A_mean[it].sigma,2));
+}
+
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------

@@ -109,8 +109,8 @@ void sl_obj::output_write(void)
 
 	for (int x=0; x<running_A_mean.size(); x++)
 	{
-		A_out << x*100 + 50 << "\t" << A_mean[x].mean_A << "\t" << A_mean[x].sigma <<"\t"<<A_mean[x].d_mean<<"\t"<<A_mean[x].d_sigma<<"\t"
-			<<A_mean[x].size<<"\t"<<A_mean[x].error_measure<<"\t"<<A_mean[x].sum<<"\t"<<A_mean[x].diff<<"\t"<<A_mean[x].d_diff<<"\n";
+		A_out 	<< x*100 + 50 << "\t" << running_A_mean[x].final_A << "\t" << running_A_mean[x].final_sd <<"\t"
+			<< running_A_mean[x].final_dA<<"\t"<<running_A_mean[x].final_dsd<<endl;
 	}
 	A_out.close();
 
@@ -139,24 +139,15 @@ void sl_obj::output_write(void)
 	//A_out << "#\tdist\tA\tsigma_A\n";
 
 	vector <float> mean_rho, mean_rel;
-	//mean_rho=density_find(l, b, s_R_mean, s_z_mean, 100);
-	mean_rho=density_find(l, b, previous_s_R, previous_s_z, 100);
+	mean_rho=density_find(l, b, s_R_mean, s_z_mean, 100);
+	//mean_rho=density_find(l, b, previous_s_R, previous_s_z, 100);
 	mean_rel=backup_A_mean_find(l, b, previous_s_R, previous_s_z, false);
 
 	cout << s_R_mean << " " << s_z_mean << endl;
 
-//	//rho_out << 25 << "\t" << (A_mean[0].mean_A)/0.05 << "\t" << mean_rho[0] << "\n";
-//	rho_out << 25 << "\t" << (previous_rel[0][0])/0.05 << "\t0\t" << mean_rho[0] << "\t0\n";
-//	for (int x=1; x<A_mean.size(); x++)
-//	{
-//	//	rho_out << x*100 << "\t" << (A_mean[x].mean_A - A_mean[x-1].mean_A)/0.1 << "\t" << mean_rho[x] << "\n";
-//		rho_out << x*100 << "\t" << (previous_internal_rel[x][0]) << "\t" << (previous_rel[x-1][0]) <<"\t" << mean_rel[x]-mean_rel[x-1] << "\t" << mean_rel[x-1] << "\n";
-//	}
-
 	for (int x=0; x<rho_mean.size(); x++)
 	{
-	//	rho_out << x*100 << "\t" << (A_mean[x].mean_A - A_mean[x-1].mean_A)/0.1 << "\t" << mean_rho[x] << "\n";
-		rho_out << x*100 << "\t" << rho_mean[x][0] << "\t" << rho_mean[x][1] <<"\t" << mean_rel[x]-mean_rel[x-1] << "\t" << mean_rel[x-1] << "\n";
+		rho_out << x*100 << "\t" << running_A_mean[x].final_rho << "\t" << running_A_mean[x].final_drho <<"\t" << mean_rel[x]-mean_rel[x-1] << "\t" << mean_rel[x-1] << "\n";
 	}
 	rho_out.close();
 	
@@ -598,6 +589,7 @@ void sl_obj::mean_intervals(void)
 {
 //	#pragma omp parallel for  num_threads(3)
 	for (int star_it=0; star_it<star_cat.size(); star_it++){star_cat[star_it].mean_intervals();}
+	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].mean_intervals();}
 
 	//#pragma omp parallel for  num_threads(3)
 	for (int it=0; it<150; it++)

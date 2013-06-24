@@ -59,6 +59,9 @@ class bin_obj
 		vector <float> A_chain;
 		vector <float> sd_chain;
 		vector <float> rho_chain;
+		void mean_intervals(void);
+
+		float final_A, final_sd, final_dA, final_dsd, final_rho, final_drho;
 
 
 };
