@@ -469,7 +469,11 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 //			trace1.close();
 //		}
 
-		if (floor(it_num/100.)==it_num/100){global_A_chain.push_back(previous_rel);}
+		if (floor(it_num/100.)==it_num/100)
+		{
+			global_A_chain.push_back(previous_rel);
+			for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].chain_push_back();}
+		}
 		it_num++;
 }
 

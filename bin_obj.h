@@ -55,6 +55,11 @@ class bin_obj
 		int last_n, test_n;
 		float last_lnA_sum, last_lnA2_sum,  test_lnA_sum, test_lnA2_sum;
 
+		void chain_push_back(void);
+		vector <float> A_chain;
+		vector <float> sd_chain;
+		vector <float> rho_chain;
+
 
 };
 

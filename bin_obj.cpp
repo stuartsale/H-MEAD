@@ -100,6 +100,13 @@ void bin_obj::reject(void)
 	test_prob=last_prob;
 }
 
+void bin_obj::chain_push_back(void)
+{
+	A_chain.push_back(last_mean_A);
+	sd_chain.push_back(last_sd_A);
+	rho_chain.push_back(last_mean_rho);
+}
+
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
