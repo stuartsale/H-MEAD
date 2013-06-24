@@ -184,10 +184,21 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	s_R_chain.push_back(previous_s_R);
 	s_z_chain.push_back(previous_s_z);
 
+
+	vector<float> backup_rho_mean;
+	float rho_sum=0., Sch_max;
+	Sch_max=SFD_read(l, b)*3.1;
+	backup_rho_mean=backup_rho_mean_find(l, b, previous_s_R, previous_s_z, 1.);
+	for (int it=0; it<backup_rho_mean.size(); it++){rho_sum+=backup_rho_mean[it];}
+
+	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].last_mean_rho=backup_rho_mean[it] * Sch_max/rho_sum ;}
+	initial_rho_to_A();
+
+
 	for (int i=0; i<150; i++)
 	{
 
-		previous_rel[i][0]=backup_A_mean[i];
+		previous_rel[i][0]=running_A_mean[i].last_mean_A;
 		if (i==0) {previous_rel[i][1]=0.4;}//5*previous_rel[i][0];}
 		else {previous_rel[i][1]=0.4;}//5*previous_rel[i][0];}//sqrt(pow(previous_rel[i-1][1],2)+pow(previous_rel[i][0]-previous_rel[i-1][0],2));}
 		previous_rel[i][3]=sqrt(log(1+pow(previous_rel[i][1]/previous_rel[i][0],2)));
@@ -210,17 +221,6 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		previous_internal_rel[i][1]=previous_rel[i][1];//sqrt(pow(previous_rel[i][1],2)-pow(previous_rel[i-1][1],2))/previous_internal_rel[i][0];
 
 	}
-
-
-
-	vector<float> backup_rho_mean;
-	float rho_sum=0., Sch_max;
-	Sch_max=SFD_read(l, b)*3.1;
-	backup_rho_mean=backup_rho_mean_find(l, b, previous_s_R, previous_s_z, 1.);
-	for (int it=0; it<backup_rho_mean.size(); it++){rho_sum+=backup_rho_mean[it];}
-
-	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].last_mean_rho=backup_rho_mean[it] * Sch_max/rho_sum ;}
-	initial_rho_to_A();
 
 	
 
@@ -446,6 +446,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 			else 
 			{
+				//cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << new_rel[10][0] << " " << previous_rel[10][0] << " " << running_A_mean[10].test_mean_A << " " << running_A_mean[10].last_mean_A << endl;//*/
 			if (theta>0){theta_max=theta;}
 			else {theta_min=theta;}
 		//	theta=gsl_ran_flat(rng_handle, theta_min, theta_max);
@@ -453,7 +454,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			theta=gsl_ran_gaussian_ziggurat(rng_handle, sss);
 			for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].reject();}
 
-				cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << star_cat.size() << endl;//*/
+
 			}
 		}
 
