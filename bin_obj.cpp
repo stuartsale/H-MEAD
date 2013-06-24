@@ -138,20 +138,3 @@ void bin_obj::mean_intervals(void)
 	//A_mean[it].error_measure=sqrt(pow(A_mean[it].d_mean/A_mean[it].mean_A,2)+pow(A_mean[it].d_sigma/A_mean[it].sigma,2));
 }
 
-
-//-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-
-bin_obj2::bin_obj2(void)
-{
-	mean_A=0;
-	d_mean=0;
-	sigma=0;
-	d_sigma=0;
-	size=0;
-	error_measure=0;
-	sum=0;
-	diff=0;
-	d_diff=0;
-}
-

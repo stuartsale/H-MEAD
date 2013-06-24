@@ -84,7 +84,6 @@ class sl_obj
 		vector <vector <vector <float> > > global_A_chain;
 
 		vector<bin_obj> running_A_mean;
-		vector<bin_obj2> A_mean;
 		vector<float> backup_A_mean;
 		vector < vector <float> > rho_mean;
 

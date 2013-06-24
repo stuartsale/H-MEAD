@@ -81,8 +81,6 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 	backup_A_mean.resize(150);
 	backup_A_mean=backup_A_mean_find(l, b, previous_s_R, previous_s_z, true);
 
-	A_mean.resize(150);
-
 	sigma_fac=0.025;
 	accepted=0;
 	without_change=0;
@@ -589,74 +587,9 @@ void sl_obj::mean_intervals(void)
 {
 //	#pragma omp parallel for  num_threads(3)
 	for (int star_it=0; star_it<star_cat.size(); star_it++){star_cat[star_it].mean_intervals();}
+
+//	#pragma omp parallel for  num_threads(3)
 	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].mean_intervals();}
-
-	//#pragma omp parallel for  num_threads(3)
-	for (int it=0; it<150; it++)
-	{
-		float A_sum=0., sigma_sum=0.;
-		for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
-		{
-			A_sum+=global_A_chain[m][it][0];
-			sigma_sum+=log(global_A_chain[m][it][1]);
-		}
-		A_mean[it].mean_A=A_sum/ceil(0.50*global_A_chain.size());
-		A_mean[it].sigma=exp(sigma_sum/ceil(0.50*global_A_chain.size()));
-
-		vector <float> A_diffs, sigma_diffs;
-		for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
-		{
-			A_diffs.push_back(abs(global_A_chain[m][it][0]-A_mean[it].mean_A));
-			sigma_diffs.push_back(abs(global_A_chain[m][it][1]-A_mean[it].sigma));
-		}
-		sort(A_diffs.begin(),A_diffs.end());
-		sort(sigma_diffs.begin(), sigma_diffs.end());
-
-		A_mean[it].d_mean=A_diffs[int(0.682*A_diffs.size())];
-		A_mean[it].d_sigma=sigma_diffs[int(0.682*A_diffs.size())];
-
-		A_mean[it].error_measure=sqrt(pow(A_mean[it].d_mean/A_mean[it].mean_A,2)+pow(A_mean[it].d_sigma/A_mean[it].sigma,2));
-
-		
-		vector <float> rho_line(2);
-		float rho_sum=0;
-		if (it==0)
-		{
-			for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
-			{
-				rho_sum+=global_A_chain[m][it][0];
-			}	
-		}
-		else
-		{
-			for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
-			{
-				rho_sum+=global_A_chain[m][it][0]-global_A_chain[m][it-1][0];
-			}	
-		}
-		rho_line[0]=rho_sum/ceil(0.50*global_A_chain.size());
-
-		vector <float> rho_diffs;
-		if (it==0)
-		{
-			for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
-			{
-				rho_diffs.push_back(abs(global_A_chain[m][it][0]-rho_line[0]));
-			}
-		}
-		else
-		{
-			for (int m=floor(0.50*global_A_chain.size()); m<global_A_chain.size(); m++)
-			{
-				rho_diffs.push_back(abs((global_A_chain[m][it][0]-global_A_chain[m][it-1][0])-rho_line[0]));
-			}
-		}		
-
-		sort(rho_diffs.begin(),rho_diffs.end());
-		rho_line[1]=rho_diffs[int(0.682*rho_diffs.size())];
-		rho_mean.push_back(rho_line);
-
-	}
 
 	float s_R_sum=0., s_z_sum=0;
 	for (int it=floor(0.5*s_R_chain.size()); it<s_R_chain.size(); it++)
