@@ -29,8 +29,18 @@ void bin_obj::initial_add(iphas_obj * star)
 void bin_obj::try_add(iphas_obj * star)
 {
 	test_n=last_n+1;
+//	if (dist_bin==130){cout << "+ " << last_n << " " << last_lnA_sum << " " << log(star->test_A) << endl;}
 	test_lnA_sum=last_lnA_sum+log(star->test_A);
 	test_lnA2_sum=last_lnA2_sum+pow(log(star->test_A),2.);
+
+	set_test_prob();
+}
+
+void bin_obj::try_update(iphas_obj * star)
+{
+//	if (dist_bin==130){cout << "x " << last_n << " " << last_lnA_sum << " " << log(star->last_A)-log(star->test_A) << endl;}
+	test_lnA_sum=last_lnA_sum+log(star->test_A) - log(star->last_A); 
+	test_lnA2_sum=last_lnA2_sum+pow(log(star->test_A),2.) - pow(log(star->last_A),2.);
 
 	set_test_prob();
 }
@@ -38,8 +48,9 @@ void bin_obj::try_add(iphas_obj * star)
 void bin_obj::try_remove(iphas_obj * star)
 {
 	test_n=last_n-1;
-	test_lnA_sum=last_lnA_sum-log(star->test_A);
-	test_lnA2_sum=last_lnA2_sum-pow(log(star->test_A),2.);
+//	if (dist_bin==130){cout << "- " << last_n << " " << last_lnA_sum << " " << log(star->last_A) << endl;}
+	test_lnA_sum=last_lnA_sum-log(star->last_A);
+	test_lnA2_sum=last_lnA2_sum-pow(log(star->last_A),2.);
 
 	set_test_prob();
 }

@@ -33,6 +33,8 @@ sl_obj::sl_obj(void)
 
 	vector<bin_obj> running_A_mean(150);
 
+	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].dist_bin=it;}
+
 }
 
 sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
@@ -93,6 +95,8 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 	define_cov_mat();
 
 	running_A_mean.resize(150);
+
+	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].dist_bin=it;}
 }
 
 
@@ -143,7 +147,7 @@ void sl_obj::output_write(void)
 
 	cout << s_R_mean << " " << s_z_mean << endl;
 
-	for (int x=0; x<rho_mean.size(); x++)
+	for (int x=0; x<running_A_mean.size(); x++)
 	{
 		rho_out << x*100 << "\t" << running_A_mean[x].final_rho << "\t" << running_A_mean[x].final_drho <<"\t" << mean_rel[x]-mean_rel[x-1] << "\t" << mean_rel[x-1] << "\n";
 	}
@@ -326,6 +330,16 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			dummy+=star_cat[it].last_A_prob;
 		}
 		global_previous_prob=dummy;
+	float dummy3=0, dummy4=0;
+	for (int it=0; it<running_A_mean.size(); it++)
+	{
+		running_A_mean[it].set_test_prob(); 
+
+		dummy3+=running_A_mean[it].last_n;
+		dummy4+=running_A_mean[it].test_n;
+//		cout << it << " " <<running_A_mean[it].test_prob << " " << dummy3 << " " << running_A_mean[it].test_mu << " " << running_A_mean[it].test_sigma << " " << running_A_mean[it].test_n <<endl;
+	}
+//	cout << global_current_prob << " " << dummy3 << " " << dummy4 << endl;
 
 // Now vary hyper-parameters
 
@@ -356,13 +370,27 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 
 			dummy=0;
+	float dummy3=0, dummy4=0;
 	//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 			for (int it=0; it<star_cat.size(); it++)
 			{
 				proposed_probs[it]=star_cat[it].get_A_prob(star_cat[it].last_iso, star_cat[it].last_A, star_cat[it].last_dist_mod, new_rel);
 				dummy+= proposed_probs[it];
+				if (star_cat[it].last_bin==&running_A_mean[130]){dummy4+=proposed_probs[it];}
 			}
 			global_current_prob=dummy;
+
+
+	for (int it=0; it<running_A_mean.size(); it++)
+	{
+		running_A_mean[it].set_test_prob(); 
+
+		dummy3+=running_A_mean[it].test_prob;
+	//	dummy4+=running_A_mean[it].last_prob;
+//		cout << it << " " <<running_A_mean[it].test_prob << " " << dummy3 << " " << running_A_mean[it].test_mu << " " << running_A_mean[it].test_sigma << " " << running_A_mean[it].test_n <<endl;
+	}
+	cout << global_current_prob << " " << dummy3  <<  " " << global_current_prob-dummy3 << " " << running_A_mean[130].test_prob << " " << dummy4 << " " << 
+		running_A_mean[130].test_n << " " << running_A_mean[130].test_lnA_sum << endl;
 
 	// Normalisation term
 

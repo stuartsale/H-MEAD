@@ -85,7 +85,6 @@ class sl_obj
 
 		vector<bin_obj> running_A_mean;
 		vector<float> backup_A_mean;
-		vector < vector <float> > rho_mean;
 
 		float sigma_fac, accepted;
 // Set up

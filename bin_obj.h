@@ -32,6 +32,8 @@ class bin_obj
 		float last_mean_A, last_sd_A, last_mu, last_sigma;
 		float test_mean_A, test_sd_A, test_mu, test_sigma;
 
+		int dist_bin;
+
 		float last_mean_rho, test_mean_rho;
 
 		float last_prob, test_prob;
@@ -45,6 +47,7 @@ class bin_obj
 	
 		void try_add(iphas_obj * star);
 		void try_remove(iphas_obj * star);
+		void try_update(iphas_obj * star);
 		void accept(void);		
 		void reject(void);		
 

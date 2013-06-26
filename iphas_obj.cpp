@@ -314,8 +314,12 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 	test_dist=pow(10, test_dist_mod/5.+1);
 	test_bin=&bin_mean[floor(test_dist/100.)];
 
-	test_bin->try_add(this);
-	last_bin->try_remove(this);
+	if (test_bin!=last_bin)
+	{
+		test_bin->try_add(this);
+		last_bin->try_remove(this);
+	}
+	else { last_bin->try_update(this);}
 
 
 	current_prob=likelihood_eval(test_iso, test_A, test_dist_mod, A_mean);
@@ -334,8 +338,12 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		last_iso=test_iso;
 		last_A=test_A;
 		last_dist_mod=test_dist_mod;
-		test_bin->accept();
-		last_bin->accept();
+		if (test_bin!=last_bin)
+		{
+			test_bin->accept();
+			last_bin->accept();
+		}
+		else {last_bin->accept();}
 		last_bin=test_bin;
 
 //		last_rmag=test_rmag;
@@ -363,8 +371,12 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		last_iso=test_iso;
 		last_A=test_A;
 		last_dist_mod=test_dist_mod;
-		test_bin->accept();
-		last_bin->accept();
+		if (test_bin!=last_bin)
+		{
+			test_bin->accept();
+			last_bin->accept();
+		}
+		else {last_bin->accept();}
 		last_bin=test_bin;
 
 //		last_rmag=test_rmag;
@@ -381,6 +393,12 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 	else 
 	{
 		no_accept++;
+		if (test_bin!=last_bin)
+		{
+			test_bin->reject();
+			last_bin->reject();
+		}
+		else {last_bin->reject();}	
 	}
 
 	if (no_accept/100.==floor(no_accept/100.))
