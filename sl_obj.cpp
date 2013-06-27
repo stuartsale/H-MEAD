@@ -372,12 +372,12 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			float dummy3=0;
 		//	vector <float> dummy4(150,0);
 	//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
-			for (int it=0; it<star_cat.size(); it++)
-			{
-				proposed_probs[it]=star_cat[it].get_A_prob(star_cat[it].last_iso, star_cat[it].last_A, star_cat[it].last_dist_mod, new_rel);
-//				dummy+= proposed_probs[it];
-//				dummy4[star_cat[it].last_bin->dist_bin]+=proposed_probs[it];
-			}
+//			for (int it=0; it<star_cat.size(); it++)
+//			{
+//				proposed_probs[it]=star_cat[it].get_A_prob(star_cat[it].last_iso, star_cat[it].last_A, star_cat[it].last_dist_mod, new_rel);
+////				dummy+= proposed_probs[it];
+////				dummy4[star_cat[it].last_bin->dist_bin]+=proposed_probs[it];
+//			}
 			//global_current_prob=dummy;
 
 
@@ -451,7 +451,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 				for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].accept();}
 
-				for (int stars_it=0; stars_it<star_cat.size(); stars_it++){star_cat[stars_it].last_A_prob=proposed_probs[stars_it];}
+//				for (int stars_it=0; stars_it<star_cat.size(); stars_it++){star_cat[stars_it].last_A_prob=proposed_probs[stars_it];}
 
 				move_on=true;
 		

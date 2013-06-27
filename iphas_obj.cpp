@@ -323,9 +323,19 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 
 
 	current_prob=likelihood_eval(test_iso, test_A, test_dist_mod, A_mean);
-//	if (test_bin!=last_bin){ current_A_prob=get_A_prob(test_iso, test_A, test_dist_mod, A_mean); }
-//	else {current_A_prob=last_A_prob;}
-	current_A_prob=get_A_prob(test_iso, test_A, test_dist_mod, A_mean);
+	//current_A_prob=get_A_prob(test_iso, test_A, test_dist_mod, A_mean);
+
+	if (test_bin!=last_bin)
+	{ 
+		current_A_prob=test_bin->test_prob + last_bin->test_prob; 
+		last_A_prob=test_bin->last_prob + last_bin->last_prob; 
+	}
+	else 
+	{
+		current_A_prob=test_bin->test_prob; 
+		last_A_prob=test_bin->last_prob; 
+
+	}
 
 // Metropolis-Hastings algorithm step
 
