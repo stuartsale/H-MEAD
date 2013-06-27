@@ -323,23 +323,22 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 // First vary parameters for each star
 
 		float dummy=0;
+		float dummy3=0, dummy4=0;
 //		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 		for (int it=0; it<star_cat.size(); it++)
 		{
 			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, previous_rel, running_A_mean);//};
-			dummy+=star_cat[it].last_A_prob;
+			//dummy+=star_cat[it].last_A_prob;
+		}
+
+
+		for (int it=0; it<running_A_mean.size(); it++)
+		{
+			running_A_mean[it].set_last_prob(); 
+			dummy+=running_A_mean[it].last_prob;
 		}
 		global_previous_prob=dummy;
-	float dummy3=0, dummy4=0;
-	for (int it=0; it<running_A_mean.size(); it++)
-	{
-		running_A_mean[it].set_test_prob(); 
-
-		dummy3+=running_A_mean[it].last_n;
-		dummy4+=running_A_mean[it].test_n;
-//		cout << it << " " <<running_A_mean[it].test_prob << " " << dummy3 << " " << running_A_mean[it].test_mu << " " << running_A_mean[it].test_sigma << " " << running_A_mean[it].test_n <<endl;
-	}
-//	cout << global_current_prob << " " << dummy3 << " " << dummy4 << endl;
+	//cout << global_previous_prob << " " << dummy3 << " " << dummy4 << endl;
 
 // Now vary hyper-parameters
 
@@ -359,7 +358,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			{
 				running_A_mean[i].test_mean_rho=exp(log(running_A_mean[i].last_mean_rho)*cos(theta) + log(trial_rel[i][0])*sin(theta));
 				internal_rel[i][0] = running_A_mean[i].test_mean_rho;
-				internal_rel[i][1] = exp(log(previous_internal_rel[i][1])*cos(theta) + log(trial_rel[i][1])*sin(theta));
+				internal_rel[i][1] = 0.4;//exp(log(previous_internal_rel[i][1])*cos(theta) + log(trial_rel[i][1])*sin(theta));
 
 //				cout << i << " " << previous_internal_rel[i][0] << " " << running_A_mean[i].last_mean_rho << " " << running_A_mean[i].test_n << endl;
 			}
@@ -370,27 +369,25 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 
 			dummy=0;
-	float dummy3=0, dummy4=0;
+			float dummy3=0;
+		//	vector <float> dummy4(150,0);
 	//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 			for (int it=0; it<star_cat.size(); it++)
 			{
 				proposed_probs[it]=star_cat[it].get_A_prob(star_cat[it].last_iso, star_cat[it].last_A, star_cat[it].last_dist_mod, new_rel);
-				dummy+= proposed_probs[it];
-				if (star_cat[it].last_bin==&running_A_mean[130]){dummy4+=proposed_probs[it];}
+//				dummy+= proposed_probs[it];
+//				dummy4[star_cat[it].last_bin->dist_bin]+=proposed_probs[it];
 			}
-			global_current_prob=dummy;
+			//global_current_prob=dummy;
 
 
-	for (int it=0; it<running_A_mean.size(); it++)
-	{
-		running_A_mean[it].set_test_prob(); 
+		for (int it=0; it<running_A_mean.size(); it++)
+		{
+			running_A_mean[it].set_test_prob(); 
 
-		dummy3+=running_A_mean[it].test_prob;
-	//	dummy4+=running_A_mean[it].last_prob;
-//		cout << it << " " <<running_A_mean[it].test_prob << " " << dummy3 << " " << running_A_mean[it].test_mu << " " << running_A_mean[it].test_sigma << " " << running_A_mean[it].test_n <<endl;
-	}
-	cout << global_current_prob << " " << dummy3  <<  " " << global_current_prob-dummy3 << " " << running_A_mean[130].test_prob << " " << dummy4 << " " << 
-		running_A_mean[130].test_n << " " << running_A_mean[130].test_lnA_sum << endl;
+			dummy3+=running_A_mean[it].test_prob;
+		}
+			global_current_prob=dummy3;
 
 	// Normalisation term
 
@@ -443,7 +440,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 			accepted++;
 			if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
-				 + current_norm_prob-previous_norm_prob>threshold)		// New parameter set better => Accept
+				 + current_norm_prob-previous_norm_prob>threshold || sss<1E-5)		// New parameter set better => Accept
 			{
 				previous_rel=new_rel;
 				previous_internal_rel=internal_rel;
@@ -458,12 +455,12 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 				move_on=true;
 		
-		//		cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << " " << theta << endl;
+			//	cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << " " << theta << endl;
 			}
 
 			else 
 			{
-				//cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << new_rel[10][0] << " " << previous_rel[10][0] << " " << running_A_mean[10].test_mean_A << " " << running_A_mean[10].last_mean_A << endl;//*/
+			//	cout << "fail "  <<  global_A_chain.size() << " " << sss << " " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << new_rel[10][0] << " " << previous_rel[10][0] << " " << running_A_mean[10].test_mean_A << " " << running_A_mean[10].last_mean_A << endl;//*/
 			if (theta>0){theta_max=theta;}
 			else {theta_min=theta;}
 		//	theta=gsl_ran_flat(rng_handle, theta_min, theta_max);
