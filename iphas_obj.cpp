@@ -151,29 +151,6 @@ float iphas_obj::likelihood_eval(iso_obj test_iso, float test_A, float test_dist
 	return current_prob1*cluster_weight;
 } 
 
-float iphas_obj::get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean)
-{
-	// Find P(S|y,x,sigma_y)
-	float current_prob1=0;
-
-	float test_dist=pow(10,test_dist_mod/5+1);
-
-	// Also the the contribution to p(x) from the distance-reddening relationship
-
-	if (floor(test_dist*1.0/100)<A_mean.size())
-	{
-		current_prob1+=-log(A_mean[floor(test_dist*1.0/100)][3]*test_A) - pow(log(test_A)-A_mean[floor(test_dist*1.0/100)][2],2)/(2*pow(A_mean[floor(test_dist*1.0/100)][3],2));
-
-	}
-	else
-	{
-		current_prob1+=(-log(A_mean[A_mean.size()-1][3]*test_A) - pow(log(test_A)-A_mean[A_mean.size()-1][2],2)/(2*pow(A_mean[A_mean.size()-1][3],2)));
-	}
-
-	if (current_prob1!=current_prob1){/*cout<< test_dist/100<< " " << " " << A_prob<< " " << current_prob1 << "" "" << A_max <<endl;*/ current_prob1=-1E6;}
-
-	return current_prob1*cluster_weight;
-}
 
 void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <float> > &A_mean, vector<bin_obj> &bin_mean)
 {
@@ -265,7 +242,6 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 // Find prob
 
 	last_prob=likelihood_eval(last_iso, last_A, last_dist_mod, A_mean);
-	last_A_prob= get_A_prob(last_iso, last_A, last_dist_mod, A_mean);
 
 	best_prob=last_prob+last_A_prob;
 	best_iso=last_iso;
@@ -417,7 +393,6 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		dist_mod_chain.push_back(last_dist_mod);
 		A_chain.push_back(last_A);
 		prob_chain.push_back(last_prob);
-		A_prob_chain.push_back(get_A_prob(last_iso, last_A, last_dist_mod, A_mean));
 
 		rx_chain.push_back((last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)+last_dist_mod+last_iso.r0);
 		ix_chain.push_back((last_iso.u_i*pow(last_A,2)+last_iso.v_i*last_A+last_iso.w_i)+last_dist_mod+last_iso.i0);
@@ -458,11 +433,11 @@ void iphas_obj::mean_intervals(void)
 		logg_sum2+=pow(iso_obj_chain[n].logg,2);
 
 		prob_sum+=prob_chain[n];
-		A_prob_sum+=A_prob_chain[A_prob_chain.size()-1];
+	//	A_prob_sum+=A_prob_chain[A_prob_chain.size()-1];
 
-		rx_sum+=rx_chain[A_prob_chain.size()-1];
-		ix_sum+=ix_chain[A_prob_chain.size()-1];
-		hax_sum+=hax_chain[A_prob_chain.size()-1];
+		rx_sum+=rx_chain[rx_chain.size()-1];
+		ix_sum+=ix_chain[rx_chain.size()-1];
+		hax_sum+=hax_chain[rx_chain.size()-1];
 	}
 
 	A= A_sum_in/ceil(0.5*A_chain.size());
@@ -487,7 +462,7 @@ void iphas_obj::mean_intervals(void)
 	distbin=floor(dist/100);
 
 	mean_prob=prob_sum/ceil(0.5*prob_chain.size());
-	mean_A_prob=A_prob_sum/ceil(0.5*A_prob_chain.size());
+//	mean_A_prob=A_prob_sum/ceil(0.5*A_prob_chain.size());
 
 	rx=rx_sum/ceil(0.5*rx_chain.size());
 	ix=ix_sum/ceil(0.5*ix_chain.size());

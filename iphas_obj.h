@@ -57,8 +57,7 @@ class iphas_obj
 		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <float> > &A_mean, vector<bin_obj> &bin_mean);
 		void star_try1(vector<iso_obj> &isochrones, float &l, float &b, vector<vector <float> > &A_mean, vector<bin_obj> &bin_mean);
 		void mean_intervals(void);
-		float get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean);
-	//
+
 	   
       // Returns abs mag or colour of an object given its r-i colour and luminosity class
       

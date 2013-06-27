@@ -328,9 +328,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		for (int it=0; it<star_cat.size(); it++)
 		{
 			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, previous_rel, running_A_mean);//};
-			//dummy+=star_cat[it].last_A_prob;
 		}
-
 
 		for (int it=0; it<running_A_mean.size(); it++)
 		{
@@ -338,7 +336,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			dummy+=running_A_mean[it].last_prob;
 		}
 		global_previous_prob=dummy;
-	//cout << global_previous_prob << " " << dummy3 << " " << dummy4 << endl;
+
 
 // Now vary hyper-parameters
 
@@ -367,26 +365,14 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 	// Find probability of this parameter set
 
-
-			dummy=0;
 			float dummy3=0;
 		//	vector <float> dummy4(150,0);
 	//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
-//			for (int it=0; it<star_cat.size(); it++)
-//			{
-//				proposed_probs[it]=star_cat[it].get_A_prob(star_cat[it].last_iso, star_cat[it].last_A, star_cat[it].last_dist_mod, new_rel);
-////				dummy+= proposed_probs[it];
-////				dummy4[star_cat[it].last_bin->dist_bin]+=proposed_probs[it];
-//			}
-			//global_current_prob=dummy;
-
-
-		for (int it=0; it<running_A_mean.size(); it++)
-		{
-			running_A_mean[it].set_test_prob(); 
-
-			dummy3+=running_A_mean[it].test_prob;
-		}
+			for (int it=0; it<running_A_mean.size(); it++)
+			{
+				running_A_mean[it].set_test_prob(); 
+				dummy3+=running_A_mean[it].test_prob;
+			}
 			global_current_prob=dummy3;
 
 	// Normalisation term
@@ -450,8 +436,6 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 				previous_norm_prob=current_norm_prob;
 
 				for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].accept();}
-
-//				for (int stars_it=0; stars_it<star_cat.size(); stars_it++){star_cat[stars_it].last_A_prob=proposed_probs[stars_it];}
 
 				move_on=true;
 		
