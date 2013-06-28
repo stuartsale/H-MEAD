@@ -66,7 +66,7 @@ class sl_obj
 		vector < vector <float> > trial_rel; //(150, vector <float> (2));
 
 		vector < vector <float> > gen_internal_rel(vector < vector <float> > old_rel, int rel_length);
-		vector < vector <float> > mvn_gen_internal_rel(vector < vector <float> > old_rel, int rel_length);
+		vector < vector <float> > mvn_gen_internal_rel(void);
 		vector < vector <float> > internal_to_external(vector < vector <float> > int_rel, int rel_length);
 		float hyperprior_prob_get(vector < vector <float> > internal_rel);
 		void rho_to_A(void);

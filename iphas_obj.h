@@ -52,10 +52,10 @@ class iphas_obj
 		void set_mag_weight(float mag_weight_input);
 		void dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, float l, float b);
 		void dist_redMCMC(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, float l, float b, vector<bin_obj2> &A_mean);
-		float likelihood_eval(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean);
+		float likelihood_eval(iso_obj test_iso, float test_A, float test_dist_mod);
 		void new_func(vector<iso_obj> &isochrones, float l, float b, vector<bin_obj2> &A_mean, int flag);
-		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <float> > &A_mean, vector<bin_obj> &bin_mean);
-		void star_try1(vector<iso_obj> &isochrones, float &l, float &b, vector<vector <float> > &A_mean, vector<bin_obj> &bin_mean);
+		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<bin_obj> &bin_mean);
+		void star_try1(vector<iso_obj> &isochrones, float &l, float &b, vector<bin_obj> &bin_mean);
 		void mean_intervals(void);
 
 	   

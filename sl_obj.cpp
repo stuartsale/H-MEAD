@@ -220,7 +220,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 
 	hyperprior_internal_rel=previous_internal_rel;
 
-	global_A_chain.push_back(previous_rel);
+	//global_A_chain.push_back(previous_rel);
 
 // Dump sources not in required region of c-c
 
@@ -265,7 +265,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	it_stars=0;
 	while (it_stars<star_cat.size())
 	{
-		star_cat[it_stars].initial_guess(isochrones, guess_set, previous_rel, running_A_mean);
+		star_cat[it_stars].initial_guess(isochrones, guess_set, running_A_mean);
 		if (star_cat[it_stars].last_A<0){star_cat[it_stars].last_A = 0.02;} 
 		it_stars++;
 	}
@@ -282,7 +282,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	previous_norm_prob=0;
 	for (int it_LF=0; it_LF<LFs.size(); it_LF++)
 	{
-		previous_norm_prob+=-LFs[it_LF].LF_prob(previous_rel)*(star_cat.size()+1);
+		previous_norm_prob+=-LFs[it_LF].LF_prob_last(running_A_mean)*(star_cat.size()+1);
 	}
 
 
@@ -327,7 +327,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 //		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 		for (int it=0; it<star_cat.size(); it++)
 		{
-			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, previous_rel, running_A_mean);//};
+			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, running_A_mean);//};
 		}
 
 		for (int it=0; it<running_A_mean.size(); it++)
@@ -342,7 +342,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 		move_on=false;	
 		threshold=log( gsl_ran_flat(rng_handle, 0, 1) );
-		trial_rel=mvn_gen_internal_rel(previous_internal_rel, rel_length);
+		trial_rel=mvn_gen_internal_rel();
 
 		float sss=0.01;
 		//theta=gsl_ran_flat(rng_handle, 0, 2*PI);
@@ -355,12 +355,10 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			for (int i=0; i<rel_length; i++)
 			{
 				running_A_mean[i].test_mean_rho=exp(log(running_A_mean[i].last_mean_rho)*cos(theta) + log(trial_rel[i][0])*sin(theta));
-				internal_rel[i][0] = running_A_mean[i].test_mean_rho;
-				internal_rel[i][1] = 0.4;//exp(log(previous_internal_rel[i][1])*cos(theta) + log(trial_rel[i][1])*sin(theta));
-
-//				cout << i << " " << previous_internal_rel[i][0] << " " << running_A_mean[i].last_mean_rho << " " << running_A_mean[i].test_n << endl;
+//				internal_rel[i][0] = running_A_mean[i].test_mean_rho;
+//				internal_rel[i][1] = 0.4;//exp(log(previous_internal_rel[i][1])*cos(theta) + log(trial_rel[i][1])*sin(theta));
 			}
-			new_rel=internal_to_external(internal_rel, rel_length);
+//			new_rel=internal_to_external(internal_rel, rel_length);
 			rho_to_A();
 
 	// Find probability of this parameter set
@@ -380,7 +378,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			current_norm_prob=0;
 			for (int it_LF=0; it_LF<LFs.size(); it_LF++)
 			{
-				current_norm_prob+=-LFs[it_LF].LF_prob(new_rel)*(star_cat.size()+1);
+				current_norm_prob+=-LFs[it_LF].LF_prob_test(running_A_mean)*(star_cat.size()+1);
 			}
 
 	// Neighbour term
@@ -428,8 +426,8 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
 				 + current_norm_prob-previous_norm_prob>threshold || sss<1E-5)		// New parameter set better => Accept
 			{
-				previous_rel=new_rel;
-				previous_internal_rel=internal_rel;
+//				previous_rel=new_rel;
+//				previous_internal_rel=internal_rel;
 				global_previous_prob=global_current_prob;
 				previous_hyperprior_prob=current_hyperprior_prob;
 				previous_xsl_prob=current_xsl_prob;
@@ -456,8 +454,8 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			}
 		}
 
-		if (neighbour_sl){if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << " " << neighbour_sl->previous_rel[rel_length-1][0] << endl;}}
-		else {if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << previous_s_R << " " << accepted << " " << accepted/it_num << endl;}}
+		if (neighbour_sl){if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << " " << neighbour_sl->running_A_mean[rel_length-1].last_mean_A << endl;}}
+		else {if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << previous_s_R << " " << accepted << " " << accepted/it_num << endl;}}
 
 //		if (it_num/10.==floor(it_num/10.))
 //		{
@@ -469,7 +467,6 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 		if (floor(it_num/100.)==it_num/100)
 		{
-			global_A_chain.push_back(previous_rel);
 			for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].chain_push_back();}
 		}
 		it_num++;
@@ -495,7 +492,7 @@ vector < vector <float> > sl_obj::gen_internal_rel(vector < vector <float> > old
 	return new_rel;
 }
 
-vector < vector <float> > sl_obj::mvn_gen_internal_rel(vector < vector <float> > old_rel, int rel_length)
+vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 {
 	vector < vector <float> > new_rel(rel_length,vector <float> (2));
 	Eigen::Matrix<float, 150, 1> int_vec, temp_vec;

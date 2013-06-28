@@ -111,7 +111,7 @@ void iphas_obj::set_mag_weight(float mag_weight_input)
    mag_weight=mag_weight_input;
 }
 
-float iphas_obj::likelihood_eval(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean)
+float iphas_obj::likelihood_eval(iso_obj test_iso, float test_A, float test_dist_mod)
 {	
 // Find probability of this parameter set - distance
 	//cout << test_iso.Mi << " " << test_iso.logAge << " " << test_A << " " << test_dist_mod << " " ;
@@ -152,7 +152,7 @@ float iphas_obj::likelihood_eval(iso_obj test_iso, float test_A, float test_dist
 } 
 
 
-void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<vector <float> > &A_mean, vector<bin_obj> &bin_mean)
+void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector<bin_obj> &bin_mean)
 {
 	//IPHAS version
 /*	for (int it=0; it<guess_set.size();it++)
@@ -199,7 +199,7 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 //				<< " " << (((J-K)-(guess_set[it].J0-guess_set[it].K0))/0.164 - A_mean[int(index)][0]) << " " << best_diff << endl;
 //			}
 			prob1=-pow((H-K)-(guess_set[it].H0-guess_set[it].K0) - ((J-K)-(guess_set[it].J0-guess_set[it].K0))*.390,2)/(d_H*d_H+d_K*d_K)
-				-pow(( ((J-K)-(guess_set[it].J0-guess_set[it].K0))/0.164 - A_mean[int(index)][0] )/(A_mean[int(index)][1]),2 );
+				-pow(( ((J-K)-(guess_set[it].J0-guess_set[it].K0))/0.164 - bin_mean[int(index)].last_mean_A )/(bin_mean[int(index)].last_sd_A),2 );
 			if (prob1>best_diff)
 			{
 				best_diff=prob1;
@@ -241,7 +241,7 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 
 // Find prob
 
-	last_prob=likelihood_eval(last_iso, last_A, last_dist_mod, A_mean);
+	last_prob=likelihood_eval(last_iso, last_A, last_dist_mod);
 
 	best_prob=last_prob+last_A_prob;
 	best_iso=last_iso;
@@ -254,7 +254,7 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 
 
 
-void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vector<vector <float> > &A_mean, vector<bin_obj> &bin_mean )
+void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vector<bin_obj> &bin_mean )
 {
 	iso_obj test_iso;
 
@@ -298,8 +298,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 	else { last_bin->try_update(this);}
 
 
-	current_prob=likelihood_eval(test_iso, test_A, test_dist_mod, A_mean);
-	//current_A_prob=get_A_prob(test_iso, test_A, test_dist_mod, A_mean);
+	current_prob=likelihood_eval(test_iso, test_A, test_dist_mod);
 
 	if (test_bin!=last_bin)
 	{ 
