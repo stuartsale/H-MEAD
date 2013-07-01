@@ -66,7 +66,7 @@ void bin_obj::initial_rho_to_A(float near_A)
 void bin_obj::rho_to_A(float near_A)
 {
 	test_mean_A=test_mean_rho+near_A;
-	test_sd_A=0.4;//*test_mean_A;
+	//test_sd_A=0.4;//*test_mean_A;
 	test_sigma=sqrt(log(1+pow(test_sd_A/test_mean_A,2.) ));
 	test_mu=log(test_mean_A)-pow(test_sigma,2)/2.;
 }

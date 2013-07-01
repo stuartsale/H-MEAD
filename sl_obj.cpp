@@ -320,6 +320,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			for (int i=0; i<rel_length; i++)
 			{
 				running_A_mean[i].test_mean_rho=exp(log(running_A_mean[i].last_mean_rho)*cos(theta) + log(trial_rel[i][0])*sin(theta));
+				running_A_mean[i].test_sd_A=exp(log(running_A_mean[i].last_sd_A)*cos(theta) + log(trial_rel[i][1])*sin(theta));
 			}
 			rho_to_A();
 
@@ -442,7 +443,7 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 	for (int i=0; i<rel_length; i++)
 	{
 		new_rel[i][0]=exp(int_vec[i]);
-		new_rel[i][1]=0.4;//*new_rel[i][0];
+		new_rel[i][1]=0.40+gsl_ran_lognormal(rng_handle, -0.94, 0.246);//*new_rel[i][0];
 	}
 	return new_rel;
 }
