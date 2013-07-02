@@ -438,7 +438,7 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 	Eigen::Matrix<float, 150, 1> int_vec, temp_vec;
 
 	for (int i=0; i<rel_length; i++){temp_vec[i]=gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
-	int_vec=temp_vec.transpose()*Cov_Mat + last_m_vec.transpose();
+	int_vec=(chol_L*temp_vec) + last_m_vec;
 
 	for (int i=0; i<rel_length; i++)
 	{
@@ -558,26 +558,17 @@ void sl_obj::define_cov_mat(void)
 
 	for (int i=0; i<150; i++){tripletList.push_back(T(i, i, log(1+pow(10.,2*(-1-i/100.))) ) ) ;}
 	CM.setFromTriplets(tripletList.begin(), tripletList.end());
-	//for (int i=0; i<150; i++){Mean_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i) ;}
-	for (int i=0; i<150; i++){last_m_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i) ;}
 
-	float dummy=0;
-	for (int i=0; i<150; i++){dummy+=exp(last_m_vec[i]+CM.coeffRef(i,i)/2);}
-					//cout << i << " " << dummy << endl;}
+	for (int i=0; i<150; i++)
+	{
+		last_s_vec[i]=1;
+		last_m_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i) ;
+	}
 
 	Cov_Mat=CM;
-	//Cov_Mat.coeffRef(0,0)=1.;
 
-	//Eigen::SimplicialLDLT<spMat> chol(CM);
-
-	Eigen::SparseMatrix<float> chol1(150,150);
-	for (int i=0; i<150; i++){tripletList2.push_back(T(i, i, sqrt(Cov_Mat.coeffRef(i,i)) ) ) ; }
-	chol1.setFromTriplets(tripletList2.begin(), tripletList2.end());
-	chol=chol1;
-
-	Eigen::SimplicialLDLT<spMat> chol2(CM);
-
-	//cout << Cov_Mat.nonZeros() << " CM " << Cov_Mat.coeffRef(0,0) << endl;
+	Eigen::SimplicialLLT<spMat> chol(CM);
+	chol_L=chol.matrixL();
 }
 
 

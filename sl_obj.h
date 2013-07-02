@@ -103,9 +103,11 @@ class sl_obj
 
 	// Covariance matrix
 
-		Eigen::SparseMatrix<float> Cov_Mat, chol; 
+		Eigen::SparseMatrix<float> Cov_Mat, chol;
+		Eigen::SparseMatrix<float> chol_L; 
 
 		Eigen::Matrix<float, 150, 1> last_m_vec, test_m_vec;
+		Eigen::Matrix<float, 150, 1> last_s_vec, test_s_vec;
 
 		void define_cov_mat(void);
 
