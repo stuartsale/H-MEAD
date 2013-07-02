@@ -438,7 +438,7 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 	Eigen::Matrix<float, 150, 1> int_vec, temp_vec;
 
 	for (int i=0; i<rel_length; i++){temp_vec[i]=gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
-	int_vec=temp_vec.transpose()*Cov_Mat + Mean_vec.transpose();
+	int_vec=temp_vec.transpose()*Cov_Mat + last_m_vec.transpose();
 
 	for (int i=0; i<rel_length; i++)
 	{
@@ -533,7 +533,7 @@ float sl_obj::hyperprior_prob_get(vector < vector <float> > internal_rel)
 	Eigen::Matrix<float, 150, 1> int_vec, temp_vec;
 	for (int i=1; i<150; i++){int_vec[i]=internal_rel[i][0];}
 
-	temp_vec=int_vec-Mean_vec;
+	temp_vec=int_vec-last_m_vec;
 	return temp_vec.transpose()*temp_vec;
 
 }
@@ -558,10 +558,11 @@ void sl_obj::define_cov_mat(void)
 
 	for (int i=0; i<150; i++){tripletList.push_back(T(i, i, log(1+pow(10.,2*(-1-i/100.))) ) ) ;}
 	CM.setFromTriplets(tripletList.begin(), tripletList.end());
-	for (int i=0; i<150; i++){Mean_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i) ;}
+	//for (int i=0; i<150; i++){Mean_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i) ;}
+	for (int i=0; i<150; i++){last_m_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i) ;}
 
 	float dummy=0;
-	for (int i=0; i<150; i++){dummy+=exp(Mean_vec[i]+CM.coeffRef(i,i)/2);}
+	for (int i=0; i<150; i++){dummy+=exp(last_m_vec[i]+CM.coeffRef(i,i)/2);}
 					//cout << i << " " << dummy << endl;}
 
 	Cov_Mat=CM;

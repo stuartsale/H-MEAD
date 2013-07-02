@@ -320,6 +320,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 
 	if (current_prob+current_A_prob-(last_prob+last_A_prob)+transition_prob>0 )		// New parameter set better => Accept
 	{
+	//cout << "pass " << current_prob << " " << last_prob << " " << current_A_prob << " " << last_A_prob << " " << current_prob+current_A_prob-(last_prob+last_A_prob)+transition_prob << endl;
 		last_iso=test_iso;
 		last_A=test_A;
 		last_dist_mod=test_dist_mod;
@@ -349,10 +350,12 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 			best_dist_mod=test_dist_mod;
 			best_it=A_chain.size();
 		}
+
 	}
 
 	else if (exp(current_prob+current_A_prob-(last_prob+last_A_prob)+transition_prob)>gsl_ran_flat(rng_handle, 0, 1) )	// New set worse => accept with P=P(new)/P(old)
 	{
+	//cout << "pass " << current_prob << " " << last_prob << " " << current_A_prob << " " << last_A_prob << " " << current_prob+current_A_prob-(last_prob+last_A_prob)+transition_prob<< endl;
 		last_iso=test_iso;
 		last_A=test_A;
 		last_dist_mod=test_dist_mod;
@@ -377,6 +380,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 	}
 	else 
 	{
+	//cout << "fail " << current_prob << " " << last_prob << " " << current_A_prob << " " << last_A_prob << " " << current_prob+current_A_prob-(last_prob+last_A_prob)+transition_prob << endl;
 		no_accept++;
 		if (test_bin!=last_bin)
 		{

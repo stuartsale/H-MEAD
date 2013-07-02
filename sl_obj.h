@@ -105,7 +105,7 @@ class sl_obj
 
 		Eigen::SparseMatrix<float> Cov_Mat, chol; 
 
-		Eigen::Matrix<float, 150, 1> Mean_vec;
+		Eigen::Matrix<float, 150, 1> last_m_vec, test_m_vec;
 
 		void define_cov_mat(void);
 
