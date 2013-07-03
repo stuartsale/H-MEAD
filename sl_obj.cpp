@@ -427,6 +427,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 		if (floor(it_num/100.)==it_num/100)
 		{
+
 			for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].chain_push_back();}
 		}
 		it_num++;
@@ -435,10 +436,10 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 {
 	vector < vector <float> > new_rel(rel_length,vector <float> (2));
-	Eigen::Matrix<float, 150, 1> int_vec, temp_vec;
+	Eigen::Matrix<float, 150, 1> int_vec;
 
-	for (int i=0; i<rel_length; i++){temp_vec[i]=gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
-	int_vec=(chol_L*temp_vec) + last_m_vec;
+	for (int i=0; i<rel_length; i++){test_z_dash[i]=gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
+	int_vec=(chol_L*last_s_vec.asDiagonal())*test_z_dash + last_m_vec;
 
 	for (int i=0; i<rel_length; i++)
 	{
@@ -447,6 +448,29 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 	}
 	return new_rel;
 }
+
+float sl_obj::get_rho_last_prob(void)
+{
+	Eigen::Matrix<float, 150, 1> last_s_Inv, temp_vec, temp_vec2;
+	float x;
+	
+	for (int i=0; i<rel_length; i++)
+	{
+		last_s_Inv[i]=1./last_s_vec[i];
+		temp_vec[i]=log(running_A_mean[i].last_mean_rho);
+	//	cout << temp_vec[i] << " " << last_m_vec[i] << endl;
+	}
+
+	temp_vec2=temp_vec-last_m_vec;
+
+	x= -temp_vec2.transpose() * last_s_Inv.asDiagonal() * (Cov_Mat_Inv ) * last_s_Inv.asDiagonal() *  temp_vec2;
+	
+	//cout << x << endl;
+	
+	return x;
+}
+
+
 
 void sl_obj::rho_to_A(void)
 {
@@ -463,12 +487,9 @@ void sl_obj::initial_rho_to_A(void)
 
 void sl_obj::hyperprior_update(void)
 {
-	float current_s_R, current_s_z;
-
-	vector <float> backup_rel;
-
-	current_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,0.0010);
-	current_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,0.001);
+	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,0.0010);
+	test_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,0.001);
+	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.001);
 
 	backup_rel=backup_A_mean_find(l,b,current_s_R, current_s_z, false);
 
@@ -555,6 +576,7 @@ void sl_obj::define_cov_mat(void)
 	Eigen::SparseMatrix<float> CM(150,150);
 	std::vector<T> tripletList, tripletList2;
 	tripletList.reserve(150);
+	tripletList2.reserve(150);
 
 	for (int i=0; i<150; i++){tripletList.push_back(T(i, i, log(1+pow(10.,2*(-1-i/100.))) ) ) ;}
 	CM.setFromTriplets(tripletList.begin(), tripletList.end());
@@ -569,6 +591,12 @@ void sl_obj::define_cov_mat(void)
 
 	Eigen::SimplicialLLT<spMat> chol(CM);
 	chol_L=chol.matrixL();
+
+	Eigen::SparseMatrix<float> I(150,150);
+	for (int i=0; i<150; i++){tripletList2.push_back(T(i, i, 1. ) ) ;}
+	I.setFromTriplets(tripletList2.begin(), tripletList2.end());
+
+	Cov_Mat_Inv = chol.compute(CM).solve(I);
 }
 
 

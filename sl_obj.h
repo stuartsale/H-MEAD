@@ -38,6 +38,7 @@ class sl_obj
 		void output_write(void);
 		void neighbour_set(sl_obj * neighbour);
 		void acl_calc(void);
+		float get_ms_last_prob(void);
 		float it_num;
 
 
@@ -103,11 +104,13 @@ class sl_obj
 
 	// Covariance matrix
 
-		Eigen::SparseMatrix<float> Cov_Mat, chol;
-		Eigen::SparseMatrix<float> chol_L; 
+		Eigen::SparseMatrix<float> Cov_Mat, Cov_Mat_Inv;
+		Eigen::SparseMatrix<float> chol_L, chol_L_Inv; 
 
 		Eigen::Matrix<float, 150, 1> last_m_vec, test_m_vec;
 		Eigen::Matrix<float, 150, 1> last_s_vec, test_s_vec;
+
+		Eigen::Matrix<float, 150, 1> last_z_dash, test_z_dash;
 
 		void define_cov_mat(void);
 
@@ -115,8 +118,10 @@ class sl_obj
 	// Wider disc params
 
 		float previous_s_R, previous_s_z, previous_A_0;
+		float test_s_R, test_s_z, test_A_0;
 		vector <float> s_R_chain, s_z_chain, A_0_chain;
 		float s_R_mean, s_z_mean, A_0_mean;
+		float previous_rho_prob, test_rho_prob;
 
 
 
