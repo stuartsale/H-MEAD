@@ -35,6 +35,7 @@ sl_obj::sl_obj(void)
 
 	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].dist_bin=it;}
 
+
 }
 
 sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
@@ -64,8 +65,7 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 	H_max=16.;
 	K_max=15.5;
 
-	previous_s_R=2500.;
-	previous_s_z=125.;
+
 
 	//	global_previous_prob=0;
 	//	previous_hyperprior_prob=0;
@@ -97,12 +97,28 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 	running_A_mean.resize(150);
 
 	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].dist_bin=it;}
+
+	previous_s_R=2500.;
+	previous_s_z=125.;
+	float Sch_max;
+	Sch_max=SFD_read(l, b)*3.1;
+	vector<float> backup_rho_mean (150);
+	backup_rho_mean=backup_rho_mean_find(l, b, previous_s_R, previous_s_z, 1.);
+	float sum1=0;
+	for (int i=0; i<150; i++){sum1+=backup_rho_mean[i];}
+	
+	previous_A_0=Sch_max/sum1;
+
+	cout << previous_s_R << " " <<previous_s_z << " " <<previous_A_0 << endl;
+
+
 }
 
 
 
 void sl_obj::output_write(void)
 {
+
 	ofstream A_out;
 	string dummy_string;
 	dummy_string=rootname+".td4";
@@ -417,13 +433,6 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		if (neighbour_sl){if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << " " << neighbour_sl->running_A_mean[rel_length-1].last_mean_A << endl;}}
 		else {if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << previous_s_R << " " << accepted << " " << accepted/it_num << endl;}}
 
-//		if (it_num/10.==floor(it_num/10.))
-//		{
-//			ofstream trace1;
-//			trace1.open("trace1.txt", ios::app);
-//			trace1 <<it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[80][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << previous_s_R << " " << accepted << " " << accepted/it_num << " " << global_transition_prob << " " << dummy2 << " " << previous_xsl_prob << " " <<dummy3 << endl;
-//			trace1.close();
-//		}
 
 		if (floor(it_num/100.)==it_num/100)
 		{
@@ -431,6 +440,16 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].chain_push_back();}
 		}
 		it_num++;
+		hyperprior_update();
+
+		if (it_num/10.==floor(it_num/10.))
+		{
+	ofstream trace1;
+	trace1.open("trace1.txt", ios::app);
+			//trace1 <<it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[80][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << previous_s_R << " " << accepted << " " << accepted/it_num << " " << global_transition_prob << " " << dummy2 << " " << previous_xsl_prob << " " <<dummy3 << endl;
+			trace1 << it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << endl;
+	trace1.close();
+		}
 }
 
 vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
@@ -458,14 +477,29 @@ float sl_obj::get_rho_last_prob(void)
 	{
 		last_s_Inv[i]=1./last_s_vec[i];
 		temp_vec[i]=log(running_A_mean[i].last_mean_rho);
-	//	cout << temp_vec[i] << " " << last_m_vec[i] << endl;
 	}
 
 	temp_vec2=temp_vec-last_m_vec;
 
 	x= -temp_vec2.transpose() * last_s_Inv.asDiagonal() * (Cov_Mat_Inv ) * last_s_Inv.asDiagonal() *  temp_vec2;
 	
-	//cout << x << endl;
+	return x;
+}
+
+float sl_obj::get_rho_test_prob(void)
+{
+	Eigen::Matrix<float, 150, 1> last_s_Inv, temp_vec, temp_vec2;
+	float x;
+	
+	for (int i=0; i<rel_length; i++)
+	{
+		last_s_Inv[i]=1./last_s_vec[i];
+		temp_vec[i]=log(running_A_mean[i].last_mean_rho);
+	}
+
+	temp_vec2=temp_vec-test_m_vec;
+
+	x= -temp_vec2.transpose() * last_s_Inv.asDiagonal() * (Cov_Mat_Inv ) * last_s_Inv.asDiagonal() *  temp_vec2;
 	
 	return x;
 }
@@ -487,11 +521,36 @@ void sl_obj::initial_rho_to_A(void)
 
 void sl_obj::hyperprior_update(void)
 {
-	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,0.0010);
-	test_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,0.001);
-	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.001);
+	vector <float> test_rho;
 
-	backup_rel=backup_A_mean_find(l,b,current_s_R, current_s_z, false);
+	previous_rho_prob=get_rho_last_prob();
+
+	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,0.001);
+	test_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,0.001);
+	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.0001);
+
+	test_rho=backup_rho_mean_find(l,b,test_s_R, test_s_z, test_A_0);
+
+	for (int i=0; i<150; i++)
+	{
+		test_m_vec[i]=log(test_rho[i]) - Cov_Mat.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;
+	}
+	
+	test_rho_prob=get_rho_test_prob();
+	
+	if (test_rho_prob > previous_rho_prob)
+	{
+		previous_s_R=test_s_R;
+		previous_s_z=test_s_z;
+		previous_A_0=test_A_0;
+	cout << previous_s_R << " " << previous_s_z << previous_A_0 << endl;
+	}
+	else if (exp(test_rho_prob - previous_rho_prob)>gsl_ran_flat(rng_handle, 0., 1.) )
+	{
+		previous_s_R=test_s_R;
+		previous_s_z=test_s_z;
+		previous_A_0=test_A_0;
+	}
 
 }
 
@@ -584,7 +643,7 @@ void sl_obj::define_cov_mat(void)
 	for (int i=0; i<150; i++)
 	{
 		last_s_vec[i]=1;
-		last_m_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i) ;
+		last_m_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;
 	}
 
 	Cov_Mat=CM;

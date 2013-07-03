@@ -38,7 +38,7 @@ class sl_obj
 		void output_write(void);
 		void neighbour_set(sl_obj * neighbour);
 		void acl_calc(void);
-		float get_ms_last_prob(void);
+
 		float it_num;
 
 
@@ -69,6 +69,10 @@ class sl_obj
 		vector < vector <float> > gen_internal_rel(vector < vector <float> > old_rel, int rel_length);
 		vector < vector <float> > mvn_gen_internal_rel(void);
 		vector < vector <float> > internal_to_external(vector < vector <float> > int_rel, int rel_length);
+
+		float get_rho_last_prob(void);
+		float get_rho_test_prob(void);
+
 		float hyperprior_prob_get(vector < vector <float> > internal_rel);
 		void rho_to_A(void);
 		void initial_rho_to_A(void);
