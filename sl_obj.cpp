@@ -203,6 +203,8 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].last_mean_rho=backup_rho_mean[it] * Sch_max/rho_sum ;}
 	initial_rho_to_A();
 
+	for (int i=0; i<150; i++){last_m_vec[i]=log(running_A_mean[i].last_mean_rho) - Cov_Mat.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;}
+
 // Dump sources not in required region of c-c
 
 	int it_stars=0;
@@ -447,7 +449,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 	ofstream trace1;
 	trace1.open("trace1.txt", ios::app);
 			//trace1 <<it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[80][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << previous_s_R << " " << accepted << " " << accepted/it_num << " " << global_transition_prob << " " << dummy2 << " " << previous_xsl_prob << " " <<dummy3 << endl;
-			trace1 << it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << endl;
+			trace1 << it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << endl;
 	trace1.close();
 		}
 }
@@ -525,9 +527,9 @@ void sl_obj::hyperprior_update(void)
 
 	previous_rho_prob=get_rho_last_prob();
 
-	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,0.001);
-	test_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,0.001);
-	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.0001);
+	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,20.);
+	test_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,5.);
+	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.01);
 
 	test_rho=backup_rho_mean_find(l,b,test_s_R, test_s_z, test_A_0);
 
@@ -543,7 +545,7 @@ void sl_obj::hyperprior_update(void)
 		previous_s_R=test_s_R;
 		previous_s_z=test_s_z;
 		previous_A_0=test_A_0;
-	cout << previous_s_R << " " << previous_s_z << previous_A_0 << endl;
+//	cout << previous_s_R << " " << previous_s_z << previous_A_0 << endl;
 	}
 	else if (exp(test_rho_prob - previous_rho_prob)>gsl_ran_flat(rng_handle, 0., 1.) )
 	{
@@ -551,6 +553,8 @@ void sl_obj::hyperprior_update(void)
 		previous_s_z=test_s_z;
 		previous_A_0=test_A_0;
 	}
+	//else {cout << test_rho_prob << " " <<  previous_rho_prob << " " << test_m_vec[0] << " " << log(running_A_mean[0].last_mean_rho)<< " " << last_m_vec[0] << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << endl;}
+
 
 }
 
@@ -622,14 +626,14 @@ float sl_obj::hyperprior_prob_get(vector < vector <float> > internal_rel)
 void sl_obj::define_cov_mat(void)
 {
 	typedef Eigen::SparseMatrix<float> spMat;
-	vector <float> mean_rel;
+//	vector <float> mean_rel;
 
-	vector <float> mean_rho(150,0);
+//	vector <float> mean_rho(150,0);
 
-	mean_rel=backup_A_mean_find(l,b,2500, 125, true);
-	mean_rho[0]=mean_rel[0];
+//	mean_rel=backup_A_mean_find(l,b,2500, 125, true);
+//	mean_rho[0]=mean_rel[0];
 
-	for (int i=1; i<150; i++){mean_rho[i]=mean_rel[i]-mean_rel[i-1];}
+//	for (int i=1; i<150; i++){mean_rho[i]=mean_rel[i]-mean_rel[i-1];}
 
 	typedef Eigen::Triplet<float> T;
 	Eigen::SparseMatrix<float> CM(150,150);
@@ -643,7 +647,7 @@ void sl_obj::define_cov_mat(void)
 	for (int i=0; i<150; i++)
 	{
 		last_s_vec[i]=1;
-		last_m_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;
+//		last_m_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;
 	}
 
 	Cov_Mat=CM;

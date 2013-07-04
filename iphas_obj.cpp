@@ -143,10 +143,11 @@ float iphas_obj::likelihood_eval(iso_obj test_iso, float test_A, float test_dist
 
 		current_prob1+=log_prior(test_dist_mod, test_iso.feh, l, b);
 
-		current_prob1+=test_dist_mod*LN_TEN/5 - log(2*test_A*(test_iso.u-test_iso.u_i)+test_iso.v-test_iso.v_i);
+		current_prob1+=test_dist_mod*LN_TEN/5 ;//- log(2*test_A*(test_iso.u-test_iso.u_i)+test_iso.v-test_iso.v_i);
 		current_prob1+=log(test_iso.Jac);
 //*/
 
+	if (current_prob1!=current_prob1){cout << "1 " << test_iso.Jac << " " << test_iso.IMF() << " " << 2*test_A*(test_iso.u-test_iso.u_i)+test_iso.v-test_iso.v_i << endl;}
 
 	return current_prob1*cluster_weight;
 } 
@@ -435,6 +436,7 @@ void iphas_obj::mean_intervals(void)
 		logg_sum+=iso_obj_chain[n].logg;
 		logg_sum2+=pow(iso_obj_chain[n].logg,2);
 
+	//	if (prob_chain[n]!=prob_chain[n]){cout << n << endl;}
 		prob_sum+=prob_chain[n];
 	//	A_prob_sum+=A_prob_chain[A_prob_chain.size()-1];
 
@@ -442,6 +444,7 @@ void iphas_obj::mean_intervals(void)
 		ix_sum+=ix_chain[rx_chain.size()-1];
 		hax_sum+=hax_chain[rx_chain.size()-1];
 	}
+	//cout << A_chain.size() << " " << prob_sum << endl;
 
 	A= A_sum_in/ceil(0.5*A_chain.size());
 	dist = d_sum_in/ceil(0.5*dist_mod_chain.size());
