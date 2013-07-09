@@ -440,6 +440,9 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		{
 
 			for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].chain_push_back();}
+			s_R_chain.push_back(previous_s_R);
+			s_z_chain.push_back(previous_s_z);
+			A_0_chain.push_back(previous_A_0);
 		}
 		it_num++;
 		hyperprior_update();
@@ -527,9 +530,9 @@ void sl_obj::hyperprior_update(void)
 
 	previous_rho_prob=get_rho_last_prob();
 
-	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,20.);
+	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,40.);
 	test_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,5.);
-	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.01);
+	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.05);
 
 	test_rho=backup_rho_mean_find(l,b,test_s_R, test_s_z, test_A_0);
 
@@ -588,26 +591,48 @@ void sl_obj::acl_calc(void)
 	string dummy_string;
 	dummy_string=rootname+".acl";
 	acl_out.open(dummy_string.c_str(), ios::trunc);
-	acl_out << "# lag acf" <<endl; 
+	acl_out << "# lag acf_s_R acf_s_z acf_A_0" <<endl; 
 
 
 	vector <float> acl;
-	vector <float> new_acl;
+	//vector <float> new_acl;
+	vector <float> new_acl(int(ceil(0.5*s_R_chain.size())), 0.);
+	vector <float> new_acl2(int(ceil(0.5*s_z_chain.size())), 0.);
+	vector <float> new_acl3(int(ceil(0.5*A_0_chain.size())), 0.);
 
-	acl=star_cat[0].acl_calc();
-
-	for (int star_it=1; star_it<star_cat.size(); star_it++)
+	for (int it1=floor(0.5*s_R_chain.size()); it1<s_R_chain.size(); it1++)
 	{
-		new_acl=star_cat[star_it].acl_calc();
-		for (int it=0; it<acl.size(); it++)
+		for (int lag=0; lag<it1-ceil(0.5*s_R_chain.size()); lag++)
 		{
-			acl[it]+=new_acl[it];
+			new_acl[lag]+=(s_R_chain[it1]-s_R_mean)*(s_R_chain[it1-lag]-s_R_mean);
+			new_acl2[lag]+=(s_z_chain[it1]-s_z_mean)*(s_z_chain[it1-lag]-s_z_mean);
+			new_acl3[lag]+=(A_0_chain[it1]-A_0_mean)*(A_0_chain[it1-lag]-A_0_mean);
 		}
+
 	}
 
-	for (int it=0; it<acl.size(); it++)
+	for (int it1=0; it1<new_acl.size(); it1++)
 	{
-		acl_out << it+1 << " " << acl[it] << endl;
+		new_acl[it1]/=(new_acl.size());
+		new_acl2[it1]/=(new_acl2.size());
+		new_acl3[it1]/=(new_acl3.size());
+	}
+
+//	new_acl=star_cat[0].acl_calc();
+	acl=new_acl;
+
+//	for (int star_it=1; star_it<star_cat.size(); star_it++)
+//	{
+//		new_acl=star_cat[star_it].acl_calc();
+//		for (int it=0; it<acl.size(); it++)
+//		{
+//			acl[it]+=new_acl[it];
+//		}
+//	}
+
+	for (int it=0; it<new_acl.size(); it++)
+	{
+		acl_out << it << " " << new_acl[it]<< " " << new_acl2[it]<< " " << new_acl3[it] << endl;
 	}
 	acl_out.close();
 }

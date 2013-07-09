@@ -479,13 +479,13 @@ void iphas_obj::mean_intervals(void)
 vector <float> iphas_obj::acl_calc(void)
 {
 
-	vector <float> acf (A_chain.size()-1, 0.);
+	vector <float> acf (int(floor(0.5*A_chain.size())), 0.);
 
-	for (int it1=1; it1<A_chain.size(); it1++)
+	for (int it1=1+floor(0.5*A_chain.size()); it1<A_chain.size(); it1++)
 	{
-		for (int lag=1; lag<it1; lag++)
+		for (int lag=0; lag<it1-floor(0.5*A_chain.size()); lag++)
 		{
-			acf[lag-1]+=(A_chain[it1]-A)*(A_chain[it1-lag]-A);
+			acf[lag]+=(A_chain[it1]-A)*(A_chain[it1-lag]-A);
 		}
 
 	}
