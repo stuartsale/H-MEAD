@@ -476,3 +476,37 @@ vector <vector <double> > vector_recv(int tag, int source)
 	return output;
 }
 
+
+float acl_heid(vector < float > run)
+{
+	return 0.;
+}
+
+float acl_block(vector < float > run)
+{
+	vector<float> sample_sums;
+	float total_sum=0, total_sum2=0;
+	float running_sum=0;
+	float sub_sum=0, sub_sum2=0;
+
+	for (int i=0; i<run.size(); i++)
+	{
+		if (i/100.==int(i/100.) && i!=0)
+		{
+			sample_sums.push_back(running_sum);
+			running_sum=0;
+		}
+		running_sum+=run[i];
+		total_sum+=run[i];
+		total_sum2+=pow(run[i],2.);
+	}
+
+	for (int i=0; i<sample_sums.size(); i++)
+	{
+		sub_sum+=sample_sums[i]/100.;
+		sub_sum2+=pow(sample_sums[i]/100.,2.);
+	}
+	
+	return 100 * ( sub_sum2/sample_sums.size() - pow(sub_sum/sample_sums.size(),2) )/( total_sum2/run.size() - pow(total_sum/run.size(),2) );
+
+}

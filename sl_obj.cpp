@@ -161,7 +161,7 @@ void sl_obj::output_write(void)
 	//mean_rho=density_find(l, b, previous_s_R, previous_s_z, 100);
 	mean_rel=backup_A_mean_find(l, b, previous_s_R, previous_s_z, false);
 
-	cout << s_R_mean << " " << s_z_mean << endl;
+	cout << s_R_mean << " " << s_z_mean << " "<< A_0_mean << " " << s_R_sd << " " << s_z_sd << " " << A_0_sd << " " << endl;
 
 	for (int x=0; x<running_A_mean.size(); x++)
 	{
@@ -569,14 +569,24 @@ void sl_obj::mean_intervals(void)
 //	#pragma omp parallel for  num_threads(3)
 	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].mean_intervals();}
 
-	float s_R_sum=0., s_z_sum=0;
+	float s_R_sum=0., s_z_sum=0, A_0_sum=0.;
+	float s_R_sum2=0., s_z_sum2=0, A_0_sum2=0.;
 	for (int it=floor(0.5*s_R_chain.size()); it<s_R_chain.size(); it++)
 	{
 		s_R_sum+=s_R_chain[it];
 		s_z_sum+=s_z_chain[it];
+		A_0_sum+=A_0_chain[it];
+		s_R_sum2+=pow(s_R_chain[it],2.);
+		s_z_sum2+=pow(s_z_chain[it],2.);
+		A_0_sum2+=pow(A_0_chain[it],2.);
 	}
 	s_R_mean=s_R_sum/ceil(0.5*s_R_chain.size());
 	s_z_mean=s_z_sum/ceil(0.5*s_z_chain.size());
+	A_0_mean=A_0_sum/ceil(0.5*A_0_chain.size());
+
+	s_R_sd=sqrt( s_R_sum2/ceil(0.5*s_R_chain.size()) - pow(s_R_mean,2));
+	s_z_sd=sqrt( s_z_sum2/ceil(0.5*s_z_chain.size()) - pow(s_z_mean,2));
+	A_0_sd=sqrt( A_0_sum2/ceil(0.5*A_0_chain.size()) - pow(A_0_mean,2));
 }
 
 void sl_obj::neighbour_set(sl_obj * neighbour)
@@ -635,6 +645,13 @@ void sl_obj::acl_calc(void)
 		acl_out << it << " " << new_acl[it]<< " " << new_acl2[it]<< " " << new_acl3[it] << endl;
 	}
 	acl_out.close();
+
+	size_t const half_size = s_R_chain.size() / 2;
+	vector <float> unburnt_s_R(s_R_chain.begin()+half_size, s_R_chain.end());
+	vector <float> unburnt_s_z(s_z_chain.begin()+half_size, s_z_chain.end());
+	vector <float> unburnt_A_0(A_0_chain.begin()+half_size, A_0_chain.end());
+
+	cout << acl_block(unburnt_s_R) << " " << acl_block(unburnt_s_z) << " " << acl_block(unburnt_A_0) << " " << endl; 
 }
 
 float sl_obj::hyperprior_prob_get(vector < vector <float> > internal_rel)

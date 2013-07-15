@@ -65,6 +65,9 @@ vector<float> density_find(double l_gal, double b_gal, float s_R, float s_z, flo
 
 vector <vector <string> > config_read(string filename);
 
+float acl_heid(vector < float > );
+float acl_block(vector < float > );
+
 // set default MIN vals
 extern double r_min;
 extern double i_min;

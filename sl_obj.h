@@ -125,6 +125,7 @@ class sl_obj
 		float test_s_R, test_s_z, test_A_0;
 		vector <float> s_R_chain, s_z_chain, A_0_chain;
 		float s_R_mean, s_z_mean, A_0_mean;
+		float s_R_sd, s_z_sd, A_0_sd;
 		float previous_rho_prob, test_rho_prob;
 
 
