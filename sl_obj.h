@@ -10,6 +10,7 @@
 
 
 
+
 using namespace std;
 
 #ifndef PI
@@ -33,7 +34,7 @@ class sl_obj
 		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector <LF> &LFs);
 		void dist_redMCMC(vector<iso_obj> &isochrones, vector <LF> &LFs);
 		void update(vector<iso_obj> &isochrones,  vector <LF> &LFs);
-		void hyperprior_update(void);
+		void hyperprior_update(vector <LF> &LFs);
 		void mean_intervals(void);
 		void output_write(void);
 		void neighbour_set(sl_obj * neighbour);
@@ -68,6 +69,7 @@ class sl_obj
 
 		vector < vector <float> > gen_internal_rel(vector < vector <float> > old_rel, int rel_length);
 		vector < vector <float> > mvn_gen_internal_rel(void);
+		vector <float> mvn_gen_internal_rel_from_z_dash(const Eigen::Matrix<float, 150, 1> & z_dash);
 		vector < vector <float> > internal_to_external(vector < vector <float> > int_rel, int rel_length);
 
 		float get_rho_last_prob(void);
@@ -115,6 +117,8 @@ class sl_obj
 		Eigen::Matrix<float, 150, 1> last_s_vec, test_s_vec;
 
 		Eigen::Matrix<float, 150, 1> last_z_dash, test_z_dash;
+
+		Eigen::Matrix<float, 150, 1> get_last_z_dash(void);
 
 		void define_cov_mat(void);
 

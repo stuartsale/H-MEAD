@@ -479,6 +479,20 @@ vector <vector <double> > vector_recv(int tag, int source)
 
 float acl_heid(vector < float > run)
 {
+	vector<double> run2(run.begin(), run.end());
+
+	gsl_fft_real_wavetable * real;
+	gsl_fft_real_workspace * work;
+
+	work = gsl_fft_real_workspace_alloc (run.size());
+	real = gsl_fft_real_wavetable_alloc (run.size());
+
+	gsl_fft_real_transform (run2.data(), 1, run2.size(), real, work);
+
+	gsl_fft_real_wavetable_free (real);
+	gsl_fft_real_workspace_free (work);
+
+
 	return 0.;
 }
 

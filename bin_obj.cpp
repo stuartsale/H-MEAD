@@ -58,7 +58,7 @@ void bin_obj::try_remove(iphas_obj * star)
 void bin_obj::initial_rho_to_A(float near_A)
 {
 	last_mean_A=last_mean_rho+near_A;
-	last_sd_A=0.4;//*last_mean_A;
+	//last_sd_A=0.4;//*last_mean_A;
 	last_sigma=sqrt(log(1+pow(last_sd_A/last_mean_A,2.) ));
 	last_mu=log(last_mean_A)-pow(last_sigma,2);
 }

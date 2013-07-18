@@ -200,10 +200,17 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	backup_rho_mean=backup_rho_mean_find(l, b, previous_s_R, previous_s_z, 1.);
 	for (int it=0; it<backup_rho_mean.size(); it++){rho_sum+=backup_rho_mean[it];}
 
-	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].last_mean_rho=backup_rho_mean[it] * Sch_max/rho_sum ;}
+	for (int i=0; i<150; i++){last_m_vec[i]=log(backup_rho_mean[i] * Sch_max/rho_sum) - Cov_Mat.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;}
+	trial_rel=mvn_gen_internal_rel();
+
+	for (int it=0; it<running_A_mean.size(); it++)
+	{
+		running_A_mean[it].last_mean_rho=trial_rel[it][0];
+		running_A_mean[it].last_sd_A=trial_rel[it][1];
+	}
 	initial_rho_to_A();
 
-	for (int i=0; i<150; i++){last_m_vec[i]=log(running_A_mean[i].last_mean_rho) - Cov_Mat.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;}
+
 
 // Dump sources not in required region of c-c
 
@@ -290,7 +297,7 @@ void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones, vector <LF> &LFs)
 	while (it_num<150000 )
 	{
 		update(isochrones, LFs);
-		if (it_num/100==floor(it_num/100.)){hyperprior_update();}
+		if (it_num/100==floor(it_num/100.)){hyperprior_update(LFs);}
 	}
 }
 
@@ -406,6 +413,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
 				 + current_norm_prob-previous_norm_prob>threshold || sss<1E-5)		// New parameter set better => Accept
 			{
+			//	cout << "pass " << running_A_mean[0].A_chain.size() << " " << global_current_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[50].test_mean_rho << " " << previous_norm_prob << " "  << endl;
 				global_previous_prob=global_current_prob;
 				previous_hyperprior_prob=current_hyperprior_prob;
 				previous_xsl_prob=current_xsl_prob;
@@ -415,12 +423,12 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 				move_on=true;
 		
-			//	cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() << " " << theta << endl;
+
 			}
 
 			else 
 			{
-			//	cout << "fail "  <<  global_A_chain.size() << " " << sss << " " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << new_rel[10][0] << " " << previous_rel[10][0] << " " << running_A_mean[10].test_mean_A << " " << running_A_mean[10].last_mean_A << endl;//*/
+			//cout << "fail " << running_A_mean[0].A_chain.size() << " " << global_current_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[50].test_mean_rho << " " << previous_norm_prob << " "  << endl;
 			if (theta>0){theta_max=theta;}
 			else {theta_min=theta;}
 		//	theta=gsl_ran_flat(rng_handle, theta_min, theta_max);
@@ -445,16 +453,24 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			A_0_chain.push_back(previous_A_0);
 		}
 		it_num++;
-		hyperprior_update();
-
-		if (it_num/10.==floor(it_num/10.))
+		if (it_num/1.==floor(it_num/1.))
 		{
 	ofstream trace1;
 	trace1.open("trace1.txt", ios::app);
 			//trace1 <<it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[80][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << previous_s_R << " " << accepted << " " << accepted/it_num << " " << global_transition_prob << " " << dummy2 << " " << previous_xsl_prob << " " <<dummy3 << endl;
-			trace1 << it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << endl;
+			trace1 << it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << " " << global_previous_prob << endl ;
 	trace1.close();
 		}
+		hyperprior_update(LFs);
+
+//		if (it_num/1.==floor(it_num/1.))
+//		{
+//	ofstream trace1;
+//	trace1.open("trace1.txt", ios::app);
+//			//trace1 <<it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[80][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << previous_s_R << " " << accepted << " " << accepted/it_num << " " << global_transition_prob << " " << dummy2 << " " << previous_xsl_prob << " " <<dummy3 << endl;
+//			trace1 << it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << " " << global_previous_prob << " ";
+//	trace1.close();
+//		}
 }
 
 vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
@@ -468,9 +484,24 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 	for (int i=0; i<rel_length; i++)
 	{
 		new_rel[i][0]=exp(int_vec[i]);
-		new_rel[i][1]=0.40+gsl_ran_lognormal(rng_handle, -0.94, 0.246);//*new_rel[i][0];
+		new_rel[i][1]=gsl_ran_lognormal(rng_handle, -0.94, 0.246);//*new_rel[i][0];
 	}
 	return new_rel;
+}
+
+vector <float> sl_obj::mvn_gen_internal_rel_from_z_dash(const Eigen::Matrix<float, 150, 1> & z_dash)
+{
+	vector <float> new_rel(rel_length);
+	Eigen::Matrix<float, 150, 1> int_vec;
+
+	int_vec=(chol_L*last_s_vec.asDiagonal())*z_dash + test_m_vec;
+
+	for (int i=0; i<rel_length; i++)
+	{
+		new_rel[i]=exp(int_vec[i]);
+	}
+	return new_rel;
+
 }
 
 float sl_obj::get_rho_last_prob(void)
@@ -510,6 +541,24 @@ float sl_obj::get_rho_test_prob(void)
 }
 
 
+Eigen::Matrix<float, 150, 1> sl_obj::get_last_z_dash(void)
+{
+	Eigen::Matrix<float, 150, 1> last_s_Inv, temp_vec, temp_vec2, x;
+	for (int i=0; i<150; i++)
+	{
+		last_s_Inv[i]=1./last_s_vec[i];
+		temp_vec[i]=log(running_A_mean[i].last_mean_rho);
+	}
+
+	temp_vec2=temp_vec-last_m_vec;
+
+	x=  chol_L_Inv * temp_vec2;
+	//return last_s_Inv.asDiagonal() * chol_L_Inv * temp_vec2;
+	return last_s_Inv.asDiagonal() * x;
+
+}
+
+
 
 void sl_obj::rho_to_A(void)
 {
@@ -524,9 +573,13 @@ void sl_obj::initial_rho_to_A(void)
 }
 
 
-void sl_obj::hyperprior_update(void)
+void sl_obj::hyperprior_update(vector <LF> &LFs)
 {
 	vector <float> test_rho;
+	float dummy=0;
+	vector <float> ASIS_trial;
+
+	// First update Theta|rho
 
 	previous_rho_prob=get_rho_last_prob();
 
@@ -548,16 +601,106 @@ void sl_obj::hyperprior_update(void)
 		previous_s_R=test_s_R;
 		previous_s_z=test_s_z;
 		previous_A_0=test_A_0;
+		last_m_vec=test_m_vec;
 //	cout << previous_s_R << " " << previous_s_z << previous_A_0 << endl;
+//	cout << "pass ";
 	}
 	else if (exp(test_rho_prob - previous_rho_prob)>gsl_ran_flat(rng_handle, 0., 1.) )
 	{
 		previous_s_R=test_s_R;
 		previous_s_z=test_s_z;
 		previous_A_0=test_A_0;
+		last_m_vec=test_m_vec;
+//	cout << "pass ";
 	}
-	//else {cout << test_rho_prob << " " <<  previous_rho_prob << " " << test_m_vec[0] << " " << log(running_A_mean[0].last_mean_rho)<< " " << last_m_vec[0] << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << endl;}
+//	else {cout << "fail " << test_rho_prob << " " <<  previous_rho_prob << " " << test_m_vec[0] << " " << log(running_A_mean[0].last_mean_rho)<< " " << last_m_vec[0] << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << endl;}
+//	else {cout << "fail ";}
 
+//	// Now find z_dash|rho, Theta
+//		
+//	last_z_dash=get_last_z_dash();
+
+//	// Update Theta|z_dash
+
+//	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,10.);
+//	test_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,1.);
+//	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.01);
+
+//	test_rho=backup_rho_mean_find(l,b,test_s_R, test_s_z, test_A_0);
+//	for (int i=0; i<150; i++)
+//	{
+//		test_m_vec[i]=log(test_rho[i]) - Cov_Mat.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;
+//	}
+
+////	for (int it=0; it<running_A_mean.size(); it++)
+////	{
+////		running_A_mean[it].set_last_prob(); 
+////		dummy+=running_A_mean[it].last_prob;
+////	}
+////	previous_rho_prob=dummy;
+
+//	ASIS_trial= mvn_gen_internal_rel_from_z_dash(last_z_dash);
+
+//	for (int i=0; i<rel_length; i++)
+//	{
+//		running_A_mean[i].test_mean_rho=ASIS_trial[i];
+//		running_A_mean[i].test_sd_A=running_A_mean[i].last_sd_A;
+//	}
+//	rho_to_A();
+
+//// Find probability of this parameter set
+
+//	float dummy3=0;
+////		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
+//	for (int it=0; it<running_A_mean.size(); it++)
+//	{
+//		running_A_mean[it].set_test_prob(); 
+//		dummy3+=running_A_mean[it].test_prob;
+//	}
+//	global_current_prob=dummy3;
+
+//// Normalisation term
+
+//	float current_norm_prob=0;
+//	for (int it_LF=0; it_LF<LFs.size(); it_LF++)
+//	{
+//		current_norm_prob+=-LFs[it_LF].LF_prob_test(running_A_mean)*(star_cat.size()+1);
+//	}
+
+//	if (global_current_prob+current_norm_prob > global_previous_prob+previous_norm_prob)
+//	{
+//	//cout << "pass2 " << running_A_mean[0].A_chain.size() << " " << (test_rho_prob+current_norm_prob - global_previous_prob-previous_norm_prob) << " " << global_previous_prob << " " << test_rho_prob  << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[50].test_mean_rho << " " << previous_norm_prob << " " << current_norm_prob << " " << previous_s_R - test_s_R  << endl;
+//		previous_s_R=test_s_R;
+//		previous_s_z=test_s_z;
+//		previous_A_0=test_A_0;
+//		last_m_vec=test_m_vec;
+//		global_previous_prob=global_current_prob;
+//		previous_norm_prob=current_norm_prob;
+//		for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].accept();}
+
+//	}
+//	else if (exp(global_current_prob+current_norm_prob - global_previous_prob-previous_norm_prob)>gsl_ran_flat(rng_handle, 0., 1.) )
+//	{
+////	cout << "pass3 " << running_A_mean[0].A_chain.size() << " " << (test_rho_prob+current_norm_prob - global_previous_prob-previous_norm_prob) << " " << global_previous_prob << " " << test_rho_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[50].test_mean_rho << " " << previous_norm_prob << " " << current_norm_prob << " " << previous_s_R - test_s_R  << endl;
+//		previous_s_R=test_s_R;
+//		previous_s_z=test_s_z;
+//		previous_A_0=test_A_0;
+//		last_m_vec=test_m_vec;
+//		global_previous_prob=global_current_prob;
+//		previous_norm_prob=current_norm_prob;
+//		for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].accept();}
+
+//	}
+//	else
+//	{	
+//	//cout << "fail2 " << running_A_mean[0].A_chain.size() << " " << (test_rho_prob+current_norm_prob - global_previous_prob-previous_norm_prob) << " " << global_previous_prob << " " << test_rho_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[50].test_mean_rho << " " << previous_norm_prob << " " << current_norm_prob << " " << previous_s_R - test_s_R  << endl;
+//		for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].reject();}
+//		test_m_vec=last_m_vec;
+//		test_s_R=previous_s_R;
+//		test_s_z=previous_s_z;
+//		test_A_0=previous_A_0;
+//	}
+//	
 
 }
 
@@ -665,6 +808,7 @@ float sl_obj::hyperprior_prob_get(vector < vector <float> > internal_rel)
 }
 
 
+
 void sl_obj::define_cov_mat(void)
 {
 	typedef Eigen::SparseMatrix<float> spMat;
@@ -702,6 +846,18 @@ void sl_obj::define_cov_mat(void)
 	I.setFromTriplets(tripletList2.begin(), tripletList2.end());
 
 	Cov_Mat_Inv = chol.compute(CM).solve(I);
+
+	Eigen::Matrix<float, 150, 150> I_dense;
+	I_dense= Eigen::MatrixXf::Identity(150, 150);
+
+	Eigen::SimplicialLLT<spMat> chol2(chol_L);
+	chol_L_Inv=chol2.compute(chol_L).solve(I);
+	
+	//chol_L_Inv=chol_L;
+	//chol_L_Inv=chol_L_Inv.triangularView<Eigen::Lower>().solve(I_dense);
+
+	//cout << "stuff: " << chol_L.coeffRef(10,10) << " " << chol_L_Inv.coeffRef(10,10) << endl;
+	//cout << chol_L * chol_L_Inv << endl;
 }
 
 
