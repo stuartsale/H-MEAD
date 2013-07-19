@@ -29,14 +29,14 @@ class sl_obj
 {
 
 	public:
-		sl_obj(string filename, float l_in, float b_in, string datatype);
+		sl_obj(string filename, float l_in, float b_in, string datatype, float s_R, float s_z);
 		sl_obj(void);
-		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector <LF> &LFs);
+		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector <LF> &LFs, float s_R, float s_z, float A_0);
 		void dist_redMCMC(vector<iso_obj> &isochrones, vector <LF> &LFs);
 		void update(vector<iso_obj> &isochrones,  vector <LF> &LFs);
-		void hyperprior_update(vector <LF> &LFs);
+	//	void hyperprior_update(vector <LF> &LFs);
 		void mean_intervals(void);
-		void output_write(void);
+		void output_write(float s_R, float s_z);
 		void neighbour_set(sl_obj * neighbour);
 		void acl_calc(void);
 
@@ -125,6 +125,8 @@ class sl_obj
 
 	// Wider disc params
 
+		void make_new_test_m_vec(float s_R, float s_z, float A_0);
+
 		float previous_s_R, previous_s_z, previous_A_0;
 		float test_s_R, test_s_z, test_A_0;
 		vector <float> s_R_chain, s_z_chain, A_0_chain;
@@ -132,6 +134,6 @@ class sl_obj
 		float s_R_sd, s_z_sd, A_0_sd;
 		float previous_rho_prob, test_rho_prob;
 
-
+	friend void hyperprior_update_all(vector <LF> &LFs);
 
 };

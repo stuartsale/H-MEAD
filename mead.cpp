@@ -25,6 +25,20 @@ double r_min, i_min, ha_min, r_max, i_max, ha_max;
 double J_min, H_min, K_min, J_max, H_max, K_max;
 vector <vector <vector <double> > > lookup_table;
 
+vector <sl_obj> slsl;
+
+	// Wider disc params
+
+		float previous_s_R, previous_s_z, previous_A_0;
+		float test_s_R, test_s_z, test_A_0;
+		vector <float> s_R_chain, s_z_chain, A_0_chain;
+		float s_R_mean, s_z_mean, A_0_mean;
+		float s_R_sd, s_z_sd, A_0_sd;
+		float previous_rho_prob, test_rho_prob;
+
+void hyperprior_update_all(vector <LF> &LFs);
+void mean_intervals(void);
+
 gsl_rng* rng_handle;
 
 string config_dir;
@@ -156,25 +170,34 @@ int main(int argc, char* argv[])
 //	while (1.0648*guess_set[guess_set.size()-1].Mi<2.060){guess_set.push_back(iso_get(0., 1.0648*guess_set[guess_set.size()-1].Mi, 8.5, isochrones));}
 //	guess_set.push_back(iso_get(0., 2.060, 8.5, isochrones));
 
+// Set up initial disc model 
+
+	previous_s_R=2500.;
+	previous_s_z=125.;
+	previous_A_0=0.19;
+
+	cout << previous_s_R << " " <<previous_s_z << " " <<previous_A_0 << endl;
+
 // Read in config file
 
 	vector <vector <string> > config_file;
 	config_file=config_read(argv[1]);
 
-	vector <sl_obj> slsl(config_file.size());
+	slsl.resize(config_file.size());
 
 	for(int it_conf=0; it_conf<config_file.size(); it_conf++)
 	{
 
    // Read in data
 
-		sl_obj sl1( config_file[it_conf][0],atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()), config_file[it_conf][3] );
+		sl_obj sl1( config_file[it_conf][0],atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()), config_file[it_conf][3], previous_s_R, previous_s_z);
 		//slsl.push_back(sl1);
 		slsl[it_conf]=sl1;
 
 		if (it_conf!=0){slsl[it_conf].neighbour_set(&slsl[it_conf-1]);}
-		slsl[it_conf].initial_guess(isochrones, guess_set, lfs);
+		slsl[it_conf].initial_guess(isochrones, guess_set, lfs, previous_s_R, previous_s_z, previous_A_0);
 	}
+
 
 	clock_t start;
 	start=time(NULL);
@@ -185,18 +208,27 @@ int main(int argc, char* argv[])
 		{
 			slsl[it_conf].update(isochrones, lfs);
 		}
+		hyperprior_update_all(lfs);
 		//if (slsl[0].it_num/1000==floor(slsl[0].it_num/1000.)){slsl[0].hyperprior_update();}
+
+		if (slsl[0].it_num/10.==floor(slsl[0].it_num/10.))
+		{
+			ofstream trace1;
+			trace1.open("trace1.txt", ios::app);
+				trace1 << slsl[0].it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << endl;// " " << slsl[0].global_previous_prob << endl ;
+			trace1.close();
+		}
 	}		
 	
 	cout << "total time: " << (time(NULL)-start) <<"s\n";
    	
 // Write results to file
 
+	mean_intervals();
 	for(int it_conf=0; it_conf<config_file.size(); it_conf++)
 	{
-		slsl[it_conf].mean_intervals();
-		slsl[it_conf].output_write();
-		slsl[it_conf].acl_calc();
+		slsl[it_conf].output_write(s_R_mean, s_z_mean);
+	//	slsl[it_conf].acl_calc();
 	}
 
 
@@ -213,6 +245,76 @@ int main(int argc, char* argv[])
 //-------------------------------------------------------------------
 
 
+
+void hyperprior_update_all(vector <LF> &LFs)
+{
+	test_rho_prob=0.;
+
+	previous_rho_prob=0.;	
+
+	for (int it=0; it<slsl.size(); it++){previous_rho_prob=slsl[it].get_rho_last_prob();}
+
+	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,40.);
+	test_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,5.);
+	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.05);
+
+	//cout << test_s_R << " "<< test_s_z << " " << test_A_0 << endl;
+	for (int it=0; it<slsl.size(); it++)
+	{
+		slsl[it].make_new_test_m_vec(test_s_R, test_s_z, test_A_0);
+		test_rho_prob+=slsl[it].get_rho_test_prob();
+	}
+	
+	if (test_rho_prob > previous_rho_prob)
+	{
+		previous_s_R=test_s_R;
+		previous_s_z=test_s_z;
+		previous_A_0=test_A_0;
+		for (int it=0; it<slsl.size(); it++){slsl[it].last_m_vec=slsl[it].test_m_vec; slsl[it].previous_s_R=previous_s_R;}
+	//	cout << "pass1 " << test_rho_prob << " " << previous_rho_prob << " " << slsl[0].test_m_vec[50]<< " " << slsl[0].last_m_vec[50] << endl;
+	}
+	else if (exp(test_rho_prob - previous_rho_prob)>gsl_ran_flat(rng_handle, 0., 1.) )
+	{
+		previous_s_R=test_s_R;
+		previous_s_z=test_s_z;
+		previous_A_0=test_A_0;
+		for (int it=0; it<slsl.size(); it++){slsl[it].last_m_vec=slsl[it].test_m_vec; slsl[it].previous_s_R=previous_s_R;}
+	//	cout << "pass2 " << test_rho_prob << " " << previous_rho_prob << " " << slsl[0].test_m_vec[50]<< " " << slsl[0].last_m_vec[50] << endl;
+	}
+	//else {cout << "fail " << test_rho_prob << " " << previous_rho_prob << " " << slsl[0].test_m_vec[50]<< " " << slsl[0].last_m_vec[50] << endl;}
+	if (floor(slsl[0].it_num/100.)==slsl[0].it_num/100)
+	{
+		s_R_chain.push_back(previous_s_R);
+		s_z_chain.push_back(previous_s_z);
+		A_0_chain.push_back(previous_A_0);
+	}
+}
+
+void mean_intervals(void)
+{
+	for (int it=0; it<slsl.size(); it++){slsl[it].mean_intervals();}
+
+	float s_R_sum=0., s_z_sum=0, A_0_sum=0.;
+	float s_R_sum2=0., s_z_sum2=0, A_0_sum2=0.;
+	for (int it=floor(0.5*s_R_chain.size()); it<s_R_chain.size(); it++)
+	{
+		s_R_sum+=s_R_chain[it];
+		s_z_sum+=s_z_chain[it];
+		A_0_sum+=A_0_chain[it];
+		s_R_sum2+=pow(s_R_chain[it],2.);
+		s_z_sum2+=pow(s_z_chain[it],2.);
+		A_0_sum2+=pow(A_0_chain[it],2.);
+	}
+	s_R_mean=s_R_sum/ceil(0.5*s_R_chain.size());
+	s_z_mean=s_z_sum/ceil(0.5*s_z_chain.size());
+	A_0_mean=A_0_sum/ceil(0.5*A_0_chain.size());
+
+	s_R_sd=sqrt( s_R_sum2/ceil(0.5*s_R_chain.size()) - pow(s_R_mean,2));
+	s_z_sd=sqrt( s_z_sum2/ceil(0.5*s_z_chain.size()) - pow(s_z_mean,2));
+	A_0_sd=sqrt( A_0_sum2/ceil(0.5*A_0_chain.size()) - pow(A_0_mean,2));
+
+	cout << s_R_mean << " " << s_z_mean << " "<< A_0_mean << " " << s_R_sd << " " << s_z_sd << " " << A_0_sd << " " << endl;
+}
 
 
 double int_lookup(double A_max, double A_mean, double sd)
