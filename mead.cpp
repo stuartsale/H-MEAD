@@ -38,6 +38,7 @@ vector <sl_obj> slsl;
 
 void hyperprior_update_all(vector <LF> &LFs);
 void mean_intervals(void);
+void acl_calc(void);
 
 gsl_rng* rng_handle;
 
@@ -201,6 +202,8 @@ int main(int argc, char* argv[])
 
 	clock_t start;
 	start=time(NULL);
+		ofstream trace1;
+		trace1.open("trace1.txt", ios::trunc);
 
 	while (slsl[0].it_num<120000)
 	{
@@ -209,26 +212,23 @@ int main(int argc, char* argv[])
 			slsl[it_conf].update(isochrones, lfs);
 		}
 		hyperprior_update_all(lfs);
-		//if (slsl[0].it_num/1000==floor(slsl[0].it_num/1000.)){slsl[0].hyperprior_update();}
 
 		if (slsl[0].it_num/10.==floor(slsl[0].it_num/10.))
 		{
-			ofstream trace1;
-			trace1.open("trace1.txt", ios::app);
-				trace1 << slsl[0].it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << endl;// " " << slsl[0].global_previous_prob << endl ;
-			trace1.close();
+			trace1 << slsl[0].it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << endl;// " " << slsl[0].global_previous_prob << endl ;
 		}
 	}		
-	
+
+		trace1.close();	
 	cout << "total time: " << (time(NULL)-start) <<"s\n";
    	
 // Write results to file
 
 	mean_intervals();
+	acl_calc();
 	for(int it_conf=0; it_conf<config_file.size(); it_conf++)
 	{
 		slsl[it_conf].output_write(s_R_mean, s_z_mean);
-	//	slsl[it_conf].acl_calc();
 	}
 
 
@@ -270,6 +270,7 @@ void hyperprior_update_all(vector <LF> &LFs)
 		previous_s_R=test_s_R;
 		previous_s_z=test_s_z;
 		previous_A_0=test_A_0;
+		for (int it=0; it<slsl.size(); it++){slsl[it].last_m_vec=slsl[it].test_m_vec;}
 	//	cout << "pass1 " << test_rho_prob << " " << previous_rho_prob << " " << slsl[0].test_m_vec[50]<< " " << slsl[0].last_m_vec[50] << endl;
 	}
 	else if (exp(test_rho_prob - previous_rho_prob)>gsl_ran_flat(rng_handle, 0., 1.) )
@@ -277,6 +278,7 @@ void hyperprior_update_all(vector <LF> &LFs)
 		previous_s_R=test_s_R;
 		previous_s_z=test_s_z;
 		previous_A_0=test_A_0;
+		for (int it=0; it<slsl.size(); it++){slsl[it].last_m_vec=slsl[it].test_m_vec;}
 	//	cout << "pass2 " << test_rho_prob << " " << previous_rho_prob << " " << slsl[0].test_m_vec[50]<< " " << slsl[0].last_m_vec[50] << endl;
 	}
 	//else {cout << "fail " << test_rho_prob << " " << previous_rho_prob << " " << slsl[0].test_m_vec[50]<< " " << slsl[0].last_m_vec[50] << endl;}
@@ -399,6 +401,53 @@ void mean_intervals(void)
 	A_0_sd=sqrt( A_0_sum2/ceil(0.5*A_0_chain.size()) - pow(A_0_mean,2));
 
 	cout << s_R_mean << " " << s_z_mean << " "<< A_0_mean << " " << s_R_sd << " " << s_z_sd << " " << A_0_sd << " " << endl;
+}
+
+void acl_calc(void)
+{
+	ofstream acl_out;
+	string dummy_string;
+	dummy_string="disc.acl";
+	acl_out.open(dummy_string.c_str(), ios::trunc);
+	acl_out << "# lag acf_s_R acf_s_z acf_A_0" <<endl; 
+
+
+	vector <float> acl;
+	//vector <float> new_acl;
+	vector <float> new_acl(int(ceil(0.5*s_R_chain.size())), 0.);
+	vector <float> new_acl2(int(ceil(0.5*s_z_chain.size())), 0.);
+	vector <float> new_acl3(int(ceil(0.5*A_0_chain.size())), 0.);
+
+	for (int it1=floor(0.5*s_R_chain.size()); it1<s_R_chain.size(); it1++)
+	{
+		for (int lag=0; lag<it1-ceil(0.5*s_R_chain.size()); lag++)
+		{
+			new_acl[lag]+=(s_R_chain[it1]-s_R_mean)*(s_R_chain[it1-lag]-s_R_mean);
+			new_acl2[lag]+=(s_z_chain[it1]-s_z_mean)*(s_z_chain[it1-lag]-s_z_mean);
+			new_acl3[lag]+=(A_0_chain[it1]-A_0_mean)*(A_0_chain[it1-lag]-A_0_mean);
+		}
+
+	}
+
+	for (int it1=0; it1<new_acl.size(); it1++)
+	{
+		new_acl[it1]/=(new_acl.size());
+		new_acl2[it1]/=(new_acl2.size());
+		new_acl3[it1]/=(new_acl3.size());
+	}
+
+	for (int it=0; it<new_acl.size(); it++)
+	{
+		acl_out << it << " " << new_acl[it]<< " " << new_acl2[it]<< " " << new_acl3[it] << endl;
+	}
+	acl_out.close();
+
+	size_t const half_size = s_R_chain.size() / 2;
+	vector <float> unburnt_s_R(s_R_chain.begin()+half_size, s_R_chain.end());
+	vector <float> unburnt_s_z(s_z_chain.begin()+half_size, s_z_chain.end());
+	vector <float> unburnt_A_0(A_0_chain.begin()+half_size, A_0_chain.end());
+
+	cout << acl_block(unburnt_s_R) << " " << acl_block(unburnt_s_z) << " " << acl_block(unburnt_A_0) << " " << endl; 
 }
 
 
