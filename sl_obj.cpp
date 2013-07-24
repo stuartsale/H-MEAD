@@ -408,7 +408,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			if (theta>0){theta_max=theta;}
 			else {theta_min=theta;}
 		//	theta=gsl_ran_flat(rng_handle, theta_min, theta_max);
-			sss/=10;	
+			sss/=5;	
 			theta=gsl_ran_gaussian_ziggurat(rng_handle, sss);
 			for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].reject();}
 
@@ -432,6 +432,7 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 {
 	vector < vector <float> > new_rel(rel_length,vector <float> (2));
 	Eigen::Matrix<float, 150, 1> int_vec;
+	float sum=0.;
 
 	for (int i=0; i<rel_length; i++){test_z_dash[i]=gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
 	int_vec=(chol_L*last_s_vec.asDiagonal())*test_z_dash + last_m_vec;
@@ -439,7 +440,9 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 	for (int i=0; i<rel_length; i++)
 	{
 		new_rel[i][0]=exp(int_vec[i]);
-		new_rel[i][1]=gsl_ran_lognormal(rng_handle, -0.94, 0.246);//*new_rel[i][0];
+		sum+=new_rel[i][0];
+	//	new_rel[i][1]=gsl_ran_lognormal(rng_handle, -0.94, 0.246);//*new_rel[i][0];
+		new_rel[i][1]=gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum) - 0.05268 , 0.3246);
 	}
 	return new_rel;
 }

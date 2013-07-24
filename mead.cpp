@@ -211,7 +211,7 @@ int main(int argc, char* argv[])
 		{
 			slsl[it_conf].update(isochrones, lfs);
 		}
-		hyperprior_update_all(lfs);
+	//	hyperprior_update_all(lfs);
 
 		if (slsl[0].it_num/10.==floor(slsl[0].it_num/10.))
 		{
