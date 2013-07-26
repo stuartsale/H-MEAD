@@ -104,7 +104,7 @@ class sl_obj
 
 
 
-		sl_obj * neighbour_sl;
+		vector <sl_obj *> neighbour_slsl;
 		vector <vector <float> > recv_neighbour_rel;
 
 	// Covariance matrix

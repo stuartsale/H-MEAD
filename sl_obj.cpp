@@ -28,7 +28,7 @@ sl_obj::sl_obj(void)
 
 	it_num=0.;
 
-	neighbour_sl=NULL;
+	neighbour_slsl.clear();
 	define_cov_mat();
 
 	vector<bin_obj> running_A_mean(150);
@@ -90,7 +90,7 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype, float s
 	rel_length=150;
 
 	it_num=0.;
-	neighbour_sl=NULL;
+	neighbour_slsl.clear();
 
 	define_cov_mat();
 
@@ -251,18 +251,6 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		previous_norm_prob+=-LFs[it_LF].LF_prob_last(running_A_mean)*(star_cat.size()+1);
 	}
 
-
-
-//	if (neighbour_sl)
-//	{
-//		for (int it=0; it<rel_length; it++)
-//		{
-//			previous_xsl_prob+=-pow( (log(previous_internal_rel[it][0])-log(1+pow(0.75/previous_internal_rel[it][0],2))/2)/(log(1+pow(0.75/previous_internal_rel[it][0],2))) 
-//					- (log(neighbour_sl->previous_internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->previous_internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->previous_internal_rel[it][0],2))) ,2)/(2.*fBm_s);
-//		//	previous_xsl_prob+=pow(previous_internal_rel[it][0] - neighbour_sl->previous_internal_rel[it][0],2)/(0.125);
-
-//		}
-//	}
 }
 
 
@@ -344,25 +332,6 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 				current_norm_prob+=-LFs[it_LF].LF_prob_test(running_A_mean)*(star_cat.size()+1);
 			}
 
-	// Neighbour term
-
-	//		if (neighbour_sl)
-	//		{
-	//			for (int it=0; it<rel_length; it++)
-	//			{
-	//				current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2))) - (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./fBm_s);
-	//			//	current_xsl_prob+=pow(internal_rel[it][0] - neighbour_sl->internal_rel[it][0],2)/(0.125);
-	//			}
-	//		}
-	//		else if (!recv_neighbour_rel.empty())
-	//		{
-	//			for (int it=0; it<rel_length; it++)
-	//			{
-	//				current_xsl_prob+=-pow( (log(internal_rel[it][0])-log(1+pow(0.75/internal_rel[it][0],2))/2)/(log(1+pow(0.75/internal_rel[it][0],2)))- (log(neighbour_sl->internal_rel[it][0])-log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))/2)/(log(1+pow(0.75/neighbour_sl->internal_rel[it][0],2))) ,2)/(2./fBm_s);
-	//			//	current_xsl_prob+=pow(internal_rel[it][0] -recv_neighbour_rel[it][0],2)/(0.125);
-	//			}
-	//		}	
-
 	// Metropolis-Hastings algorithm step
 
 			global_transition_prob=0;
@@ -416,8 +385,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			}
 		}
 
-		if (neighbour_sl){if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << " " << neighbour_sl->running_A_mean[rel_length-1].last_mean_A << endl;}}
-		else {if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << accepted << " " << accepted/it_num << endl;}}
+		if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << accepted << " " << accepted/it_num << endl;}
 
 
 		if (floor(it_num/100.)==it_num/100)
@@ -554,7 +522,7 @@ void sl_obj::mean_intervals(void)
 
 void sl_obj::neighbour_set(sl_obj * neighbour)
 {
-	neighbour_sl=neighbour;
+	neighbour_slsl.push_back(neighbour);
 }
 
 
@@ -648,11 +616,16 @@ void sl_obj::define_cov_mat(void)
 	tripletList2.reserve(150);
 
 	for (int i=0; i<150; i++){tripletList.push_back(T(i, i, log(1+pow(10.,2*(-1-i/100.))) ) ) ;}
+	for (int i=0; i<149; i++)
+	{
+		tripletList.push_back(T(i, i+1, log(1+pow(10.,(-1-i/100.)+(-1-(i+1)/100.)-1.)) ) ) ;
+		tripletList.push_back(T(i+1, i, log(1+pow(10.,(-1-i/100.)+(-1-(i+1)/100.)-1.)) ) ) ;
+	}
 	CM.setFromTriplets(tripletList.begin(), tripletList.end());
 
 	for (int i=0; i<150; i++)
 	{
-		last_s_vec[i]=1;
+		last_s_vec[i]=5;
 //		last_m_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;
 	}
 
