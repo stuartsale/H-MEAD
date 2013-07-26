@@ -110,10 +110,14 @@ class sl_obj
 	// Covariance matrix
 
 		Eigen::SparseMatrix<float> Cov_Mat, Cov_Mat_Inv;
-		Eigen::SparseMatrix<float> chol_L, chol_L_Inv; 
+		Eigen::SparseMatrix<float> cond_Mat, cond_mu_Mat, rho_Mat;
+
+		Eigen::SparseMatrix<float> chol_L, chol_L_Inv, chol_L_cond; 
 
 		Eigen::Matrix<float, 150, 1> last_m_vec, test_m_vec;
+		Eigen::Matrix<float, 150, 1> last_ln_vec, test_ln_vec;
 		Eigen::Matrix<float, 150, 1> last_s_vec, test_s_vec;
+		Eigen::Matrix<float, 150, 1> last_s_inv, test_s_inv;
 
 		Eigen::Matrix<float, 150, 1> last_z_dash, test_z_dash;
 
@@ -127,5 +131,6 @@ class sl_obj
 		void make_new_test_m_vec(float s_R, float s_z, float A_0);
 
 	friend void hyperprior_update_all(vector <LF> &LFs);
+	friend void neighbour_find(vector<sl_obj> &sl_list);
 
 };

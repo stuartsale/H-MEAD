@@ -28,8 +28,8 @@ sl_obj::sl_obj(void)
 
 	it_num=0.;
 
-	neighbour_slsl.clear();
-	define_cov_mat();
+//	neighbour_slsl.clear();
+//	define_cov_mat();
 
 	vector<bin_obj> running_A_mean(150);
 
@@ -90,9 +90,9 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype, float s
 	rel_length=150;
 
 	it_num=0.;
-	neighbour_slsl.clear();
+//	neighbour_slsl.clear();
 
-	define_cov_mat();
+//	define_cov_mat();
 
 	running_A_mean.resize(150);
 
@@ -157,6 +157,7 @@ void sl_obj::output_write(float s_R, float s_z)
 
 void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector <LF> &LFs, float s_R, float s_z, float A_0)
 {
+	define_cov_mat();
 //	Trace file
 		
 	global_previous_prob=0;
@@ -178,6 +179,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 
 	for (int i=0; i<150; i++){last_m_vec[i]=log(backup_rho_mean[i] ) - Cov_Mat.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;}
 	trial_rel=mvn_gen_internal_rel();
+	last_ln_vec=test_ln_vec;
 
 	for (int it=0; it<running_A_mean.size(); it++)
 	{
@@ -365,6 +367,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 				previous_norm_prob=current_norm_prob;
 
 				for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].accept();}
+				last_ln_vec=test_ln_vec;
 
 				move_on=true;
 		
@@ -399,11 +402,19 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 {
 	vector < vector <float> > new_rel(rel_length,vector <float> (2));
-	Eigen::Matrix<float, 150, 1> int_vec;
+	Eigen::Matrix<float, 150, 1> int_vec, temp_vec, temp_vec2;
 	float sum=0.;
+	for (int i=0; i<150; i++){temp_vec[i]=0;}
+
+	for (int i=0; i<neighbour_slsl.size(); i++){temp_vec+=cond_mu_Mat*neighbour_slsl[i]->last_s_inv.asDiagonal()*
+									(neighbour_slsl[i]->last_ln_vec-neighbour_slsl[i]->last_m_vec);}
+
+	temp_vec2=last_s_vec.asDiagonal()*temp_vec;
+
+//	for (int i=0; i<150; i++){cout << i << " " << temp_vec2[i] << " " << neighbour_slsl[0]->last_ln_vec[i] << " " << neighbour_slsl[0]->last_m_vec[i] << " " << cond_mu_Mat.coeffRef(i,i) << endl;}
 
 	for (int i=0; i<rel_length; i++){test_z_dash[i]=gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
-	int_vec=(chol_L*last_s_vec.asDiagonal())*test_z_dash + last_m_vec;
+	int_vec=(chol_L_cond*last_s_vec.asDiagonal())*test_z_dash + last_m_vec+temp_vec2;
 
 	for (int i=0; i<rel_length; i++)
 	{
@@ -411,6 +422,7 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 		sum+=new_rel[i][0];
 	//	new_rel[i][1]=gsl_ran_lognormal(rng_handle, -0.94, 0.246);//*new_rel[i][0];
 		new_rel[i][1]=gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum) - 0.05268 , 0.3246);
+		test_ln_vec[i]=int_vec[i];
 	}
 	return new_rel;
 }
@@ -611,21 +623,23 @@ void sl_obj::define_cov_mat(void)
 
 	typedef Eigen::Triplet<float> T;
 	Eigen::SparseMatrix<float> CM(150,150);
-	std::vector<T> tripletList, tripletList2;
+	std::vector<T> tripletList, tripletList2, tripletList3;
 	tripletList.reserve(150);
 	tripletList2.reserve(150);
+	tripletList3.reserve(150);
 
 	for (int i=0; i<150; i++){tripletList.push_back(T(i, i, log(1+pow(10.,2*(-1-i/100.))) ) ) ;}
 	for (int i=0; i<149; i++)
 	{
-		tripletList.push_back(T(i, i+1, log(1+pow(10.,(-1-i/100.)+(-1-(i+1)/100.)-1.)) ) ) ;
-		tripletList.push_back(T(i+1, i, log(1+pow(10.,(-1-i/100.)+(-1-(i+1)/100.)-1.)) ) ) ;
+		tripletList.push_back(T(i, i+1, log(1+pow(10.,(-1-i/100.)+(-1-(i+1)/100.)-2.)) ) ) ;
+		tripletList.push_back(T(i+1, i, log(1+pow(10.,(-1-i/100.)+(-1-(i+1)/100.)-2.)) ) ) ;
 	}
 	CM.setFromTriplets(tripletList.begin(), tripletList.end());
 
 	for (int i=0; i<150; i++)
 	{
 		last_s_vec[i]=5;
+		last_s_inv[i]=1./last_s_vec[i];
 //		last_m_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;
 	}
 
@@ -651,6 +665,18 @@ void sl_obj::define_cov_mat(void)
 
 	//cout << "stuff: " << chol_L.coeffRef(10,10) << " " << chol_L_Inv.coeffRef(10,10) << endl;
 	//cout << chol_L * chol_L_Inv << endl;
+	Eigen::SparseMatrix<float> temp_rho(150,150);
+
+	for (int i=0; i<150; i++){tripletList3.push_back(T(i, i, log(1+pow(10.,2*(-1-i/100.)-1.)) ) ) ;}
+	temp_rho.setFromTriplets(tripletList3.begin(), tripletList3.end());
+	rho_Mat=temp_rho;
+//	for (int i=0; i<150; i++){cout << i << " " << rho_Mat.coeffRef(i,i) << " " << Cov_Mat.coeffRef(i,i) << endl;}
+
+	cond_mu_Mat=rho_Mat*Cov_Mat_Inv;
+	cond_Mat=(Cov_Mat - 0.*rho_Mat*Cov_Mat_Inv*rho_Mat).selfadjointView<Eigen::Lower>();;
+	Eigen::SimplicialLLT<spMat> chol_cond(cond_Mat);
+	chol_L_cond=chol_cond.matrixL();
+
 }
 
 

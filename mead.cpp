@@ -39,6 +39,7 @@ vector <sl_obj> slsl;
 void hyperprior_update_all(vector <LF> &LFs);
 void mean_intervals(void);
 void acl_calc(void);
+void neighbour_find(vector<sl_obj> &sl_list);
 
 gsl_rng* rng_handle;
 
@@ -194,10 +195,14 @@ int main(int argc, char* argv[])
 		sl_obj sl1( config_file[it_conf][0],atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()), config_file[it_conf][3], previous_s_R, previous_s_z);
 		//slsl.push_back(sl1);
 		slsl[it_conf]=sl1;
-
-		if (it_conf!=0){slsl[it_conf].neighbour_set(&slsl[it_conf-1]);}
+	}
+	neighbour_find(slsl);
+	for(int it_conf=0; it_conf<config_file.size(); it_conf++)
+	{
+	//	if (it_conf!=0){slsl[it_conf].neighbour_set(&slsl[it_conf-1]);}
 		slsl[it_conf].initial_guess(isochrones, guess_set, lfs, previous_s_R, previous_s_z, previous_A_0);
 	}
+
 
 
 	clock_t start;
@@ -448,6 +453,23 @@ void acl_calc(void)
 	vector <float> unburnt_A_0(A_0_chain.begin()+half_size, A_0_chain.end());
 
 	cout << acl_block(unburnt_s_R) << " " << acl_block(unburnt_s_z) << " " << acl_block(unburnt_A_0) << " " << endl; 
+}
+
+void neighbour_find(vector<sl_obj>  &sl_list)
+{
+	for (int i=0; i<sl_list.size()-1; i++)
+	{
+		for (int j=i+1; j<sl_list.size(); j++)
+		{
+			if ( ( abs(sl_list[i].l-sl_list[j].l)<0.01 && abs(sl_list[i].b-sl_list[j].b)<0.27 )
+				|| ( abs(sl_list[i].l-sl_list[j].l)<0.27 && abs(sl_list[i].b-sl_list[j].b)<0.01 ) )
+			{
+				cout << "Neighbours: " << i << " & " << j << endl;
+				sl_list[i].neighbour_set(&sl_list[j]) ;
+				sl_list[j].neighbour_set(&sl_list[i]) ;
+			}
+		}
+	}
 }
 
 
