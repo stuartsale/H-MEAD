@@ -212,6 +212,7 @@ int main(int argc, char* argv[])
 
 	while (slsl[0].it_num<120000)
 	{
+		#pragma omp parallel for //num_threads(2)
 		for (int it_conf=0; it_conf<config_file.size(); it_conf++)
 		{
 			slsl[it_conf].update(isochrones, lfs);

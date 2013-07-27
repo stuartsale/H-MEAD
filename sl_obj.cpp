@@ -280,7 +280,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 		float dummy=0;
 		float dummy3=0, dummy4=0;
-//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
+	//	#pragma omp parallel for  num_threads(3) //reduction(+:dummy)
 		for (int it=0; it<star_cat.size(); it++)
 		{
 			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, running_A_mean);//};
@@ -318,7 +318,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 	// Find probability of this parameter set
 
 			float dummy3=0;
-	//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
+	//		#pragma omp parallel for  num_threads(3) reduction(+:dummy3)
 			for (int it=0; it<running_A_mean.size(); it++)
 			{
 				running_A_mean[it].set_test_prob(); 
@@ -673,7 +673,7 @@ void sl_obj::define_cov_mat(void)
 //	for (int i=0; i<150; i++){cout << i << " " << rho_Mat.coeffRef(i,i) << " " << Cov_Mat.coeffRef(i,i) << endl;}
 
 	cond_mu_Mat=rho_Mat*Cov_Mat_Inv;
-	cond_Mat=(Cov_Mat - 0.*rho_Mat*Cov_Mat_Inv*rho_Mat).selfadjointView<Eigen::Lower>();;
+	cond_Mat=(Cov_Mat - neighbour_slsl.size()*rho_Mat*Cov_Mat_Inv*rho_Mat).selfadjointView<Eigen::Lower>();;
 	Eigen::SimplicialLLT<spMat> chol_cond(cond_Mat);
 	chol_L_cond=chol_cond.matrixL();
 
