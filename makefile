@@ -21,6 +21,7 @@ else
 		gsl_lib=/usr/local/shared/gsl-1.12/lib/
 		CCfits_include=/usersVol1/sale/soft9/include/
 		CCfits_lib=/usersVol1/sale/soft9/lib/
+		EIGEN_include=/usersVol1/sale/soft9/eigen/
 		COMPILER=mpicxxintel
 	else
 		ifeq ($(HOST),hydra.physics.ox.ac.uk)
@@ -31,6 +32,7 @@ else
 			gsl_lib=/usr/local/shared/gsl-1.12/lib/
 			CCfits_include=/usersVol1/sale/soft9/include/
 			CCfits_lib=/usersVol1/sale/soft9/lib/
+			EIGEN_include=/usersVol1/sale/soft9/eigen/
 			COMPILER=mpicxxintel
 		else	#defaults
 			RUN_DIR=../../
