@@ -512,7 +512,7 @@ float acl_block(vector < float > run)
 		}
 		running_sum+=run[i];
 		total_sum+=run[i];
-		total_sum2+=pow(run[i],2.);
+		total_sum2+=pow(run[i],2);
 	}
 
 	for (int i=0; i<sample_sums.size(); i++)
