@@ -394,9 +394,9 @@ void mean_intervals(void)
 		s_R_sum+=s_R_chain[it];
 		s_z_sum+=s_z_chain[it];
 		A_0_sum+=A_0_chain[it];
-		s_R_sum2+=pow(s_R_chain[it],2.);
-		s_z_sum2+=pow(s_z_chain[it],2.);
-		A_0_sum2+=pow(A_0_chain[it],2.);
+		s_R_sum2+=pow(s_R_chain[it],2);
+		s_z_sum2+=pow(s_z_chain[it],2);
+		A_0_sum2+=pow(A_0_chain[it],2);
 	}
 	s_R_mean=s_R_sum/ceil(0.5*s_R_chain.size());
 	s_z_mean=s_z_sum/ceil(0.5*s_z_chain.size());
