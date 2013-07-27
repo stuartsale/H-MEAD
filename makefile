@@ -3,8 +3,8 @@
 HOST=$(shell hostname)
 ifeq ($(HOST),orion)
 	RUN_DIR=../../
-	flags= -wd2196 -fopenmp -O3
-	linking_flags= -lgsl -lgslcblas -lm -lprofiler -fopenmp -lCCfits
+	flags= -wd2196 -openmp -O3
+	linking_flags= -lgsl -lgslcblas -lm -lprofiler -openmp -lCCfits
 	gsl_lib=/usr/lib/
 	gsl_include=/usr/include/
 	CCfits_include=/usr/include/
@@ -15,8 +15,8 @@ ifeq ($(HOST),orion)
 else 
 	ifeq ($(HOST),newhydra.physics.ox.ac.uk)
 		RUN_DIR=../../
-		flags= -fopenmp -O3
-		linking_flags= -lgsl -lgslcblas -lm -fopenmp  -lCCfits
+		flags= -wd2196 -openmp -O3
+		linking_flags= -lgsl -lgslcblas -lm -openmp  -lCCfits
 		gsl_include=/usr/local/shared/gsl-1.12/include/
 		gsl_lib=/usr/local/shared/gsl-1.12/lib/
 		CCfits_include=/usersVol1/sale/soft9/include/
@@ -25,8 +25,8 @@ else
 	else
 		ifeq ($(HOST),hydra.physics.ox.ac.uk)
 			RUN_DIR=../../
-			flags= -fopenmp -O3
-			linking_flags= -lgsl -lgslcblas -lm -fopenmp -lCCfits
+			flags= -openmp -O3
+			linking_flags= -lgsl -lgslcblas -lm -openmp -lCCfits
 			gsl_include=/usr/local/shared/gsl-1.12/include/
 			gsl_lib=/usr/local/shared/gsl-1.12/lib/
 			CCfits_include=/usersVol1/sale/soft9/include/
