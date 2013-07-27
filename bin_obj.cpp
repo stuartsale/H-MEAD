@@ -23,7 +23,7 @@ void bin_obj::initial_add(iphas_obj * star)
 {
 	last_n++;
 	last_lnA_sum+=log(star->last_A);
-	last_lnA2_sum+=pow(log(star->last_A),2.);
+	last_lnA2_sum+=pow(log(star->last_A),2);
 }
 
 void bin_obj::try_add(iphas_obj * star)
@@ -31,7 +31,7 @@ void bin_obj::try_add(iphas_obj * star)
 	test_n=last_n+1;
 //	if (dist_bin==130){cout << "+ " << last_n << " " << last_lnA_sum << " " << log(star->test_A) << endl;}
 	test_lnA_sum=last_lnA_sum+log(star->test_A);
-	test_lnA2_sum=last_lnA2_sum+pow(log(star->test_A),2.);
+	test_lnA2_sum=last_lnA2_sum+pow(log(star->test_A),2);
 
 	set_test_prob();
 }
@@ -40,7 +40,7 @@ void bin_obj::try_update(iphas_obj * star)
 {
 //	if (dist_bin==130){cout << "x " << last_n << " " << last_lnA_sum << " " << log(star->last_A)-log(star->test_A) << endl;}
 	test_lnA_sum=last_lnA_sum+log(star->test_A) - log(star->last_A); 
-	test_lnA2_sum=last_lnA2_sum+pow(log(star->test_A),2.) - pow(log(star->last_A),2.);
+	test_lnA2_sum=last_lnA2_sum+pow(log(star->test_A),2) - pow(log(star->last_A),2);
 
 	set_test_prob();
 }
@@ -50,7 +50,7 @@ void bin_obj::try_remove(iphas_obj * star)
 	test_n=last_n-1;
 //	if (dist_bin==130){cout << "- " << last_n << " " << last_lnA_sum << " " << log(star->last_A) << endl;}
 	test_lnA_sum=last_lnA_sum-log(star->last_A);
-	test_lnA2_sum=last_lnA2_sum-pow(log(star->last_A),2.);
+	test_lnA2_sum=last_lnA2_sum-pow(log(star->last_A),2);
 
 	set_test_prob();
 }
@@ -59,7 +59,7 @@ void bin_obj::initial_rho_to_A(float near_A)
 {
 	last_mean_A=last_mean_rho+near_A;
 	//last_sd_A=0.4;//*last_mean_A;
-	last_sigma=sqrt(log(1+pow(last_sd_A/last_mean_A,2.) ));
+	last_sigma=sqrt(log(1+pow(last_sd_A/last_mean_A,2) ));
 	last_mu=log(last_mean_A)-pow(last_sigma,2);
 }
 
@@ -67,7 +67,7 @@ void bin_obj::rho_to_A(float near_A)
 {
 	test_mean_A=test_mean_rho+near_A;
 	//test_sd_A=0.4;//*test_mean_A;
-	test_sigma=sqrt(log(1+pow(test_sd_A/test_mean_A,2.) ));
+	test_sigma=sqrt(log(1+pow(test_sd_A/test_mean_A,2) ));
 	test_mu=log(test_mean_A)-pow(test_sigma,2)/2.;
 }
 
