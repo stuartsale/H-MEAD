@@ -391,7 +391,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		else {last_bin->reject();}	
 	}
 
-	if (no_accept/100.==floor(no_accept/100.))
+	if (no_accept/300.==floor(no_accept/300.))
 	{
 		iso_obj_chain.push_back(last_iso);
 		dist_mod_chain.push_back(last_dist_mod);

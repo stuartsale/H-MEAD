@@ -68,6 +68,7 @@ class sl_obj
 
 		vector < vector <float> > gen_internal_rel(vector < vector <float> > old_rel, int rel_length);
 		vector < vector <float> > mvn_gen_internal_rel(void);
+		vector < vector <float> > mvn_gen_internal_rel_no_neighbour(void);
 		vector <float> mvn_gen_internal_rel_from_z_dash(const Eigen::Matrix<float, 150, 1> & z_dash);
 		vector < vector <float> > internal_to_external(vector < vector <float> > int_rel, int rel_length);
 

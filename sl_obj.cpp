@@ -178,7 +178,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 
 
 	for (int i=0; i<150; i++){last_m_vec[i]=log(backup_rho_mean[i] ) - Cov_Mat.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;}
-	trial_rel=mvn_gen_internal_rel();
+	trial_rel=mvn_gen_internal_rel_no_neighbour();
 	last_ln_vec=test_ln_vec;
 
 	for (int it=0; it<running_A_mean.size(); it++)
@@ -391,7 +391,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << accepted << " " << accepted/it_num << endl;}
 
 
-		if (floor(it_num/100.)==it_num/100)
+		if (floor(it_num/200.)==it_num/200)
 		{
 
 			for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].chain_push_back();}
@@ -423,6 +423,27 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 	//	new_rel[i][1]=gsl_ran_lognormal(rng_handle, -0.94, 0.246);//*new_rel[i][0];
 		new_rel[i][1]=gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum) - 0.05268 , 0.3246);
 		test_ln_vec[i]=int_vec[i];
+	}
+	return new_rel;
+}
+
+vector < vector <float> > sl_obj::mvn_gen_internal_rel_no_neighbour(void)
+{
+	vector < vector <float> > new_rel(rel_length,vector <float> (2));
+	Eigen::Matrix<float, 150, 1> int_vec;
+	float sum=0.;
+
+	for (int i=0; i<rel_length; i++){test_z_dash[i]=gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
+	int_vec=(chol_L_cond*last_s_vec.asDiagonal())*test_z_dash + last_m_vec;
+
+	for (int i=0; i<rel_length; i++)
+	{
+		new_rel[i][0]=exp(int_vec[i]);
+		sum+=new_rel[i][0];
+	//	new_rel[i][1]=gsl_ran_lognormal(rng_handle, -0.94, 0.246);//*new_rel[i][0];
+		new_rel[i][1]=gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum) - 0.05268 , 0.3246);
+		test_ln_vec[i]=int_vec[i];
+		if (isinf(new_rel[i][0]) || isinf(new_rel[i][1])){cout << "nn" << i << " " << int_vec[i] << " " << new_rel[i][0] << " " << new_rel[i][1] << " " << sum << endl;}
 	}
 	return new_rel;
 }
