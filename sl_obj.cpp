@@ -35,10 +35,10 @@ sl_obj::sl_obj(void)
 
 	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].dist_bin=it;}
 
-
+	sl_identifier=0;
 }
 
-sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype, float s_R, float s_z)
+sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype, float s_R, float s_z, int identifier)
 {
 	Cov_Mat.reserve(150);
 
@@ -97,6 +97,8 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype, float s
 	running_A_mean.resize(150);
 
 	for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].dist_bin=it;}
+
+	sl_identifier=identifier;
 }
 
 
@@ -157,6 +159,12 @@ void sl_obj::output_write(float s_R, float s_z)
 
 void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector <LF> &LFs, float s_R, float s_z, float A_0)
 {
+	cout << "sightline " << sl_identifier << " has neighbours: ";
+	for (int i=0; i<neighbour_slsl.size(); i++){cout << neighbour_slsl[i]->sl_identifier << " " ;}
+	cout << "and higher neighbours: ";
+	for (int i=0; i<higher_neighbour_slsl.size(); i++){cout << higher_neighbour_slsl[i]->sl_identifier << " ";}
+	cout << endl;	
+
 	define_cov_mat();
 //	Trace file
 		
@@ -558,6 +566,11 @@ void sl_obj::neighbour_set(sl_obj * neighbour)
 	neighbour_slsl.push_back(neighbour);
 }
 
+void sl_obj::higher_neighbour_set(sl_obj * neighbour)
+{
+	higher_neighbour_slsl.push_back(neighbour);
+}
+
 
 void sl_obj::acl_calc(void)
 {
@@ -694,7 +707,8 @@ void sl_obj::define_cov_mat(void)
 //	for (int i=0; i<150; i++){cout << i << " " << rho_Mat.coeffRef(i,i) << " " << Cov_Mat.coeffRef(i,i) << endl;}
 
 	cond_mu_Mat=rho_Mat*Cov_Mat_Inv;
-	cond_Mat=(Cov_Mat - neighbour_slsl.size()*rho_Mat*Cov_Mat_Inv*rho_Mat).selfadjointView<Eigen::Lower>();;
+	cond_Mat=(Cov_Mat - neighbour_slsl.size()*rho_Mat*Cov_Mat_Inv*rho_Mat).selfadjointView<Eigen::Lower>();
+	higher_cond_Mat=(Cov_Mat - higher_neighbour_slsl.size()*rho_Mat*Cov_Mat_Inv*rho_Mat).selfadjointView<Eigen::Lower>();
 	Eigen::SimplicialLLT<spMat> chol_cond(cond_Mat);
 	chol_L_cond=chol_cond.matrixL();
 

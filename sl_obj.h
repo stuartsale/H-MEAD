@@ -29,7 +29,7 @@ class sl_obj
 {
 
 	public:
-		sl_obj(string filename, float l_in, float b_in, string datatype, float s_R, float s_z);
+		sl_obj(string filename, float l_in, float b_in, string datatype, float s_R, float s_z, int identifier);
 		sl_obj(void);
 		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector <LF> &LFs, float s_R, float s_z, float A_0);
 		void dist_redMCMC(vector<iso_obj> &isochrones, vector <LF> &LFs);
@@ -37,10 +37,12 @@ class sl_obj
 		void mean_intervals(void);
 		void output_write(float s_R, float s_z);
 		void neighbour_set(sl_obj * neighbour);
+		void higher_neighbour_set(sl_obj * neighbour);
 		void acl_calc(void);
 
 		float it_num;
 
+		int sl_identifier;
 
 	private:
 		bool move_on;
@@ -106,12 +108,13 @@ class sl_obj
 
 
 		vector <sl_obj *> neighbour_slsl;
+		vector <sl_obj *> higher_neighbour_slsl;
 		vector <vector <float> > recv_neighbour_rel;
 
 	// Covariance matrix
 
 		Eigen::SparseMatrix<float> Cov_Mat, Cov_Mat_Inv;
-		Eigen::SparseMatrix<float> cond_Mat, cond_mu_Mat, rho_Mat;
+		Eigen::SparseMatrix<float> cond_Mat, higher_cond_Mat, cond_mu_Mat, rho_Mat;
 
 		Eigen::SparseMatrix<float> chol_L, chol_L_Inv, chol_L_cond; 
 

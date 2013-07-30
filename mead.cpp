@@ -192,7 +192,7 @@ int main(int argc, char* argv[])
 
    // Read in data
 
-		sl_obj sl1( config_file[it_conf][0],atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()), config_file[it_conf][3], previous_s_R, previous_s_z);
+		sl_obj sl1( config_file[it_conf][0],atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()), config_file[it_conf][3], previous_s_R, previous_s_z, it_conf);
 		//slsl.push_back(sl1);
 		slsl[it_conf]=sl1;
 	}
@@ -465,9 +465,9 @@ void neighbour_find(vector<sl_obj>  &sl_list)
 			if ( ( abs(sl_list[i].l-sl_list[j].l)<0.01 && abs(sl_list[i].b-sl_list[j].b)<0.27 )
 				|| ( abs(sl_list[i].l-sl_list[j].l)<0.27 && abs(sl_list[i].b-sl_list[j].b)<0.01 ) )
 			{
-				cout << "Neighbours: " << i << " & " << j << endl;
 				sl_list[i].neighbour_set(&sl_list[j]) ;
 				sl_list[j].neighbour_set(&sl_list[i]) ;
+				sl_list[i].higher_neighbour_set(&sl_list[j]) ;
 			}
 		}
 	}
