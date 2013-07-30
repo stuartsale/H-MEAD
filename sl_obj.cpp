@@ -520,7 +520,7 @@ float sl_obj::get_rho_last_prob_higher(void)
 
 	temp_vec3=last_ln_vec-(last_m_vec+temp_vec2);
 
-	x= -temp_vec2.transpose() * last_s_inv.asDiagonal() * (higher_cond_Mat_Inv ) * last_s_inv.asDiagonal() *  temp_vec2;
+	x= -temp_vec3.transpose() * last_s_inv.asDiagonal() * (higher_cond_Mat_Inv ) * last_s_inv.asDiagonal() *  temp_vec3;
 	
 	return x;
 }
@@ -531,14 +531,14 @@ float sl_obj::get_rho_test_prob_higher(void)
 	float x;
 	for (int i=0; i<150; i++){temp_vec[i]=0;}
 
-	for (int i=0; i<higher_neighbour_slsl.size(); i++){temp_vec+=cond_mu_Mat*higher_neighbour_slsl[i]->last_s_inv.asDiagonal()*
+	for (int i=0; i<higher_neighbour_slsl.size(); i++){temp_vec+=higher_neighbour_slsl[i]->last_s_inv.asDiagonal()*
 								(higher_neighbour_slsl[i]->last_ln_vec-higher_neighbour_slsl[i]->test_m_vec);}
 
 	temp_vec2=last_s_vec.asDiagonal()*(cond_mu_Mat*temp_vec);
 
 	temp_vec3=last_ln_vec-(test_m_vec+temp_vec2);
 
-	x= -temp_vec2.transpose() * last_s_inv.asDiagonal() * (higher_cond_Mat_Inv ) * last_s_inv.asDiagonal() *  temp_vec2;
+	x= -temp_vec3.transpose() * last_s_inv.asDiagonal() * (higher_cond_Mat_Inv ) * last_s_inv.asDiagonal() *  temp_vec3;
 	
 	return x;
 }

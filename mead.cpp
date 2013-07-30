@@ -41,6 +41,8 @@ void mean_intervals(void);
 void acl_calc(void);
 void neighbour_find(vector<sl_obj> &sl_list);
 
+int gal_update=0;
+
 gsl_rng* rng_handle;
 
 string config_dir;
@@ -208,7 +210,7 @@ int main(int argc, char* argv[])
 	clock_t start;
 	start=time(NULL);
 		ofstream trace1;
-		trace1.open("trace1.txt", ios::trunc);
+		trace1.open((slsl[0].rootname+".trc").c_str(), ios::trunc);
 
 	while (slsl[0].it_num<120000)
 	{
@@ -221,7 +223,7 @@ int main(int argc, char* argv[])
 
 		if (slsl[0].it_num/10.==floor(slsl[0].it_num/10.))
 		{
-			trace1 << slsl[0].it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << endl;// " " << slsl[0].global_previous_prob << endl ;
+			trace1 << slsl[0].it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << " " << gal_update/slsl[0].it_num << endl;// " " << slsl[0].global_previous_prob << endl ;
 		}
 	}		
 
@@ -255,20 +257,20 @@ int main(int argc, char* argv[])
 void hyperprior_update_all(vector <LF> &LFs)
 {
 	test_rho_prob=0.;
-
 	previous_rho_prob=0.;	
 
-	for (int it=0; it<slsl.size(); it++){previous_rho_prob=slsl[it].get_rho_last_prob_higher();}
+	for (int it=0; it<slsl.size(); it++){previous_rho_prob+=slsl[it].get_rho_last_prob_higher();}// cout << it << " " << slsl[it].get_rho_last_prob_higher() << endl;}
 
-	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,40.);
-	test_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,5.);
-	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.025);
+	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,1.);
+	test_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,1.);
+	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.001)-(test_s_R-previous_s_R)/2500.;
 
 	//cout << test_s_R << " "<< test_s_z << " " << test_A_0 << endl;
 	for (int it=slsl.size()-1; it>-1; it--)
 	{
 		slsl[it].make_new_test_m_vec(test_s_R, test_s_z, test_A_0);
 		test_rho_prob+=slsl[it].get_rho_test_prob_higher();
+	//	cout << it << " " << slsl[it].get_rho_test_prob_higher() << " " << slsl[it].get_rho_last_prob_higher() << endl;
 	}
 	
 	if (test_rho_prob > previous_rho_prob)
@@ -277,6 +279,7 @@ void hyperprior_update_all(vector <LF> &LFs)
 		previous_s_z=test_s_z;
 		previous_A_0=test_A_0;
 		for (int it=0; it<slsl.size(); it++){slsl[it].last_m_vec=slsl[it].test_m_vec;}
+		gal_update++;
 	//	cout << "pass1 " << test_rho_prob << " " << previous_rho_prob << " " << slsl[0].test_m_vec[50]<< " " << slsl[0].last_m_vec[50] << endl;
 	}
 	else if (exp(test_rho_prob - previous_rho_prob)>gsl_ran_flat(rng_handle, 0., 1.) )
@@ -285,6 +288,7 @@ void hyperprior_update_all(vector <LF> &LFs)
 		previous_s_z=test_s_z;
 		previous_A_0=test_A_0;
 		for (int it=0; it<slsl.size(); it++){slsl[it].last_m_vec=slsl[it].test_m_vec;}
+		gal_update++;
 	//	cout << "pass2 " << test_rho_prob << " " << previous_rho_prob << " " << slsl[0].test_m_vec[50]<< " " << slsl[0].last_m_vec[50] << endl;
 	}
 	//else {cout << "fail " << test_rho_prob << " " << previous_rho_prob << " " << slsl[0].test_m_vec[50]<< " " << slsl[0].last_m_vec[50] << endl;}

@@ -44,6 +44,8 @@ class sl_obj
 
 		int sl_identifier;
 
+		string rootname;
+
 	private:
 		bool move_on;
 		float threshold;
@@ -56,8 +58,6 @@ class sl_obj
 
 		float J_min, H_min, K_min;	// 2MASS min & maxes
 		float J_max, H_max, K_max;
-
-		string rootname;
 
 		vector < vector <float> > proposal_sd ;//(150, vector <float> (2));
 		vector < vector <float> > previous_rel; //(150, vector <float> (4));
