@@ -77,7 +77,7 @@ vector<iphas_obj> TWOMASS_read(string filename,float &J_min1,float &H_min1,float
 	ifstream TWOMASS_data;
 	TWOMASS_data.open(filename.c_str());
 	if(!TWOMASS_data) { //output file couldn't be opened
-		cerr << "Error: 2MASS catalogue file could not be opened \n";
+		cerr << "Error: 2MASS catalogue file " << filename.c_str() << " could not be opened \n";
 		exit(1);
 	}
 
