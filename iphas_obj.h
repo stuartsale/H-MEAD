@@ -107,7 +107,7 @@ class iphas_obj
 	float real_dist, real_A, real_Mi, real_logAge, real_feh;
 
 	vector <float> rx_chain, ix_chain, hax_chain;
-	float rx, ix, hax;
+	float rx, ix, hax, Jx, Hx, Kx;
 
 	vector<float> acl_calc(void);
 
@@ -118,6 +118,15 @@ class iphas_obj
  //  float r_min, i_min, ha_min;				
    // FAINT LIMITS (default)
   // float r_max, i_max, ha_max;
+
+	float A_sum, A_sum2, d_sum, d_sum2, r_i0_sum, r_i0_sum2;
+	float Mi_sum, Mi_sum2, logAge_sum, logAge_sum2, feh_sum, feh_sum2;
+	float logT_sum, logT_sum2, logg_sum, logg_sum2;
+	float prob_sum, A_prob_sum;
+	float rx_sum, ix_sum, hax_sum, Jx_sum, Hx_sum, Kx_sum;
+	float chain_n;
+
+	void push_back(void);
 
 		
    //friends!

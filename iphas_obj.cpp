@@ -28,6 +28,13 @@ iphas_obj::iphas_obj(float r_input, float i_input, float ha_input, float d_r_inp
 	no_accept=0;
 	cluster_weight=1;
 
+	A_sum=0; A_sum2=0; d_sum=0; d_sum2=0; r_i0_sum=0; r_i0_sum2=0;
+	Mi_sum=0; Mi_sum2=0; logAge_sum=0; logAge_sum2=0; feh_sum=0; feh_sum2=0;
+	logT_sum=0; logT_sum2=0; logg_sum=0; logg_sum2=0;
+	prob_sum=0; A_prob_sum=0;
+	rx_sum=0; ix_sum=0; hax_sum=0; Jx_sum=0; Hx_sum=0; Kx_sum=0;
+	chain_n=0;
+
 }
 
 iphas_obj::iphas_obj(float r_input, float i_input, float ha_input, float d_r_input,float d_i_input, float d_ha_input, float l_input, float b_input, float real_dist_in, float real_A_in, float real_Mi_in, float real_logAge_in, float real_feh_in)
@@ -64,6 +71,13 @@ iphas_obj::iphas_obj(float r_input, float i_input, float ha_input, float d_r_inp
 	real_feh=real_feh_in;
 
 	cluster_weight=1;
+
+	A_sum=0; A_sum2=0; d_sum=0; d_sum2=0; r_i0_sum=0; r_i0_sum2=0;
+	Mi_sum=0; Mi_sum2=0; logAge_sum=0; logAge_sum2=0; feh_sum=0; feh_sum2=0;
+	logT_sum=0; logT_sum2=0; logg_sum=0; logg_sum2=0;
+	prob_sum=0; A_prob_sum=0;
+	rx_sum=0; ix_sum=0; hax_sum=0; Jx_sum=0; Hx_sum=0; Kx_sum=0;
+	chain_n=0;
 }
 
 iphas_obj::iphas_obj(float d_r_input, float d_i_input, float d_ha_input)
@@ -72,6 +86,13 @@ iphas_obj::iphas_obj(float d_r_input, float d_i_input, float d_ha_input)
 	d_i=d_i_input;
 	d_ha=d_ha_input;
 	cluster_weight=1;
+
+	A_sum=0; A_sum2=0; d_sum=0; d_sum2=0; r_i0_sum=0; r_i0_sum2=0;
+	Mi_sum=0; Mi_sum2=0; logAge_sum=0; logAge_sum2=0; feh_sum=0; feh_sum2=0;
+	logT_sum=0; logT_sum2=0; logg_sum=0; logg_sum2=0;
+	prob_sum=0; A_prob_sum=0;
+	rx_sum=0; ix_sum=0; hax_sum=0; Jx_sum=0; Hx_sum=0; Kx_sum=0;
+	chain_n=0;
 }
 
 iphas_obj::iphas_obj(float P1_input, float P2_input, float P3_input, float d_P1_input, float d_P2_input, float d_P3_input, float l_input, float b_input, string source)
@@ -101,6 +122,13 @@ iphas_obj::iphas_obj(float P1_input, float P2_input, float P3_input, float d_P1_
 	
 		no_accept=0;
 		cluster_weight=1;
+
+		A_sum=0; A_sum2=0; d_sum=0; d_sum2=0; r_i0_sum=0; r_i0_sum2=0;
+		Mi_sum=0; Mi_sum2=0; logAge_sum=0; logAge_sum2=0; feh_sum=0; feh_sum2=0;
+		logT_sum=0; logT_sum2=0; logg_sum=0; logg_sum2=0;
+		prob_sum=0; A_prob_sum=0;
+		rx_sum=0; ix_sum=0; hax_sum=0; Jx_sum=0; Hx_sum=0; Kx_sum=0;
+		chain_n=0;
 	}
 }
 
@@ -325,6 +353,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		last_iso=test_iso;
 		last_A=test_A;
 		last_dist_mod=test_dist_mod;
+		last_dist=test_dist;
 		if (test_bin!=last_bin)
 		{
 			test_bin->accept();
@@ -360,6 +389,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		last_iso=test_iso;
 		last_A=test_A;
 		last_dist_mod=test_dist_mod;
+		last_dist=test_dist;
 		if (test_bin!=last_bin)
 		{
 			test_bin->accept();
@@ -391,88 +421,81 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		else {last_bin->reject();}	
 	}
 
-	if (no_accept/300.==floor(no_accept/300.))
+	if (no_accept/100.==floor(no_accept/100.) && no_accept>30000)
 	{
-		iso_obj_chain.push_back(last_iso);
-		dist_mod_chain.push_back(last_dist_mod);
-		A_chain.push_back(last_A);
-		prob_chain.push_back(last_prob);
-
-		rx_chain.push_back((last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)+last_dist_mod+last_iso.r0);
-		ix_chain.push_back((last_iso.u_i*pow(last_A,2)+last_iso.v_i*last_A+last_iso.w_i)+last_dist_mod+last_iso.i0);
-		hax_chain.push_back((last_iso.u_ha*pow(last_A,2)+last_iso.v_ha*last_A+last_iso.w_ha)+last_dist_mod+last_iso.ha0);
+		push_back();
 	}
 
 
 }
 
+void iphas_obj::push_back(void)
+{
+	A_sum+=last_A; 
+	A_sum2+=pow(last_A,2);
+	d_sum+=last_dist;
+	d_sum2+=pow(last_dist,2);
+	r_i0_sum+=last_iso.r0-last_iso.i0;
+	r_i0_sum2+=pow(last_iso.r0-last_iso.i0,2);
+
+	Mi_sum+=last_iso.Mi;
+	Mi_sum2+=pow(last_iso.Mi,2);
+	logAge_sum+=last_iso.logAge;
+	logAge_sum2+=pow(last_iso.logAge,2);
+	feh_sum+=last_iso.feh;
+	feh_sum2+=pow(last_iso.feh,2);
+
+	logT_sum+=last_iso.logT;
+	logT_sum2+=pow(last_iso.logT,2);
+	logg_sum+=last_iso.logg;
+	logg_sum2+=pow(last_iso.logg,2);
+
+	prob_sum+=last_prob;
+
+	rx_sum+=(last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)+last_dist_mod+last_iso.r0;
+	ix_sum+=(last_iso.u_i*pow(last_A,2)+last_iso.v_i*last_A+last_iso.w_i)+last_dist_mod+last_iso.i0;
+	hax_sum+=(last_iso.u_ha*pow(last_A,2)+last_iso.v_ha*last_A+last_iso.w_ha)+last_dist_mod+last_iso.ha0;
+	Jx_sum+=(last_iso.u_J*pow(last_A,2)+last_iso.v_J*last_A+last_iso.w_J)+last_dist_mod+last_iso.J0;
+	Hx_sum+=(last_iso.u_H*pow(last_A,2)+last_iso.v_H*last_A+last_iso.w_H)+last_dist_mod+last_iso.H0;
+	Kx_sum+=(last_iso.u_K*pow(last_A,2)+last_iso.v_K*last_A+last_iso.w_K)+last_dist_mod+last_iso.K0;
+
+	chain_n++;
+}
+
 void iphas_obj::mean_intervals(void)
 {
-// measure estimated means and ~credible intervals for each param. - then output
+// measure estimated means and ~sds intervals for each param. - then output
 
-	float A_sum_in=0, A_sum2_in=0, d_sum_in=0, d_sum2_in=0, r_i0_sum_in=0, r_i0_sum2_in=0;
-	float Mi_sum=0, Mi_sum2=0, logAge_sum=0, logAge_sum2=0, feh_sum=0, feh_sum2=0;
-	float logT_sum=0, logT_sum2=0, logg_sum=0, logg_sum2=0;
-	float prob_sum=0, A_prob_sum=0;
-	float rx_sum=0, ix_sum=0, hax_sum=0;
-	for (int n=floor(0.5*A_chain.size()); n<A_chain.size(); n++)
-	{
-		A_sum_in+=A_chain[n];
-		A_sum2_in+=pow(A_chain[n],2);
-		d_sum_in+=pow(10,dist_mod_chain[n]/5 +1);
-		d_sum2_in+=pow(pow(10,dist_mod_chain[n]/5 +1),2);
-		r_i0_sum_in+=iso_obj_chain[n].r0 - iso_obj_chain[n].i0;
-		r_i0_sum2_in+=pow(iso_obj_chain[n].r0 - iso_obj_chain[n].i0,2);
+	A= A_sum/chain_n;
+	dist = d_sum/chain_n;
+	r_i0 =  r_i0_sum/chain_n;
 
-		Mi_sum+=iso_obj_chain[n].Mi;
-		Mi_sum2+=pow(iso_obj_chain[n].Mi,2);
-		logAge_sum+=iso_obj_chain[n].logAge;
-		logAge_sum2+=pow(iso_obj_chain[n].logAge,2);
-		feh_sum+=iso_obj_chain[n].feh;
-		feh_sum2+=pow(iso_obj_chain[n].feh,2);
+	Mi=Mi_sum/chain_n;
+	logAge=logAge_sum/chain_n;
+	feh=feh_sum/chain_n;
 
-		logT_sum+=iso_obj_chain[n].logT;
-		logT_sum2+=pow(iso_obj_chain[n].logT,2);
-		logg_sum+=iso_obj_chain[n].logg;
-		logg_sum2+=pow(iso_obj_chain[n].logg,2);
+	logT=logT_sum/chain_n;
+	logg=logg_sum/chain_n;
 
-	//	if (prob_chain[n]!=prob_chain[n]){cout << n << endl;}
-		prob_sum+=prob_chain[n];
-	//	A_prob_sum+=A_prob_chain[A_prob_chain.size()-1];
-
-		rx_sum+=rx_chain[rx_chain.size()-1];
-		ix_sum+=ix_chain[rx_chain.size()-1];
-		hax_sum+=hax_chain[rx_chain.size()-1];
-	}
-	//cout << A_chain.size() << " " << prob_sum << endl;
-
-	A= A_sum_in/ceil(0.5*A_chain.size());
-	dist = d_sum_in/ceil(0.5*dist_mod_chain.size());
-	r_i0 =  r_i0_sum_in/ceil(0.5*iso_obj_chain.size());
-
-	Mi=Mi_sum/ceil(0.5*iso_obj_chain.size());
-	logAge=logAge_sum/ceil(0.5*iso_obj_chain.size());
-	feh=feh_sum/ceil(0.5*iso_obj_chain.size());
-
-	logT=logT_sum/ceil(0.5*iso_obj_chain.size());
-	logg=logg_sum/ceil(0.5*iso_obj_chain.size());
-
-	d_A=sqrt(A_sum2_in/ceil(0.5*A_chain.size()) - pow(A_sum_in/ceil(0.5*A_chain.size()),2));
+	d_A=sqrt(A_sum2/chain_n - pow(A,2));
 	d_dist=1.*no_accept2/(1.*no_accept);//(last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)+last_dist_mod+last_iso.r0;//sqrt(d_sum2_in/ceil(0.5*A_chain.size()) - pow(d_sum_in/ceil(0.5*dist_mod_chain.size()),2));
-	d_r_i0 =sqrt(r_i0_sum2_in/ceil(0.5*A_chain.size()) - pow(r_i0_sum_in/ceil(0.5*A_chain.size()),2));
+	d_r_i0 =sqrt(r_i0_sum2/chain_n - pow(r_i0,2));
 
-	d_Mi=sqrt(Mi_sum2/ceil(0.5*iso_obj_chain.size())-pow(Mi,2));
-	d_logAge=sqrt(logAge_sum2/ceil(0.5*iso_obj_chain.size())-pow(logAge,2));
-	d_feh=sqrt(feh_sum2/ceil(0.5*iso_obj_chain.size())-pow(feh,2));
+	d_Mi=sqrt(Mi_sum2/chain_n-pow(Mi,2));
+	d_logAge=sqrt(logAge_sum2/chain_n-pow(logAge,2));
+	d_feh=sqrt(feh_sum2/chain_n-pow(feh,2));
 	
 	distbin=floor(dist/100);
 
-	mean_prob=prob_sum/ceil(0.5*prob_chain.size());
+	mean_prob=prob_sum/chain_n;
 //	mean_A_prob=A_prob_sum/ceil(0.5*A_prob_chain.size());
 
-	rx=rx_sum/ceil(0.5*rx_chain.size());
-	ix=ix_sum/ceil(0.5*ix_chain.size());
-	hax=hax_sum/ceil(0.5*hax_chain.size());
+	rx=rx_sum/chain_n;
+	ix=ix_sum/chain_n;
+	hax=hax_sum/chain_n;
+	Jx=Jx_sum/chain_n;
+	Hx=Hx_sum/chain_n;
+	Kx=Kx_sum/chain_n;
 }
 
 
