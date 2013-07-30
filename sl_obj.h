@@ -76,6 +76,8 @@ class sl_obj
 
 		float get_rho_last_prob(void);
 		float get_rho_test_prob(void);
+		float get_rho_last_prob_higher(void);
+		float get_rho_test_prob_higher(void);
 
 		float hyperprior_prob_get(vector < vector <float> > internal_rel);
 		void rho_to_A(void);
@@ -114,7 +116,7 @@ class sl_obj
 	// Covariance matrix
 
 		Eigen::SparseMatrix<float> Cov_Mat, Cov_Mat_Inv;
-		Eigen::SparseMatrix<float> cond_Mat, higher_cond_Mat, cond_mu_Mat, rho_Mat;
+		Eigen::SparseMatrix<float> cond_Mat, higher_cond_Mat, higher_cond_Mat_Inv, cond_mu_Mat, rho_Mat;
 
 		Eigen::SparseMatrix<float> chol_L, chol_L_Inv, chol_L_cond; 
 

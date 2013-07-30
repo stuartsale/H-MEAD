@@ -507,6 +507,42 @@ float sl_obj::get_rho_test_prob(void)
 	return x;
 }
 
+float sl_obj::get_rho_last_prob_higher(void)
+{
+	Eigen::Matrix<float, 150, 1> temp_vec, temp_vec2, temp_vec3;
+	float x;
+	for (int i=0; i<150; i++){temp_vec[i]=0;}
+
+	for (int i=0; i<higher_neighbour_slsl.size(); i++){temp_vec+=higher_neighbour_slsl[i]->last_s_inv.asDiagonal()*
+								(higher_neighbour_slsl[i]->last_ln_vec-higher_neighbour_slsl[i]->last_m_vec);}
+
+	temp_vec2=last_s_vec.asDiagonal()*(cond_mu_Mat*temp_vec);
+
+	temp_vec3=last_ln_vec-(last_m_vec+temp_vec2);
+
+	x= -temp_vec2.transpose() * last_s_inv.asDiagonal() * (higher_cond_Mat_Inv ) * last_s_inv.asDiagonal() *  temp_vec2;
+	
+	return x;
+}
+
+float sl_obj::get_rho_test_prob_higher(void)
+{
+	Eigen::Matrix<float, 150, 1> temp_vec, temp_vec2, temp_vec3;
+	float x;
+	for (int i=0; i<150; i++){temp_vec[i]=0;}
+
+	for (int i=0; i<higher_neighbour_slsl.size(); i++){temp_vec+=cond_mu_Mat*higher_neighbour_slsl[i]->last_s_inv.asDiagonal()*
+								(higher_neighbour_slsl[i]->last_ln_vec-higher_neighbour_slsl[i]->test_m_vec);}
+
+	temp_vec2=last_s_vec.asDiagonal()*(cond_mu_Mat*temp_vec);
+
+	temp_vec3=last_ln_vec-(test_m_vec+temp_vec2);
+
+	x= -temp_vec2.transpose() * last_s_inv.asDiagonal() * (higher_cond_Mat_Inv ) * last_s_inv.asDiagonal() *  temp_vec2;
+	
+	return x;
+}
+
 
 Eigen::Matrix<float, 150, 1> sl_obj::get_last_z_dash(void)
 {
@@ -712,6 +748,8 @@ void sl_obj::define_cov_mat(void)
 	Eigen::SimplicialLLT<spMat> chol_cond(cond_Mat);
 	chol_L_cond=chol_cond.matrixL();
 
+	Eigen::SimplicialLLT<spMat> chol3(higher_cond_Mat);
+	higher_cond_Mat_Inv=chol3.compute(higher_cond_Mat).solve(I);
 }
 
 

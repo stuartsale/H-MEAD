@@ -265,7 +265,7 @@ void hyperprior_update_all(vector <LF> &LFs)
 	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.05);
 
 	//cout << test_s_R << " "<< test_s_z << " " << test_A_0 << endl;
-	for (int it=0; it<slsl.size(); it++)
+	for (int it=slsl.size()-1; it>-1; it++)
 	{
 		slsl[it].make_new_test_m_vec(test_s_R, test_s_z, test_A_0);
 		test_rho_prob+=slsl[it].get_rho_test_prob();
