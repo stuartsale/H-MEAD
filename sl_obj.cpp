@@ -582,8 +582,8 @@ void sl_obj::make_new_test_m_vec(float s_R, float s_z, float A_0)
 
 	for (int i=0; i<150; i++)
 	{
+	//	cout << sl_identifier << " " << i << " " << test_m_vec[i] << " " << test_rho[i] << " " << l << " " << b << " " << s_R << " " << s_z << " " << A_0 <<  endl;
 		test_m_vec[i]=log(test_rho[i]) - Cov_Mat.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;
-	//	cout << i << " " << test_m_vec[i] << " " << test_rho[i] << l << " " << b << " " << test_s_R << " " << test_s_z << " " << test_A_0 <<  endl;
 	}
 }
 

@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
 		{
 			slsl[it_conf].update(isochrones, lfs);
 		}
-	//	hyperprior_update_all(lfs);
+		hyperprior_update_all(lfs);
 
 		if (slsl[0].it_num/10.==floor(slsl[0].it_num/10.))
 		{
@@ -258,17 +258,17 @@ void hyperprior_update_all(vector <LF> &LFs)
 
 	previous_rho_prob=0.;	
 
-	for (int it=0; it<slsl.size(); it++){previous_rho_prob=slsl[it].get_rho_last_prob();}
+	for (int it=0; it<slsl.size(); it++){previous_rho_prob=slsl[it].get_rho_last_prob_higher();}
 
 	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,40.);
 	test_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,5.);
-	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.05);
+	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.025);
 
 	//cout << test_s_R << " "<< test_s_z << " " << test_A_0 << endl;
-	for (int it=slsl.size()-1; it>-1; it++)
+	for (int it=slsl.size()-1; it>-1; it--)
 	{
 		slsl[it].make_new_test_m_vec(test_s_R, test_s_z, test_A_0);
-		test_rho_prob+=slsl[it].get_rho_test_prob();
+		test_rho_prob+=slsl[it].get_rho_test_prob_higher();
 	}
 	
 	if (test_rho_prob > previous_rho_prob)
