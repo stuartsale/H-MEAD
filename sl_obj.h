@@ -46,6 +46,8 @@ class sl_obj
 
 		string rootname;
 
+		vector<bin_obj> running_A_mean;
+
 	private:
 		bool move_on;
 		float threshold;
@@ -96,7 +98,7 @@ class sl_obj
 		// hold chains too
 		vector <vector <vector <float> > > global_A_chain;
 
-		vector<bin_obj> running_A_mean;
+
 		vector<float> backup_A_mean;
 
 		float sigma_fac, accepted;

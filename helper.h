@@ -91,7 +91,7 @@ extern double K_max;
 
 extern vector <vector <vector <double> > > lookup_table;
 vector <vector <vector <double> > > lookup_creator(void);
-double int_lookup(double A_max, double A_mean, double sd);
+extern double int_lookup(double A_max, double A_mean, double sd);
 struct params_struct {double A_max; double A_mean; double sigma;};
 
 

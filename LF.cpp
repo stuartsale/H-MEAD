@@ -49,7 +49,7 @@ LF::LF(string filename)
 
 }
 
-float LF::LF_prob_last(vector <bin_obj> A_rel)
+float LF::LF_prob_last(vector <bin_obj> A_rel, float J_min, float J_max)
 {
 	float prob=0;
 	//float norm=0;
@@ -91,30 +91,35 @@ float LF::LF_prob_last(vector <bin_obj> A_rel)
 		//norm+=prior;
 		for (int it2=0; it2<LF_vec.size(); it2++)
 		{
-			if (LF_vec[it2][0]+dist_mod_lf+0.276*A_rel[it].last_mean_A>=J_min)
+			if (LF_vec[it2][0]+dist_mod_lf+0.276*A_rel[it].last_mean_A>=J_min-3)
 			{
-				A_max=(r_max-dist_mod_lf-LF_vec[it2][0])/0.276;
+				A_max=(J_max-dist_mod_lf-LF_vec[it2][0])/0.276;
+				//cout << it << " " << it2 << " " << J_max << " " << J_min << " " << dist_mod_lf << " " << LF_vec[it2][0] <<" " << A_max <<" ";
 				//if (LF_vec[it2][0]+5*log10(it*100.+50.)-5.+1.02*A_rel[it].last_mean_A<r_max)
-				if (A_max>10)
+				if (A_max>20)
 				{
 					prob+=prior_lf[it]/*lookup_table[0][0][0]*/*LF_vec[it2][1];
+				//	cout <<"1*"<< endl;
 				}
-				else if (A_max>0 && A_rel[it].last_mean_A<10)
+				else if (A_max>-1.8 && A_rel[it].last_mean_A<20)
 				{
-					prob+=prior_lf[it]*lookup_table[int(A_max*10.)][int(A_rel[it].last_mean_A*10.)][int(A_rel[it].last_sd_A*10.)]*LF_vec[it2][1];
+				//	prob+=prior_lf[it]*lookup_table[int(A_max*10.)][int(A_rel[it].last_mean_A*10.)][int(A_rel[it].last_sd_A*10.)]*LF_vec[it2][1];
+					prob+=prior_lf[it]*int_lookup(A_max, A_rel[it].last_mean_A, A_rel[it].last_sd_A)*LF_vec[it2][1];
+				//	cout << int_lookup(A_max, A_rel[it].last_mean_A, A_rel[it].last_sd_A)<<endl;
 				}
-				else {break;}
+				else {/*cout << endl;*/break;}
+
 			}
 	
 		}
 	}
-
+//	cout << "LF: " << prob/norm_lf <<endl;
 	return log(prob/norm_lf);
 
 
 }	
 
-float LF::LF_prob_test(vector <bin_obj> A_rel)
+float LF::LF_prob_test(vector <bin_obj> A_rel, float J_min, float J_max)
 {
 	float prob=0;
 
@@ -130,24 +135,25 @@ float LF::LF_prob_test(vector <bin_obj> A_rel)
 		//norm+=prior;
 		for (int it2=0; it2<LF_vec.size(); it2++)
 		{
-			if (LF_vec[it2][0]+dist_mod_lf+0.276*A_rel[it].test_mean_A>=J_min)
+			if (LF_vec[it2][0]+dist_mod_lf+0.276*A_rel[it].test_mean_A>=J_min-3)
 			{
-				A_max=(r_max-dist_mod_lf-LF_vec[it2][0])/0.276;
+				A_max=(J_max-dist_mod_lf-LF_vec[it2][0])/0.276;
 				//if (LF_vec[it2][0]+5*log10(it*100.+50.)-5.+1.02*A_rel[it].test_mean_A<r_max)
-				if (A_max>10)
+				if (A_max>20)
 				{
 					prob+=prior_lf[it]/*lookup_table[0][0][0]*/*LF_vec[it2][1];
 				}
-				else if (A_max>0 && A_rel[it].test_mean_A<10)
+				else if (A_max>-1.8 && A_rel[it].test_mean_A<20)
 				{
-					prob+=prior_lf[it]*lookup_table[int(A_max*10.)][int(A_rel[it].test_mean_A*10.)][int(A_rel[it].test_sd_A*10.)]*LF_vec[it2][1];
+				//	prob+=prior_lf[it]*lookup_table[int(A_max*10.)][int(A_rel[it].test_mean_A*10.)][int(A_rel[it].test_sd_A*10.)]*LF_vec[it2][1];
+					prob+=prior_lf[it]*int_lookup(A_max, A_rel[it].test_mean_A, A_rel[it].test_sd_A)*LF_vec[it2][1];
 				}
 				else {break;}
 			}
 	
 		}
 	}
-
+//	cout << "LF: " << prob/norm_lf <<endl;
 	return log(prob/norm_lf);
 
 

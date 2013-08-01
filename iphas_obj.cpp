@@ -146,13 +146,14 @@ float iphas_obj::likelihood_eval(iso_obj test_iso, float test_A, float test_dist
 	// Find P(S|y,x,sigma_y)
 		float current_prob1=0;
 
-		if (r>-98){current_prob1+=-log(exp((r-r_max)*4)+1) ;}
-		if (i>-98){current_prob1+=-log(exp((i-i_max)*4)+1) ;}
-		if (ha>-98){current_prob1+=-log(exp((ha-ha_max)*4)+1) ;}
+//	These are all const.
+//		if (r>-98){current_prob1+=-log(exp((r-r_max)*4)+1) ;}
+//		if (i>-98){current_prob1+=-log(exp((i-i_max)*4)+1) ;}
+//		if (ha>-98){current_prob1+=-log(exp((ha-ha_max)*4)+1) ;}
 
-		if (J>-98){current_prob1+=-log(exp((J-J_max)*4)+1) ;}
-		if (H>-98){current_prob1+=-log(exp((H-H_max)*4)+1) ;}
-		if (K>-98){current_prob1+=-log(exp((K-K_max)*4)+1) ;}
+//		if (J>-98){current_prob1+=-log(exp((J-parent_sl->J_max)*4)+1) ;}
+//		if (H>-98){current_prob1+=-log(exp((H-parent_sl->H_max)*4)+1) ;}
+//		if (K>-98){current_prob1+=-log(exp((K-parent_sl->K_max)*4)+1) ;}
 
 	// Find p(y|x,sigma_y) 
 

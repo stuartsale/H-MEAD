@@ -22,7 +22,7 @@ using namespace std;
 
 
 double r_min, i_min, ha_min, r_max, i_max, ha_max;
-double J_min, H_min, K_min, J_max, H_max, K_max;
+
 vector <vector <vector <double> > > lookup_table;
 
 vector <sl_obj> slsl;
@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
 
 		if (slsl[0].it_num/10.==floor(slsl[0].it_num/10.))
 		{
-			trace1 << slsl[0].it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << " " << last_asis_prob << " " << last_norm_prob_sum << " " << gal_update/slsl[0].it_num << " " << gal_update2/slsl[0].it_num << endl;// " " << slsl[0].global_previous_prob << endl ;
+			trace1 << slsl[0].it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << " " << last_asis_prob << " " << last_norm_prob_sum << " " << gal_update/slsl[0].it_num << " " << gal_update2/slsl[0].it_num << " " << slsl[0].running_A_mean[149].last_mean_A << endl;// " " << slsl[0].global_previous_prob << endl ;
 		}
 	}		
 
@@ -309,9 +309,9 @@ void hyperprior_update_all(vector <LF> &LFs)
 
 // Update Theta|z_dash
 
-	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,10.);
-	test_s_z=previous_s_z+gsl_ran_gaussian_ziggurat(rng_handle,1.);
-	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.01);
+	test_s_R=previous_s_R;//+gsl_ran_gaussian_ziggurat(rng_handle,10.);
+	test_s_z=previous_s_z;//+gsl_ran_gaussian_ziggurat(rng_handle,1.);
+	test_A_0=previous_A_0;//+gsl_ran_gaussian_ziggurat(rng_handle,0.01);
 
 	for (int it=slsl.size()-1; it>-1; it--)	{slsl[it].make_new_test_m_vec(test_s_R, test_s_z, test_A_0);}
 
@@ -326,7 +326,7 @@ void hyperprior_update_all(vector <LF> &LFs)
 		slsl[it].current_norm_prob=0;
 		for (int it_LF=0; it_LF<LFs.size(); it_LF++)
 		{
-			slsl[it].current_norm_prob+=-LFs[it_LF].LF_prob_test(slsl[it].running_A_mean)*(slsl[it].star_cat.size()+1);
+			slsl[it].current_norm_prob+=-LFs[it_LF].LF_prob_test(slsl[it].running_A_mean, slsl[it].J_min, slsl[it].J_max)*(slsl[it].star_cat.size()+1);
 		}
 		test_norm_prob_sum+=slsl[it].current_norm_prob;
 	}
@@ -481,13 +481,14 @@ void neighbour_find(vector<sl_obj>  &sl_list)
 
 double int_lookup(double A_max, double A_mean, double sd)
 {
-	if (A_mean>=9.95){A_mean=9.94;}
+	if (A_mean>=19.95){A_mean=19.94;}
 	if (A_mean<0.05){A_mean=0.05;}
-	if (A_max>=9.95){A_max=9.94;}
+	if (A_max>=19.95){A_max=19.94;}
 	if (A_max<-1.95){A_max=-1.95;}
-	if (sd>=1.95){sd=1.94;}
+	if (sd>=9.95){sd=9.94;}
 	if (sd<0.05){sd=0.05;}
-	return lookup_table[int(floor((A_max+2)*10.-0.5))][int(floor(A_mean*10.-0.5))][int(floor(sd*10.-0.5))];
+//	cout << A_mean << " " << A_max << " " << sd << " " << int(floor((A_max+2)*5.-0.5))<< " " << int(floor(A_mean*5.-0.5)) << " " << int(floor(sd*5.-0.5)) << endl;
+	return lookup_table[int(floor((A_max+2)*5.-0.5))][int(floor(A_mean*5.-0.5))][int(floor(sd*5.-0.5))];
 }
 
 double integral_func (double *A_test, size_t dim, void *params)
@@ -503,31 +504,32 @@ double integral_func (double *A_test, size_t dim, void *params)
 
 vector <vector <vector <double> > > lookup_creator(void)
 {
-	vector <vector <vector <double> > > dummy_table(120, vector <vector <double> > (100, vector <double> (20, 0)));
+	vector <vector <vector <double> > > dummy_table(220, vector <vector <double> > (200, vector <double> (50, 0)));
 
 	struct params_struct {double A_max; double A_mean; double sigma;};
 
 	double res=1, err;
 
 	double low[1]={0.};
-	double hi[1]={10.};
+	double hi[1]={30.};
 
 	params_struct int_params;
 
 	gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (1);
 
-	for (int A_max_it=0; A_max_it<120; A_max_it++)
+
+	for (int A_max_it=0; A_max_it<110; A_max_it++)
 	{
-		int_params.A_max=A_max_it*0.1+0.1-2.;
+		int_params.A_max=A_max_it*0.2+0.2-2.;
 	//	cout << A_max_it << endl;
 
 		for (int A_mean_it=0; A_mean_it<100; A_mean_it++)
 		{
-			int_params.A_mean=A_mean_it*0.1+0.1;
+			int_params.A_mean=A_mean_it*0.2+0.2;
 
-			for (int sd_it=0; sd_it<20; sd_it++)
+			for (int sd_it=0; sd_it<50; sd_it++)
 			{
-				int_params.sigma=sd_it*0.1+0.1;
+				int_params.sigma=sd_it*0.2+0.2;
 				gsl_monte_function F={&integral_func, 1, &int_params};
 				gsl_monte_vegas_init(s);
 

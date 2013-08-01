@@ -78,6 +78,9 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype, float s
 	else {cout << "Unrecognised datatype: " << datatype << endl;}
 
 	// Find expected A(d) -------------------------------------------------------------------
+	cout << "J:" << J_min<<" - "<<J_max << endl;
+	cout << "H:" << H_min<<" - "<<H_max << endl;
+	cout << "K:" << K_min<<" - "<<K_max << endl;
 
 	//vector<bin_obj2> backup_A_mean (150);
 	backup_A_mean.resize(150);
@@ -115,7 +118,7 @@ void sl_obj::output_write(float s_R, float s_z)
 	for (int x=0; x<running_A_mean.size(); x++)
 	{
 		A_out 	<< x*100 + 50 << "\t" << running_A_mean[x].final_A << "\t" << running_A_mean[x].final_sd <<"\t"
-			<< running_A_mean[x].final_dA<<"\t"<<running_A_mean[x].final_dsd<<"\t"<<running_A_mean[x].last_prob<<"\t"<<running_A_mean[x].last_mean_A<<"\t"<<running_A_mean[x].last_n<<endl;
+			<< running_A_mean[x].final_dA<<"\t"<<running_A_mean[x].final_dsd<<"\t"<<running_A_mean[x].last_prob<<"\t"<<running_A_mean[x].last_mean_A<<"\t"<<running_A_mean[x].last_n<<" "<<running_A_mean[x].last_lnA_sum<<" " <<running_A_mean[x].last_mu<<endl;
 	}
 	A_out.close();
 
@@ -223,11 +226,11 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		{
 			star_cat.erase(star_cat.begin()+it_stars);
 		}
-		else if (star_cat[it_stars].J-star_cat[it_stars].H < (star_cat[it_stars].H - star_cat[it_stars].K)*1.55 -.05 )
+		else if (star_cat[it_stars].J-star_cat[it_stars].H < (star_cat[it_stars].H - star_cat[it_stars].K)*1.56 -.05 )
 		{
 			star_cat.erase(star_cat.begin()+it_stars);
 		}
-		else if (star_cat[it_stars].J-star_cat[it_stars].H > (star_cat[it_stars].H - star_cat[it_stars].K)*1.55 +1.0 )
+		else if (star_cat[it_stars].J-star_cat[it_stars].H > (star_cat[it_stars].H - star_cat[it_stars].K)*1.56 +1.0 )
 		{
 			star_cat.erase(star_cat.begin()+it_stars);
 		}
@@ -258,7 +261,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	previous_norm_prob=0;
 	for (int it_LF=0; it_LF<LFs.size(); it_LF++)
 	{
-		previous_norm_prob+=-LFs[it_LF].LF_prob_last(running_A_mean)*(star_cat.size()+1);
+		previous_norm_prob+=-LFs[it_LF].LF_prob_last(running_A_mean, J_min, J_max)*(star_cat.size()+1);
 	}
 
 }
@@ -328,7 +331,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			current_norm_prob=0;
 			for (int it_LF=0; it_LF<LFs.size(); it_LF++)
 			{
-				current_norm_prob+=-LFs[it_LF].LF_prob_test(running_A_mean)*(star_cat.size()+1);
+				current_norm_prob+=-LFs[it_LF].LF_prob_test(running_A_mean, J_min, J_max)*(star_cat.size()+1);
 			}
 
 	// Metropolis-Hastings algorithm step
@@ -746,7 +749,7 @@ void sl_obj::define_cov_mat(void)
 
 	for (int i=0; i<150; i++)
 	{
-		last_s_vec[i]=1;
+		last_s_vec[i]=5;
 		last_s_inv[i]=1./last_s_vec[i];
 //		last_m_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;
 	}

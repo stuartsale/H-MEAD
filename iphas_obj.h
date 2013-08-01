@@ -31,6 +31,8 @@ using namespace std;
 //class iphas_sub_obj;
 //class iso_obj;
 
+class sl_obj;
+
 // This is a class to hold the photometry
 // and estimated properties of observed objects.
 // One of these is created for each object in 
@@ -113,6 +115,8 @@ class iphas_obj
 
 	bin_obj* last_bin;
 //	bin_obj* test_bin;
+
+	sl_obj* parent_sl;
 	
    // BRIGHT LIMITS (default)
  //  float r_min, i_min, ha_min;				
