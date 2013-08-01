@@ -71,13 +71,15 @@ class sl_obj
 		vector < vector <float> > gen_internal_rel(vector < vector <float> > old_rel, int rel_length);
 		vector < vector <float> > mvn_gen_internal_rel(void);
 		vector < vector <float> > mvn_gen_internal_rel_no_neighbour(void);
-		vector <float> mvn_gen_internal_rel_from_z_dash(const Eigen::Matrix<float, 150, 1> & z_dash);
+		void mvn_gen_internal_rel_from_z_dash(void);
 		vector < vector <float> > internal_to_external(vector < vector <float> > int_rel, int rel_length);
 
 		float get_rho_last_prob(void);
 		float get_rho_test_prob(void);
 		float get_rho_last_prob_higher(void);
 		float get_rho_test_prob_higher(void);
+		float get_A_mean_test_prob(void);
+		float get_A_mean_last_prob(void);
 
 		float hyperprior_prob_get(vector < vector <float> > internal_rel);
 		void rho_to_A(void);
@@ -118,7 +120,7 @@ class sl_obj
 		Eigen::SparseMatrix<float> Cov_Mat, Cov_Mat_Inv;
 		Eigen::SparseMatrix<float> cond_Mat, higher_cond_Mat, higher_cond_Mat_Inv, cond_mu_Mat, rho_Mat;
 
-		Eigen::SparseMatrix<float> chol_L, chol_L_Inv, chol_L_cond; 
+		Eigen::SparseMatrix<float> chol_L, chol_L_Inv, chol_L_cond, higher_chol_L, higher_chol_L_Inv; 
 
 		Eigen::Matrix<float, 150, 1> last_m_vec, test_m_vec;
 		Eigen::Matrix<float, 150, 1> last_ln_vec, test_ln_vec;

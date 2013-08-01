@@ -115,7 +115,7 @@ void sl_obj::output_write(float s_R, float s_z)
 	for (int x=0; x<running_A_mean.size(); x++)
 	{
 		A_out 	<< x*100 + 50 << "\t" << running_A_mean[x].final_A << "\t" << running_A_mean[x].final_sd <<"\t"
-			<< running_A_mean[x].final_dA<<"\t"<<running_A_mean[x].final_dsd<<endl;
+			<< running_A_mean[x].final_dA<<"\t"<<running_A_mean[x].final_dsd<<"\t"<<running_A_mean[x].last_prob<<"\t"<<running_A_mean[x].last_mean_A<<"\t"<<running_A_mean[x].last_n<<endl;
 	}
 	A_out.close();
 
@@ -294,12 +294,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, running_A_mean);//};
 		}
 
-		for (int it=0; it<running_A_mean.size(); it++)
-		{
-			running_A_mean[it].set_last_prob(); 
-			dummy+=running_A_mean[it].last_prob;
-		}
-		global_previous_prob=dummy;
+		global_previous_prob=get_A_mean_last_prob();
 
 
 // Now vary hyper-parameters
@@ -320,19 +315,13 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			{
 				running_A_mean[i].test_mean_rho=exp(log(running_A_mean[i].last_mean_rho)*cos(theta) + log(trial_rel[i][0])*sin(theta));
 				running_A_mean[i].test_sd_A=exp(log(running_A_mean[i].last_sd_A)*cos(theta) + log(trial_rel[i][1])*sin(theta));
+				test_ln_vec[i]=log(running_A_mean[i].test_mean_rho);
 			}
 			rho_to_A();
 
 	// Find probability of this parameter set
 
-			float dummy3=0;
-	//		#pragma omp parallel for  num_threads(3) reduction(+:dummy3)
-			for (int it=0; it<running_A_mean.size(); it++)
-			{
-				running_A_mean[it].set_test_prob(); 
-				dummy3+=running_A_mean[it].test_prob;
-			}
-			global_current_prob=dummy3;
+			global_current_prob=get_A_mean_test_prob();
 
 	// Normalisation term
 
@@ -366,7 +355,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 			accepted++;
 			if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
-				 + current_norm_prob-previous_norm_prob>threshold || sss<1E-5)		// New parameter set better => Accept
+				 + current_norm_prob-previous_norm_prob>threshold || sss<1E-7)		// New parameter set better => Accept
 			{
 			//	cout << "pass " << running_A_mean[0].A_chain.size() << " " << global_current_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[50].test_mean_rho << " " << previous_norm_prob << " "  << endl;
 				global_previous_prob=global_current_prob;
@@ -396,7 +385,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			}
 		}
 
-		if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << accepted << " " << accepted/it_num << endl;}
+		if (it_num/1000.==floor(it_num/1000.)){cout << sl_identifier << " " << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << accepted << " " << accepted/it_num << endl;}
 
 
 		if (floor(it_num/200.)==it_num/200)
@@ -407,6 +396,31 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		it_num++;
 }
 
+float sl_obj::get_A_mean_test_prob(void)
+{
+	float dummy3=0;
+//	#pragma omp parallel for  num_threads(3) reduction(+:dummy3)
+	for (int it=0; it<running_A_mean.size(); it++)
+	{
+		running_A_mean[it].set_test_prob(); 
+		dummy3+=running_A_mean[it].test_prob;
+	}
+//	if (isnan(dummy3)){cout << running_A_mean[149].test_mu << " " << running_A_mean[149].test_sigma << " "  << running_A_mean[149].test_mean_A << " " << running_A_mean[149].test_sd_A<< " "  << running_A_mean[148].test_mean_A << " " << running_A_mean[148].test_sd_A << endl;}
+	return dummy3;
+}
+
+float sl_obj::get_A_mean_last_prob(void)
+{
+	float dummy3=0;
+//	#pragma omp parallel for  num_threads(3) reduction(+:dummy3)
+	for (int it=0; it<running_A_mean.size(); it++)
+	{
+		running_A_mean[it].set_last_prob(); 
+		dummy3+=running_A_mean[it].last_prob;
+	}
+	return dummy3;
+}
+
 vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 {
 	vector < vector <float> > new_rel(rel_length,vector <float> (2));
@@ -414,15 +428,19 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 	float sum=0.;
 	for (int i=0; i<150; i++){temp_vec[i]=0;}
 
-	for (int i=0; i<neighbour_slsl.size(); i++){temp_vec+=cond_mu_Mat*neighbour_slsl[i]->last_s_inv.asDiagonal()*
-									(neighbour_slsl[i]->last_ln_vec-neighbour_slsl[i]->last_m_vec);}
-
-	temp_vec2=last_s_vec.asDiagonal()*temp_vec;
-
-//	for (int i=0; i<150; i++){cout << i << " " << temp_vec2[i] << " " << neighbour_slsl[0]->last_ln_vec[i] << " " << neighbour_slsl[0]->last_m_vec[i] << " " << cond_mu_Mat.coeffRef(i,i) << endl;}
-
 	for (int i=0; i<rel_length; i++){test_z_dash[i]=gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
-	int_vec=(chol_L_cond*last_s_vec.asDiagonal())*test_z_dash + last_m_vec+temp_vec2;
+
+	if (higher_neighbour_slsl.size()>0.5)
+	{
+		for (int i=0; i<neighbour_slsl.size(); i++){temp_vec+=cond_mu_Mat*neighbour_slsl[i]->last_s_inv.asDiagonal()*
+										(neighbour_slsl[i]->last_ln_vec-neighbour_slsl[i]->last_m_vec);}
+
+		temp_vec2=last_s_vec.asDiagonal()*temp_vec;
+
+	//	for (int i=0; i<150; i++){cout << i << " " << temp_vec2[i] << " " << neighbour_slsl[0]->last_ln_vec[i] << " " << neighbour_slsl[0]->last_m_vec[i] << " " << cond_mu_Mat.coeffRef(i,i) << endl;}
+		int_vec=last_s_vec.asDiagonal()*(chol_L_cond*test_z_dash) + last_m_vec+temp_vec2;
+	}
+	else {int_vec=last_s_vec.asDiagonal()*(chol_L_cond*test_z_dash) + last_m_vec;}
 
 	for (int i=0; i<rel_length; i++)
 	{
@@ -430,7 +448,6 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 		sum+=new_rel[i][0];
 	//	new_rel[i][1]=gsl_ran_lognormal(rng_handle, -0.94, 0.246);//*new_rel[i][0];
 		new_rel[i][1]=gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum) - 0.05268 , 0.3246);
-		test_ln_vec[i]=int_vec[i];
 	}
 	return new_rel;
 }
@@ -442,7 +459,7 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel_no_neighbour(void)
 	float sum=0.;
 
 	for (int i=0; i<rel_length; i++){test_z_dash[i]=gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
-	int_vec=(chol_L_cond*last_s_vec.asDiagonal())*test_z_dash + last_m_vec;
+	int_vec=last_s_vec.asDiagonal()*(chol_L_cond*test_z_dash) + last_m_vec;
 
 	for (int i=0; i<rel_length; i++)
 	{
@@ -456,20 +473,59 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel_no_neighbour(void)
 	return new_rel;
 }
 
-vector <float> sl_obj::mvn_gen_internal_rel_from_z_dash(const Eigen::Matrix<float, 150, 1> & z_dash)
+void sl_obj::mvn_gen_internal_rel_from_z_dash(void)
 {
-	vector <float> new_rel(rel_length);
-	Eigen::Matrix<float, 150, 1> int_vec;
+	// set up
+	Eigen::Matrix<float, 150, 1> int_vec, temp_vec, temp_vec2;
+	float sum=0;
+	for (int i=0; i<150; i++){temp_vec[i]=0;}
 
-	int_vec=(chol_L*last_s_vec.asDiagonal())*z_dash + test_m_vec;
+	// get new rhos
+
+	if (higher_neighbour_slsl.size()>0.5)
+	{
+		for (int i=0; i<higher_neighbour_slsl.size(); i++){temp_vec+=higher_neighbour_slsl[i]->last_s_inv.asDiagonal()*
+									(higher_neighbour_slsl[i]->last_ln_vec-higher_neighbour_slsl[i]->test_m_vec);}
+
+		temp_vec2=last_s_vec.asDiagonal()*(cond_mu_Mat*temp_vec);
+		int_vec=/*last_s_vec.asDiagonal()*(higher_chol_L*/(last_z_dash) + test_m_vec + temp_vec2;
+	}
+	else {int_vec=/*last_s_vec.asDiagonal()*(higher_chol_L*/(last_z_dash) + test_m_vec ;}
 
 	for (int i=0; i<rel_length; i++)
 	{
-		new_rel[i]=exp(int_vec[i]);
+		running_A_mean[i].test_mean_rho=exp(int_vec[i]);
+		sum+=running_A_mean[i].test_mean_rho;
+		running_A_mean[i].test_sd_A=running_A_mean[i].last_sd_A;//gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum) - 0.05268 , 0.3246);
+		test_ln_vec[i]=int_vec[i];
 	}
-	return new_rel;
-
+	rho_to_A();
+//	cout << sl_identifier << " " <<  running_A_mean[149].test_mean_A << " " << int_vec[149]<< " "  << test_m_vec[149] << " " << temp_vec2[149] << " " << last_z_dash[149] << endl;
 }
+
+Eigen::Matrix<float, 150, 1> sl_obj::get_last_z_dash(void)
+{
+	Eigen::Matrix<float, 150, 1> temp_vec, temp_vec2, temp_vec3, x;
+	for (int i=0; i<150; i++){temp_vec[i]=0;}
+
+	if (higher_neighbour_slsl.size()>0.5)
+	{
+		for (int i=0; i<higher_neighbour_slsl.size(); i++){temp_vec+=higher_neighbour_slsl[i]->last_s_inv.asDiagonal()*
+									(higher_neighbour_slsl[i]->last_ln_vec-higher_neighbour_slsl[i]->last_m_vec);}
+
+		temp_vec2=last_s_vec.asDiagonal()*(cond_mu_Mat*temp_vec);
+		temp_vec3=last_ln_vec-(last_m_vec+temp_vec2);
+	}
+	else {temp_vec3=last_ln_vec-(last_m_vec);}
+
+
+	//x=  chol_L_Inv * temp_vec3;
+	//return last_s_Inv.asDiagonal() * chol_L_Inv * temp_vec2;
+	return  /*higher_chol_L_Inv * last_s_inv.asDiagonal() */ temp_vec3;
+}
+
+
+//-----------------=================================================================================
 
 float sl_obj::get_rho_last_prob(void)
 {
@@ -517,7 +573,6 @@ float sl_obj::get_rho_last_prob_higher(void)
 								(higher_neighbour_slsl[i]->last_ln_vec-higher_neighbour_slsl[i]->last_m_vec);}
 
 	temp_vec2=last_s_vec.asDiagonal()*(cond_mu_Mat*temp_vec);
-
 	temp_vec3=last_ln_vec-(last_m_vec+temp_vec2);
 
 	x= -temp_vec3.transpose() * last_s_inv.asDiagonal() * (higher_cond_Mat_Inv ) * last_s_inv.asDiagonal() *  temp_vec3;
@@ -535,7 +590,6 @@ float sl_obj::get_rho_test_prob_higher(void)
 								(higher_neighbour_slsl[i]->last_ln_vec-higher_neighbour_slsl[i]->test_m_vec);}
 
 	temp_vec2=last_s_vec.asDiagonal()*(cond_mu_Mat*temp_vec);
-
 	temp_vec3=last_ln_vec-(test_m_vec+temp_vec2);
 
 	x= -temp_vec3.transpose() * last_s_inv.asDiagonal() * (higher_cond_Mat_Inv ) * last_s_inv.asDiagonal() *  temp_vec3;
@@ -544,22 +598,7 @@ float sl_obj::get_rho_test_prob_higher(void)
 }
 
 
-Eigen::Matrix<float, 150, 1> sl_obj::get_last_z_dash(void)
-{
-	Eigen::Matrix<float, 150, 1> last_s_Inv, temp_vec, temp_vec2, x;
-	for (int i=0; i<150; i++)
-	{
-		last_s_Inv[i]=1./last_s_vec[i];
-		temp_vec[i]=log(running_A_mean[i].last_mean_rho);
-	}
-
-	temp_vec2=temp_vec-last_m_vec;
-
-	x=  chol_L_Inv * temp_vec2;
-	//return last_s_Inv.asDiagonal() * chol_L_Inv * temp_vec2;
-	return last_s_Inv.asDiagonal() * x;
-
-}
+//====================================================================================================
 
 
 
@@ -674,7 +713,6 @@ float sl_obj::hyperprior_prob_get(vector < vector <float> > internal_rel)
 
 	temp_vec=int_vec-last_m_vec;
 	return temp_vec.transpose()*temp_vec;
-
 }
 
 
@@ -692,8 +730,8 @@ void sl_obj::define_cov_mat(void)
 //	for (int i=1; i<150; i++){mean_rho[i]=mean_rel[i]-mean_rel[i-1];}
 
 	typedef Eigen::Triplet<float> T;
-	Eigen::SparseMatrix<float> CM(150,150);
-	std::vector<T> tripletList, tripletList2, tripletList3;
+	Eigen::SparseMatrix<float> CM(150,150), temp1(150,150);
+	std::vector<T> tripletList, tripletList2, tripletList3, trips4;
 	tripletList.reserve(150);
 	tripletList2.reserve(150);
 	tripletList3.reserve(150);
@@ -708,7 +746,7 @@ void sl_obj::define_cov_mat(void)
 
 	for (int i=0; i<150; i++)
 	{
-		last_s_vec[i]=5;
+		last_s_vec[i]=1;
 		last_s_inv[i]=1./last_s_vec[i];
 //		last_m_vec[i]=log(mean_rho[i]) - CM.coeffRef(i,i)*pow(last_s_vec[i],2)/2. ;
 	}
@@ -745,11 +783,18 @@ void sl_obj::define_cov_mat(void)
 	cond_mu_Mat=rho_Mat*Cov_Mat_Inv;
 	cond_Mat=(Cov_Mat - neighbour_slsl.size()*rho_Mat*Cov_Mat_Inv*rho_Mat).selfadjointView<Eigen::Lower>();
 	higher_cond_Mat=(Cov_Mat - higher_neighbour_slsl.size()*rho_Mat*Cov_Mat_Inv*rho_Mat).selfadjointView<Eigen::Lower>();
+
 	Eigen::SimplicialLLT<spMat> chol_cond(cond_Mat);
 	chol_L_cond=chol_cond.matrixL();
 
 	Eigen::SimplicialLLT<spMat> chol3(higher_cond_Mat);
 	higher_cond_Mat_Inv=chol3.compute(higher_cond_Mat).solve(I);
+	higher_chol_L=chol3.matrixL();
+
+	higher_chol_L_Inv=higher_chol_L.transpose()*higher_cond_Mat_Inv;
+
+	//cout << higher_chol_L*higher_chol_L_Inv << endl;
+
 }
 
 

@@ -79,6 +79,7 @@ void bin_obj::set_last_prob(void)
 void bin_obj::set_test_prob(void)
 {
 	test_prob=-test_n*log(test_sigma) - test_lnA_sum -(test_lnA2_sum - 2*test_mu*test_lnA_sum + test_n*pow(test_mu,2) )/(2*pow(test_sigma,2) ) ;
+//	if (isnan(test_prob)){cout << dist_bin << " " << test_prob << " " << test_sigma << " " << test_lnA_sum << " " << test_n << endl;}
 }
 
 void bin_obj::accept(void)
