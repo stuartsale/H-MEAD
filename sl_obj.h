@@ -47,6 +47,7 @@ class sl_obj
 		string rootname;
 
 		vector<bin_obj> running_A_mean;
+		float star_prob;
 
 	private:
 		bool move_on;

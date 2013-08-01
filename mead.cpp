@@ -42,6 +42,8 @@ void acl_calc(void);
 void neighbour_find(vector<sl_obj> &sl_list);
 	float last_asis_prob, test_asis_prob, last_norm_prob_sum, test_norm_prob_sum;
 
+	float last_log_sum, test_log_sum;
+
 int gal_update=0, gal_update2=0;
 
 gsl_rng* rng_handle;
@@ -224,7 +226,7 @@ int main(int argc, char* argv[])
 
 		if (slsl[0].it_num/10.==floor(slsl[0].it_num/10.))
 		{
-			trace1 << slsl[0].it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << " " << last_asis_prob << " " << last_norm_prob_sum << " " << gal_update/slsl[0].it_num << " " << gal_update2/slsl[0].it_num << " " << slsl[0].running_A_mean[149].last_mean_A << endl;// " " << slsl[0].global_previous_prob << endl ;
+			trace1 << slsl[0].it_num << " " << previous_s_R << " " << previous_s_z << " " << previous_A_0 << " " << previous_rho_prob << " " << last_asis_prob << " " << last_norm_prob_sum << " " << gal_update/slsl[0].it_num << " " << gal_update2/slsl[0].it_num << " " << slsl[0].running_A_mean[149].last_mean_A << " " << last_log_sum << " " << slsl[0].star_prob <<endl ;// " " << slsl[0].global_previous_prob << endl ;
 		}
 	}		
 
@@ -299,19 +301,30 @@ void hyperprior_update_all(vector <LF> &LFs)
 // Now find z_dash|rho, Theta
 
 	last_asis_prob=0; test_asis_prob=0; last_norm_prob_sum=0; test_norm_prob_sum=0;
+	last_log_sum=0; test_log_sum=0;
 
 	for (int it=0; it<slsl.size(); it++)
 	{
 		last_asis_prob+=slsl[it].get_A_mean_last_prob();
 		last_norm_prob_sum+=slsl[it].previous_norm_prob;
 		slsl[it].last_z_dash=slsl[it].get_last_z_dash();
+		for (int it2=0; it2<slsl[it].running_A_mean.size(); it2++){last_log_sum+=-log(slsl[it].running_A_mean[it2].last_mean_A);}
 	}
 
 // Update Theta|z_dash
 
-	test_s_R=previous_s_R;//+gsl_ran_gaussian_ziggurat(rng_handle,10.);
-	test_s_z=previous_s_z;//+gsl_ran_gaussian_ziggurat(rng_handle,1.);
-	test_A_0=previous_A_0;//+gsl_ran_gaussian_ziggurat(rng_handle,0.01);
+	if(slsl[0].it_num>30000)
+	{
+		test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,10.);
+		test_s_z=previous_s_z;//+gsl_ran_gaussian_ziggurat(rng_handle,1.);
+		test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.01);
+	}
+	else
+	{
+		test_s_R=previous_s_R;//+gsl_ran_gaussian_ziggurat(rng_handle,10.);
+		test_s_z=previous_s_z;//+gsl_ran_gaussian_ziggurat(rng_handle,1.);
+		test_A_0=previous_A_0;//+gsl_ran_gaussian_ziggurat(rng_handle,0.01);
+	}
 
 	for (int it=slsl.size()-1; it>-1; it--)	{slsl[it].make_new_test_m_vec(test_s_R, test_s_z, test_A_0);}
 
@@ -329,10 +342,15 @@ void hyperprior_update_all(vector <LF> &LFs)
 			slsl[it].current_norm_prob+=-LFs[it_LF].LF_prob_test(slsl[it].running_A_mean, slsl[it].J_min, slsl[it].J_max)*(slsl[it].star_cat.size()+1);
 		}
 		test_norm_prob_sum+=slsl[it].current_norm_prob;
+		for (int it2=0; it2<slsl[it].running_A_mean.size(); it2++)
+		{
+			test_log_sum+=-log(slsl[it].running_A_mean[it2].test_mean_A);
+//			if (isnan(test_log_sum)){cout << "NANANAN " << it2 << " " <<slsl[it].running_A_mean[it2].test_mean_A << endl;}
+		}
 	}
 
 
-	if (test_asis_prob+test_norm_prob_sum > last_asis_prob+last_norm_prob_sum)
+	if (test_asis_prob+test_norm_prob_sum+test_log_sum > last_asis_prob+last_norm_prob_sum+last_log_sum)
 	{
 //	cout << "pass2 " << slsl[0].running_A_mean[0].A_chain.size() << " " << (test_asis_prob+test_norm_prob_sum - last_asis_prob-last_norm_prob_sum) << " " << last_asis_prob << " " << test_asis_prob  << " " << slsl[0].running_A_mean[50].last_mean_rho << " " << slsl[0].running_A_mean[50].test_mean_rho <<  " " << slsl[0].last_m_vec[50] << " " << slsl[0].test_m_vec[50] << " " << last_norm_prob_sum << " " << test_norm_prob_sum << " " << previous_s_R << " " << test_s_R  << endl;
 		previous_s_R=test_s_R;
@@ -347,7 +365,7 @@ void hyperprior_update_all(vector <LF> &LFs)
 		}
 		gal_update2++;
 	}
-	else if (exp(test_asis_prob+test_norm_prob_sum - last_asis_prob-last_norm_prob_sum)>gsl_ran_flat(rng_handle, 0., 1.) )
+	else if (exp(test_asis_prob+test_norm_prob_sum+test_log_sum - last_asis_prob-last_norm_prob_sum-last_log_sum)>gsl_ran_flat(rng_handle, 0., 1.) )
 	{
 //	cout << "pass22 " << slsl[0].running_A_mean[0].A_chain.size() << " " << (test_asis_prob+test_norm_prob_sum - last_asis_prob-last_norm_prob_sum) << " " << last_asis_prob << " " << test_asis_prob  << " " << slsl[0].running_A_mean[50].last_mean_rho << " " << slsl[0].running_A_mean[50].test_mean_rho <<  " " << slsl[0].last_m_vec[50] << " " << slsl[0].test_m_vec[50] << " " << last_norm_prob_sum << " " << test_norm_prob_sum << " " << previous_s_R << " " << test_s_R  << endl;
 		previous_s_R=test_s_R;
@@ -481,12 +499,12 @@ void neighbour_find(vector<sl_obj>  &sl_list)
 
 double int_lookup(double A_max, double A_mean, double sd)
 {
-	if (A_mean>=19.95){A_mean=19.94;}
-	if (A_mean<0.05){A_mean=0.05;}
-	if (A_max>=19.95){A_max=19.94;}
-	if (A_max<-1.95){A_max=-1.95;}
-	if (sd>=9.95){sd=9.94;}
-	if (sd<0.05){sd=0.05;}
+	if (A_mean>=19.9){A_mean=19.89;}
+	if (A_mean<0.1){A_mean=0.11;}
+	if (A_max>=19.9){A_max=19.89;}
+	if (A_max<-1.9){A_max=-1.89;}
+	if (sd>=9.9){sd=9.89;}
+	if (sd<0.1){sd=0.11;}
 //	cout << A_mean << " " << A_max << " " << sd << " " << int(floor((A_max+2)*5.-0.5))<< " " << int(floor(A_mean*5.-0.5)) << " " << int(floor(sd*5.-0.5)) << endl;
 	return lookup_table[int(floor((A_max+2)*5.-0.5))][int(floor(A_mean*5.-0.5))][int(floor(sd*5.-0.5))];
 }

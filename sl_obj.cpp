@@ -230,7 +230,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		{
 			star_cat.erase(star_cat.begin()+it_stars);
 		}
-		else if (star_cat[it_stars].J-star_cat[it_stars].H > (star_cat[it_stars].H - star_cat[it_stars].K)*1.56 +1.0 )
+		else if (star_cat[it_stars].J-star_cat[it_stars].H > (star_cat[it_stars].H - star_cat[it_stars].K)*1.56 +0.6 )
 		{
 			star_cat.erase(star_cat.begin()+it_stars);
 		}
@@ -292,9 +292,11 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		float dummy=0;
 		float dummy3=0, dummy4=0;
 	//	#pragma omp parallel for  num_threads(3) //reduction(+:dummy)
+		star_prob=0;
 		for (int it=0; it<star_cat.size(); it++)
 		{
 			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, running_A_mean);//};
+			star_prob+=star_cat[it].last_prob;
 		}
 
 		global_previous_prob=get_A_mean_last_prob();

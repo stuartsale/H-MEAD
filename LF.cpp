@@ -3,6 +3,7 @@
 
 LF::LF(string filename)
 {
+	float l=270, b=0;
 
 	ifstream input1;
 	input1.open(filename.c_str());
@@ -41,7 +42,7 @@ LF::LF(string filename)
 	norm_lf=0;
 	for (int it=0; it<150; it++)
 	{
-		prior_lf.push_back(exp(log_prior(5*log10(it*100.+50.)-5., feh, PI, 0.)));
+		prior_lf.push_back(exp(log_prior(5*log10(it*100.+50.)-5., feh, l, b)));
 		norm_lf+=prior_lf[it];
 	}
 	cout << prior_lf.size() << " " << prior_lf[10] << " " << norm_lf << endl;
