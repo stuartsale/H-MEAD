@@ -316,10 +316,14 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 		while (!move_on)
 		{
+			sum1=0;
 			for (int i=0; i<rel_length; i++)
 			{
-				running_A_mean[i].test_mean_rho=exp(log(running_A_mean[i].last_mean_rho)*cos(theta) + log(trial_rel[i][0])*sin(theta));
-				running_A_mean[i].test_sd_A=exp(log(running_A_mean[i].last_sd_A)*cos(theta) + log(trial_rel[i][1])*sin(theta));
+				running_A_mean[i].test_mean_rho=((running_A_mean[i].last_mean_rho)*cos(theta) + (trial_rel[i][0])*sin(theta));
+				if (running_A_mean[i].test_mean_rho<0){continue;}
+				sum1+=running_A_mean[i].test_mean_rho;
+				//running_A_mean[i].test_sd_A=exp(log(running_A_mean[i].last_sd_A)*cos(theta) + log(trial_rel[i][1])*sin(theta));
+				running_A_mean[i].test_sd_A=1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum1;//running_A_mean[i].last_sd_A;//gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum1) - 0.05268 , 0.3246);
 				test_ln_vec[i]=log(running_A_mean[i].test_mean_rho);
 			}
 			rho_to_A();
@@ -450,9 +454,9 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel(void)
 	for (int i=0; i<rel_length; i++)
 	{
 		new_rel[i][0]=exp(int_vec[i]);
-		sum+=new_rel[i][0];
+	//	sum+=new_rel[i][0];
 	//	new_rel[i][1]=gsl_ran_lognormal(rng_handle, -0.94, 0.246);//*new_rel[i][0];
-		new_rel[i][1]=gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum) - 0.05268 , 0.3246);
+	//	new_rel[i][1]=2;//*1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum;//gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum) - 0.05268 , 0.3246);
 	}
 	return new_rel;
 }
@@ -471,9 +475,9 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel_no_neighbour(void)
 		new_rel[i][0]=exp(int_vec[i]);
 		sum+=new_rel[i][0];
 	//	new_rel[i][1]=gsl_ran_lognormal(rng_handle, -0.94, 0.246);//*new_rel[i][0];
-		new_rel[i][1]=gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum) - 0.05268 , 0.3246);
+		new_rel[i][1]=1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum;//gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum) - 0.05268 , 0.3246);
 		test_ln_vec[i]=int_vec[i];
-		if (isinf(new_rel[i][0]) || isinf(new_rel[i][1])){cout << "nn" << i << " " << int_vec[i] << " " << new_rel[i][0] << " " << new_rel[i][1] << " " << sum << endl;}
+	//	if (isinf(new_rel[i][0]) || isinf(new_rel[i][1])){cout << "nn" << i << " " << int_vec[i] << " " << new_rel[i][0] << " " << new_rel[i][1] << " " << sum << endl;}
 	}
 	return new_rel;
 }
@@ -501,7 +505,7 @@ void sl_obj::mvn_gen_internal_rel_from_z_dash(void)
 	{
 		running_A_mean[i].test_mean_rho=exp(int_vec[i]);
 		sum+=running_A_mean[i].test_mean_rho;
-		running_A_mean[i].test_sd_A=running_A_mean[i].last_sd_A;//gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum) - 0.05268 , 0.3246);
+		running_A_mean[i].test_sd_A=1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum;//running_A_mean[i].last_sd_A;//gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum) - 0.05268 , 0.3246);
 		test_ln_vec[i]=int_vec[i];
 	}
 	rho_to_A();

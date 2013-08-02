@@ -48,6 +48,7 @@ class sl_obj
 
 		vector<bin_obj> running_A_mean;
 		float star_prob;
+		float global_previous_prob;
 
 	private:
 		bool move_on;
@@ -88,7 +89,7 @@ class sl_obj
 		void rho_to_A(void);
 		void initial_rho_to_A(void);
 
-		float global_previous_prob;
+
 		float previous_hyperprior_prob, current_hyperprior_prob;
 		float previous_norm_prob, current_norm_prob;
 		float global_current_prob, global_transition_prob;
@@ -135,6 +136,8 @@ class sl_obj
 		Eigen::Matrix<float, 150, 1> get_last_z_dash(void);
 
 		void define_cov_mat(void);
+
+		float sum1;
 
 
 	// Wider disc params
