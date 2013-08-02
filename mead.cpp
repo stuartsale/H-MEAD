@@ -344,9 +344,9 @@ void hyperprior_update_all(vector <LF> &LFs)
 	}
 
 
-	if (test_asis_prob+test_norm_prob_sum> last_asis_prob+last_norm_prob_sum)
+	if (test_asis_prob/*+test_norm_prob_sum*/> last_asis_prob/*+last_norm_prob_sum*/)
 	{
-//	cout << "pass2 " << slsl[0].running_A_mean[0].A_chain.size() << " " << (test_asis_prob+test_norm_prob_sum - last_asis_prob-last_norm_prob_sum) << " " << last_asis_prob << " " << test_asis_prob  << " " << slsl[0].running_A_mean[50].last_sd_A << " " << slsl[0].running_A_mean[50].test_sd_A <<  " " << slsl[0].last_m_vec[50] << " " << slsl[0].test_m_vec[50] << " " << last_norm_prob_sum << " " << test_norm_prob_sum << " " << previous_s_R << " " << test_s_R  << endl;
+	cout << "1 " << slsl[0].running_A_mean[0].A_chain.size() << " " << (test_asis_prob+test_norm_prob_sum - last_asis_prob-last_norm_prob_sum) << " " << last_asis_prob << " " << test_asis_prob  << " " << slsl[0].running_A_mean[50].last_sd_A << " " << slsl[0].running_A_mean[50].test_sd_A <<  " " << slsl[0].last_m_vec[50] << " " << slsl[0].test_m_vec[50] << " " << last_norm_prob_sum << " " << test_norm_prob_sum << " " << previous_s_R << " " << test_s_R  << endl;
 		previous_s_R=test_s_R;
 		previous_s_z=test_s_z;
 		previous_A_0=test_A_0;
@@ -359,9 +359,9 @@ void hyperprior_update_all(vector <LF> &LFs)
 		}
 		gal_update2++;
 	}
-	else if (exp(test_asis_prob+test_norm_prob_sum - last_asis_prob-last_norm_prob_sum)>gsl_ran_flat(rng_handle, 0., 1.) )
+	else if (exp(test_asis_prob/*+test_norm_prob_sum*/ - last_asis_prob/*-last_norm_prob_sum*/)>gsl_ran_flat(rng_handle, 0., 1.) )
 	{
-//	cout << "pass22 " << slsl[0].running_A_mean[0].A_chain.size() << " " << (test_asis_prob+test_norm_prob_sum - last_asis_prob-last_norm_prob_sum) << " " << last_asis_prob << " " << test_asis_prob  << " " << slsl[0].running_A_mean[50].last_sd_A << " " << slsl[0].running_A_mean[50].test_sd_A <<  " " << slsl[0].last_m_vec[50] << " " << slsl[0].test_m_vec[50] << " " << last_norm_prob_sum << " " << test_norm_prob_sum << " " << previous_s_R << " " << test_s_R  << endl;
+	cout << "1 " << slsl[0].running_A_mean[0].A_chain.size() << " " << (test_asis_prob+test_norm_prob_sum - last_asis_prob-last_norm_prob_sum) << " " << last_asis_prob << " " << test_asis_prob  << " " << slsl[0].running_A_mean[50].last_sd_A << " " << slsl[0].running_A_mean[50].test_sd_A <<  " " << slsl[0].last_m_vec[50] << " " << slsl[0].test_m_vec[50] << " " << last_norm_prob_sum << " " << test_norm_prob_sum << " " << previous_s_R << " " << test_s_R  << endl;
 		previous_s_R=test_s_R;
 		previous_s_z=test_s_z;
 		previous_A_0=test_A_0;
@@ -376,7 +376,7 @@ void hyperprior_update_all(vector <LF> &LFs)
 	}
 	else
 	{	
-//	cout << "fail2 " << slsl[0].running_A_mean[0].A_chain.size() << " " << (test_asis_prob+test_norm_prob_sum - last_asis_prob-last_norm_prob_sum) << " " << last_asis_prob << " " << test_asis_prob  << " " << slsl[0].running_A_mean[50].last_sd_A << " " << slsl[0].running_A_mean[50].test_sd_A <<  " " << slsl[0].last_m_vec[50] << " " << slsl[0].test_m_vec[50] << " " << last_norm_prob_sum << " " << test_norm_prob_sum << " " << previous_s_R << " " << test_s_R  << endl;
+	cout << "0 " << slsl[0].running_A_mean[0].A_chain.size() << " " << (test_asis_prob+test_norm_prob_sum - last_asis_prob-last_norm_prob_sum) << " " << last_asis_prob << " " << test_asis_prob  << " " << slsl[0].running_A_mean[50].last_sd_A << " " << slsl[0].running_A_mean[50].test_sd_A <<  " " << slsl[0].last_m_vec[50] << " " << slsl[0].test_m_vec[50] << " " << last_norm_prob_sum << " " << test_norm_prob_sum << " " << previous_s_R << " " << test_s_R  << endl;
 		test_s_R=previous_s_R;
 		test_s_z=previous_s_z;
 		test_A_0=previous_A_0;

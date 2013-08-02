@@ -308,7 +308,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		threshold=log( gsl_ran_flat(rng_handle, 0, 1) );
 		trial_rel=mvn_gen_internal_rel();
 
-		float sss=0.01;
+		float sss=0;//0.01;
 		//theta=gsl_ran_flat(rng_handle, 0, 2*PI);
 		theta=gsl_ran_gaussian_ziggurat(rng_handle, sss);
 		theta_min=theta-2*PI; 
@@ -394,7 +394,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			}
 		}
 
-		if (it_num/1000.==floor(it_num/1000.)){cout << sl_identifier << " " << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << accepted << " " << accepted/it_num << endl;}
+	//	if (it_num/1000.==floor(it_num/1000.)){cout << sl_identifier << " " << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << accepted << " " << accepted/it_num << endl;}
 
 
 		if (floor(it_num/200.)==it_num/200)
@@ -467,7 +467,7 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel_no_neighbour(void)
 	Eigen::Matrix<float, 150, 1> int_vec;
 	float sum=0.;
 
-	for (int i=0; i<rel_length; i++){test_z_dash[i]=gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
+	for (int i=0; i<rel_length; i++){test_z_dash[i]=0;}//gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
 	int_vec=last_s_vec.asDiagonal()*(chol_L_cond*test_z_dash) + last_m_vec;
 
 	for (int i=0; i<rel_length; i++)

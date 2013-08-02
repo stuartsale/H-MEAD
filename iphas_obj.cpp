@@ -300,21 +300,21 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 	test_feh=last_iso.feh;//+gsl_ran_gaussian_ziggurat(rng_handle,feh_sd);//Z.Next()*feh_sd;
 	if (gsl_ran_flat(rng_handle,0.,1.)<0.95)
 	{
-		test_logT=last_iso.logT+gsl_ran_gaussian_ziggurat(rng_handle,logT_sd);//Z.Next()*logT_sd;
-		test_logg=last_iso.logg+gsl_ran_gaussian_ziggurat(rng_handle,logg_sd);//Z.Next()*logg_sd;
+		test_logT=last_iso.logT;//+gsl_ran_gaussian_ziggurat(rng_handle,logT_sd);//Z.Next()*logT_sd;
+		test_logg=last_iso.logg;//+gsl_ran_gaussian_ziggurat(rng_handle,logg_sd);//Z.Next()*logg_sd;
 		try {test_iso=iso_get_Tg(test_feh, test_logT, test_logg, isochrones);}
 		catch (int e){no_accept++; return;}
-		test_A=last_A+gsl_ran_gaussian_ziggurat(rng_handle,A_sd);//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
-		test_dist_mod=last_dist_mod+gsl_ran_gaussian_ziggurat(rng_handle,dist_mod_sd);//+ Z.Next()*dist_mod_sd;
+		test_A=last_A;//+gsl_ran_gaussian_ziggurat(rng_handle,A_sd);//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
+		test_dist_mod=last_dist_mod;//+gsl_ran_gaussian_ziggurat(rng_handle,dist_mod_sd);//+ Z.Next()*dist_mod_sd;
 	}
 	else
 	{
-		test_logT=last_iso.logT+gsl_ran_gaussian_ziggurat(rng_handle,5*logT_sd);//Z.Next()*logT_sd;
-		test_logg=last_iso.logg+gsl_ran_gaussian_ziggurat(rng_handle,5*logg_sd);//Z.Next()*logg_sd;
+		test_logT=last_iso.logT;//+gsl_ran_gaussian_ziggurat(rng_handle,5*logT_sd);//Z.Next()*logT_sd;
+		test_logg=last_iso.logg;//+gsl_ran_gaussian_ziggurat(rng_handle,5*logg_sd);//Z.Next()*logg_sd;
 		try {test_iso=iso_get_Tg(test_feh, test_logT, test_logg, isochrones);}
 		catch (int e){no_accept++; return;}
-		test_A=last_A+gsl_ran_gaussian_ziggurat(rng_handle,5*A_sd);//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
-		test_dist_mod=last_dist_mod+gsl_ran_gaussian_ziggurat(rng_handle,5*dist_mod_sd);//+ Z.Next()*dist_mod_sd;
+		test_A=last_A;//+gsl_ran_gaussian_ziggurat(rng_handle,5*A_sd);//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
+		test_dist_mod=last_dist_mod;//+gsl_ran_gaussian_ziggurat(rng_handle,5*dist_mod_sd);//+ Z.Next()*dist_mod_sd;
 	}
 	while (test_dist_mod>15.88){test_dist_mod=last_dist_mod+gsl_ran_gaussian_ziggurat(rng_handle,dist_mod_sd);}
 	test_dist=pow(10, test_dist_mod/5.+1);
