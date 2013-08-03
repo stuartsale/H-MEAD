@@ -32,6 +32,7 @@ using namespace std;
 //class iso_obj;
 
 class sl_obj;
+class LF;
 
 // This is a class to hold the photometry
 // and estimated properties of observed objects.
@@ -132,6 +133,10 @@ class iphas_obj
 
 	void push_back(void);
 
+	float last_z_extn, test_z_extn;
+	void get_last_z(void);
+	void set_test_A_from_z(void);
+
 		
    //friends!
 
@@ -139,6 +144,7 @@ class iphas_obj
 	friend void output_write(string filename, vector<bin_obj2> A_mean, vector<iphas_obj> colours);
 	friend float real_prob(vector<iphas_obj> &stars, vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, float l, float b, vector <bin_obj2> backup_A_mean, float ri_min, float ri_max);
 	//friend bool bin_obj::obj_comparison(iphas_obj object1, iphas_obj object2);
+	friend void hyperprior_update_all(vector <LF> &LFs);
 //
 };
 

@@ -319,8 +319,11 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			sum1=0;
 			for (int i=0; i<rel_length; i++)
 			{
-				running_A_mean[i].test_mean_rho=((running_A_mean[i].last_mean_rho)*cos(theta) + (trial_rel[i][0])*sin(theta));
-				if (running_A_mean[i].test_mean_rho<0){continue;}
+//				running_A_mean[i].test_mean_rho=((running_A_mean[i].last_mean_rho)*cos(theta) + (trial_rel[i][0])*sin(theta));
+//				if (running_A_mean[i].test_mean_rho<0){continue;}
+
+				running_A_mean[i].test_mean_rho=gsl_ran_lognormal(rng_handle,log(running_A_mean[i].last_mean_rho)-pow(0.005,2)/2,0.005);
+
 				sum1+=running_A_mean[i].test_mean_rho;
 				//running_A_mean[i].test_sd_A=exp(log(running_A_mean[i].last_sd_A)*cos(theta) + log(trial_rel[i][1])*sin(theta));
 				running_A_mean[i].test_sd_A=1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum1;//running_A_mean[i].last_sd_A;//gsl_ran_lognormal(rng_handle, log( 1.75/sqrt(8.*(i+.5)) * last_s_vec[i] * sum1) - 0.05268 , 0.3246);
@@ -346,25 +349,28 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 			dummy=0;
 	//		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
-//			for (int it=1; it<150; it++)
-//			{
-//			// From new to old
-//			// mean_A
-//				dummy+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][0], log(internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
-//				dummy+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][1], log(internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
-//			// From old to new
-//			// mean_A
-//				dummy-=log(gsl_ran_lognormal_pdf(internal_rel[it][0], log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2 ,proposal_sd[it][0]));
-//				dummy-=log(gsl_ran_lognormal_pdf(internal_rel[it][1], log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
-//			}
+			for (int i=1; i<150; i++)
+			{
+			// From new to old
+			// mean_A
+				dummy+=log(gsl_ran_lognormal_pdf(running_A_mean[i].last_mean_rho, log(running_A_mean[i].test_mean_rho)-pow(0.005,2)/2 ,0.005));
+			//	dummy+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][1], log(internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
+			// From old to new
+			// mean_A
+				dummy-=log(gsl_ran_lognormal_pdf(running_A_mean[i].test_mean_rho, log(running_A_mean[i].last_mean_rho)-pow(0.005,2)/2 ,0.005));
+			//	dummy-=log(gsl_ran_lognormal_pdf(internal_rel[it][1], log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2 ,proposal_sd[it][1]));
+			}
 			global_transition_prob=dummy;
+
+			previous_hyperprior_prob=get_rho_last_prob();
+			current_hyperprior_prob=get_rho_last_prob_new_rel();
 	
 
 // Accept or reject
 
 			accepted++;
-			if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
-				 + current_norm_prob-previous_norm_prob>threshold || sss<1E-7)		// New parameter set better => Accept
+			if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob
+				 + current_norm_prob-previous_norm_prob>log(gsl_ran_flat(rng_handle, 0, 1)))//threshold)// || sss<1E-7)		// New parameter set better => Accept
 			{
 			//	cout << "pass " << running_A_mean[0].A_chain.size() << " " << global_current_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[50].test_mean_rho << " " << previous_norm_prob << " "  << endl;
 				global_previous_prob=global_current_prob;
@@ -382,7 +388,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 			else 
 			{
-			//cout << "fail " << running_A_mean[0].A_chain.size() << " " << global_current_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[50].test_mean_rho << " " << previous_norm_prob << " "  << endl;
+		//	cout << "fail " << running_A_mean[0].A_chain.size() << " " << global_current_prob << " " << global_previous_prob << " " << previous_hyperprior_prob << " " << current_hyperprior_prob << " " << previous_norm_prob << " " << current_norm_prob << " " << global_transition_prob  << endl;
 			if (theta>0){theta_max=theta;}
 			else {theta_min=theta;}
 		//	theta=gsl_ran_flat(rng_handle, theta_min, theta_max);
@@ -394,7 +400,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			}
 		}
 
-	//	if (it_num/1000.==floor(it_num/1000.)){cout << sl_identifier << " " << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << accepted << " " << accepted/it_num << endl;}
+		if (it_num/1000.==floor(it_num/1000.)){cout << sl_identifier << " " << it_num << " " << global_previous_prob << " " << running_A_mean[50].last_mean_rho << " " << running_A_mean[rel_length-1].last_mean_A << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << accepted << " " << accepted/it_num << endl;}
 
 
 		if (floor(it_num/200.)==it_num/200)
@@ -467,7 +473,7 @@ vector < vector <float> > sl_obj::mvn_gen_internal_rel_no_neighbour(void)
 	Eigen::Matrix<float, 150, 1> int_vec;
 	float sum=0.;
 
-	for (int i=0; i<rel_length; i++){test_z_dash[i]=0;}//gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
+	for (int i=0; i<rel_length; i++){test_z_dash[i]=gsl_ran_gaussian_ziggurat(rng_handle, 1.);}
 	int_vec=last_s_vec.asDiagonal()*(chol_L_cond*test_z_dash) + last_m_vec;
 
 	for (int i=0; i<rel_length; i++)
@@ -545,6 +551,24 @@ float sl_obj::get_rho_last_prob(void)
 	{
 		last_s_Inv[i]=1./last_s_vec[i];
 		temp_vec[i]=log(running_A_mean[i].last_mean_rho);
+	}
+
+	temp_vec2=temp_vec-last_m_vec;
+
+	x= -temp_vec2.transpose() * last_s_Inv.asDiagonal() * (Cov_Mat_Inv ) * last_s_Inv.asDiagonal() *  temp_vec2;
+	
+	return x;
+}
+
+float sl_obj::get_rho_last_prob_new_rel(void)
+{
+	Eigen::Matrix<float, 150, 1> last_s_Inv, temp_vec, temp_vec2;
+	float x;
+	
+	for (int i=0; i<rel_length; i++)
+	{
+		last_s_Inv[i]=1./last_s_vec[i];
+		temp_vec[i]=log(running_A_mean[i].test_mean_rho);
 	}
 
 	temp_vec2=temp_vec-last_m_vec;

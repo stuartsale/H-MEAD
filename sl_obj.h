@@ -49,6 +49,7 @@ class sl_obj
 		vector<bin_obj> running_A_mean;
 		float star_prob;
 		float global_previous_prob;
+		float previous_norm_prob, current_norm_prob;
 
 	private:
 		bool move_on;
@@ -82,6 +83,7 @@ class sl_obj
 		float get_rho_test_prob(void);
 		float get_rho_last_prob_higher(void);
 		float get_rho_test_prob_higher(void);
+float get_rho_last_prob_new_rel(void);
 		float get_A_mean_test_prob(void);
 		float get_A_mean_last_prob(void);
 
@@ -91,7 +93,7 @@ class sl_obj
 
 
 		float previous_hyperprior_prob, current_hyperprior_prob;
-		float previous_norm_prob, current_norm_prob;
+
 		float global_current_prob, global_transition_prob;
 		float previous_xsl_prob, current_xsl_prob;
 
