@@ -395,6 +395,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			sss/=5;	
 			theta=gsl_ran_gaussian_ziggurat(rng_handle, sss);
 			for (int it=0; it<running_A_mean.size(); it++){running_A_mean[it].reject();}
+			move_on=true;
 
 
 			}
@@ -546,54 +547,60 @@ float sl_obj::get_rho_last_prob(void)
 {
 	Eigen::Matrix<float, 150, 1> last_s_Inv, temp_vec, temp_vec2;
 	float x;
+	float sum=0;
 	
 	for (int i=0; i<rel_length; i++)
 	{
 		last_s_Inv[i]=1./last_s_vec[i];
 		temp_vec[i]=log(running_A_mean[i].last_mean_rho);
+		sum-=temp_vec[i];
 	}
 
 	temp_vec2=temp_vec-last_m_vec;
 
 	x= -temp_vec2.transpose() * last_s_Inv.asDiagonal() * (Cov_Mat_Inv ) * last_s_Inv.asDiagonal() *  temp_vec2;
 	
-	return x;
+	return sum+x;
 }
 
 float sl_obj::get_rho_last_prob_new_rel(void)
 {
 	Eigen::Matrix<float, 150, 1> last_s_Inv, temp_vec, temp_vec2;
 	float x;
+	float sum=0;
 	
 	for (int i=0; i<rel_length; i++)
 	{
 		last_s_Inv[i]=1./last_s_vec[i];
 		temp_vec[i]=log(running_A_mean[i].test_mean_rho);
+		sum-=temp_vec[i];
 	}
 
 	temp_vec2=temp_vec-last_m_vec;
 
 	x= -temp_vec2.transpose() * last_s_Inv.asDiagonal() * (Cov_Mat_Inv ) * last_s_Inv.asDiagonal() *  temp_vec2;
 	
-	return x;
+	return sum+x;
 }
 
 float sl_obj::get_rho_test_prob(void)
 {
 	Eigen::Matrix<float, 150, 1> last_s_Inv, temp_vec, temp_vec2;
 	float x;
+	float sum=0;
 	
 	for (int i=0; i<rel_length; i++)
 	{
 		last_s_Inv[i]=1./last_s_vec[i];
 		temp_vec[i]=log(running_A_mean[i].last_mean_rho);
+		sum-=temp_vec[i];
 	}
 
 	temp_vec2=temp_vec-test_m_vec;
 
 	x= -temp_vec2.transpose() * last_s_Inv.asDiagonal() * (Cov_Mat_Inv ) * last_s_Inv.asDiagonal() *  temp_vec2;
 	
-	return x;
+	return sum+x;
 }
 
 float sl_obj::get_rho_last_prob_higher(void)
@@ -601,16 +608,18 @@ float sl_obj::get_rho_last_prob_higher(void)
 	Eigen::Matrix<float, 150, 1> temp_vec, temp_vec2, temp_vec3;
 	float x;
 	for (int i=0; i<150; i++){temp_vec[i]=0;}
+	float sum=0;
 
 	for (int i=0; i<higher_neighbour_slsl.size(); i++){temp_vec+=higher_neighbour_slsl[i]->last_s_inv.asDiagonal()*
 								(higher_neighbour_slsl[i]->last_ln_vec-higher_neighbour_slsl[i]->last_m_vec);}
 
 	temp_vec2=last_s_vec.asDiagonal()*(cond_mu_Mat*temp_vec);
 	temp_vec3=last_ln_vec-(last_m_vec+temp_vec2);
+	for (int i=0; i<rel_length; i++){sum-=last_ln_vec[i];}
 
 	x= -temp_vec3.transpose() * last_s_inv.asDiagonal() * (higher_cond_Mat_Inv ) * last_s_inv.asDiagonal() *  temp_vec3;
 	
-	return x;
+	return sum+x;
 }
 
 float sl_obj::get_rho_test_prob_higher(void)
@@ -618,16 +627,18 @@ float sl_obj::get_rho_test_prob_higher(void)
 	Eigen::Matrix<float, 150, 1> temp_vec, temp_vec2, temp_vec3;
 	float x;
 	for (int i=0; i<150; i++){temp_vec[i]=0;}
+	float sum=0;
 
 	for (int i=0; i<higher_neighbour_slsl.size(); i++){temp_vec+=higher_neighbour_slsl[i]->last_s_inv.asDiagonal()*
 								(higher_neighbour_slsl[i]->last_ln_vec-higher_neighbour_slsl[i]->test_m_vec);}
 
 	temp_vec2=last_s_vec.asDiagonal()*(cond_mu_Mat*temp_vec);
 	temp_vec3=last_ln_vec-(test_m_vec+temp_vec2);
+	for (int i=0; i<rel_length; i++){sum-=last_ln_vec[i];}
 
 	x= -temp_vec3.transpose() * last_s_inv.asDiagonal() * (higher_cond_Mat_Inv ) * last_s_inv.asDiagonal() *  temp_vec3;
 	
-	return x;
+	return sum+x;
 }
 
 
