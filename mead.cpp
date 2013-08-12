@@ -268,7 +268,7 @@ void hyperprior_update_all(vector <LF> &LFs)
 
 	test_s_R=previous_s_R+gsl_ran_gaussian_ziggurat(rng_handle,4.);
 	test_s_z=previous_s_z;//+gsl_ran_gaussian_ziggurat(rng_handle,1.);
-	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.001)-(test_s_R-previous_s_R)/2500.;
+	test_A_0=previous_A_0+gsl_ran_gaussian_ziggurat(rng_handle,0.001)-(test_s_R-previous_s_R)*0.000212;
 
 	test_theta_prior_prob=0;//slsl.size()*150*(-log(test_s_R))/3.;
 
@@ -338,7 +338,7 @@ void hyperprior_update_all(vector <LF> &LFs)
 //	{
 //		test_s_R=previous_s_R;//+gsl_ran_gaussian_ziggurat(rng_handle,10.);
 //		test_s_z=previous_s_z;//+gsl_ran_gaussian_ziggurat(rng_handle,1.);
-//		test_A_0=previous_A_0;//+gsl_ran_gaussian_ziggurat(rng_handle,0.01);
+//		test_A_0=previous_A_0;//+gsl_ran_gaussian_ziggurat(rng_handle,0.01)-(test_s_R-previous_s_R)*0.000212;
 //	}
 
 //	test_theta_prior_prob=slsl.size()*150*(-log(test_s_R));
