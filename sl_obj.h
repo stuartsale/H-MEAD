@@ -13,7 +13,7 @@ class sl_obj
 {
 
 	public:
-		sl_obj(string filename, float l_in, float b_in, string datatype);
+		sl_obj(string filename, float l_in, float b_in, string datatype, float r_max_in, float i_max_in, float ha_max_in);
 		sl_obj(void);
 		void initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector <LF> &LFs);
 		void dist_redMCMC(vector<iso_obj> &isochrones, vector <LF> &LFs);
@@ -23,7 +23,7 @@ class sl_obj
 		void neighbour_set(sl_obj * neighbour);
 		void acl_calc(void);
 		float it_num;
-
+		float r_max, i_max, ha_max;
 
 	private:
 		vector <iphas_obj> star_cat;
@@ -31,7 +31,7 @@ class sl_obj
 		float l, b;
 
 		float r_min, i_min, ha_min;	// iphas min & maxes
-		float r_max, i_max, ha_max;
+
 
 		float J_min, H_min, K_min;	// 2MASS min & maxes
 		float J_max, H_max, K_max;

@@ -38,9 +38,9 @@ vector<iphas_obj> iphas_read(string filename,float &r_min1,float &i_min1,float &
 			if (infromfile.size()==30 && (infromfile[6]==-1 || infromfile[6]==-2) && (infromfile[11]==-1 || infromfile[11]==-2) && (infromfile[16]==-1 || infromfile[16]==-2) && (abs(infromfile[4])>0.1) && (abs(infromfile[9])>0.1) && (abs(infromfile[14])>0.1) && (infromfile[5]!=0) && (infromfile[10]!=0) && (infromfile[15]!=0) && infromfile[18]<=1.0 && infromfile[19]<=1.0 && infromfile[20]<=1.0 && infromfile[21]<=1.0) 	//selecting only stellar or probably stellar objects and those with small RA & DEC offsets
 			{
 
-   		        	if(infromfile[4] > r_max1) { r_max1 = infromfile[4];}
-            			if(infromfile[9] > i_max1) { i_max1 = infromfile[9];}
-            			if(infromfile[14] > ha_max1) { ha_max1 = infromfile[14];}
+//   		        	if(infromfile[4] > r_max1) { r_max1 = infromfile[4];}
+//            			if(infromfile[9] > i_max1) { i_max1 = infromfile[9];}
+//            			if(infromfile[14] > ha_max1) { ha_max1 = infromfile[14];}
 			        iphas_obj next_obj(infromfile[4], infromfile[9], infromfile[14], sqrt(pow(infromfile[5],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[10],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[15],2)+pow(0.0016165105,2)), infromfile[0], infromfile[1], infromfile[22], infromfile[23]*1.0857, infromfile[28], infromfile[27], infromfile[29]);	// making the new iphas_obj
 
 				iphas_colours.push_back(next_obj);																											// pushing it into the vetor
@@ -49,9 +49,9 @@ vector<iphas_obj> iphas_read(string filename,float &r_min1,float &i_min1,float &
 			if (infromfile.size()==22 && (infromfile[6]==-1 || infromfile[6]==-2) && (infromfile[11]==-1 || infromfile[11]==-2) && (infromfile[16]==-1 || infromfile[16]==-2) && (infromfile[4]!=0) && (infromfile[9]!=0) && (infromfile[14]!=0) && (infromfile[5]!=0) && (infromfile[10]!=0) && (infromfile[15]!=0) && infromfile[18]<=1.0 && infromfile[19]<=1.0 && infromfile[20]<=1.0 && infromfile[21]<=1.0) 	//selecting only stellar or probably stellar objects and those with small RA & DEC offsets
 			{
 
-   		        	if(infromfile[4] > r_max1) { r_max1 = infromfile[4];}
-            			if(infromfile[9] > i_max1) { i_max1 = infromfile[9];}
-            			if(infromfile[14] > ha_max1) { ha_max1 = infromfile[14];}
+//   		        	if(infromfile[4] > r_max1) { r_max1 = infromfile[4];}
+//            			if(infromfile[9] > i_max1) { i_max1 = infromfile[9];}
+//            			if(infromfile[14] > ha_max1) { ha_max1 = infromfile[14];}
 			        iphas_obj next_obj(infromfile[4], infromfile[9], infromfile[14], sqrt(pow(infromfile[5],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[10],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[15],2)+pow(0.0016165105,2)), infromfile[0], infromfile[1]);	// making the new iphas_obj
 
 				iphas_colours.push_back(next_obj);																											// pushing it into the vetor

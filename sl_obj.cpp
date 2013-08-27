@@ -22,7 +22,7 @@ sl_obj::sl_obj(void)
 	neighbour_sl=NULL;
 }
 
-sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
+sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype, float r_max_in, float i_max_in, float ha_max_in)
 {
 	// Set up variables ---------------------------------------------------------------------
 	l=l_in;
@@ -35,9 +35,9 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype)
 	i_min=12.0;
 	ha_min=12.0;				
 	// set default MAX vals
-	r_max=21.;
-	i_max=20.;
-	ha_max=20.;
+	r_max=r_max_in;
+	i_max=i_max_in;
+	ha_max=ha_max_in;
 
 	//	global_previous_prob=0;
 	//	previous_hyperprior_prob=0;
