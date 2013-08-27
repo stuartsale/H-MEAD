@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
 	vector <vector <string> > config_file;
 	config_file=config_read(argv[1]);
 
-	vector <sl_obj> slsl(config_file.size());
+//	vector <sl_obj> slsl(config_file.size());
 
 	for(int it_conf=0; it_conf<config_file.size(); it_conf++)
 	{
@@ -152,32 +152,34 @@ int main(int argc, char* argv[])
 
 		sl_obj sl1( config_file[it_conf][0],atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()), config_file[it_conf][3] );
 		//slsl.push_back(sl1);
-		slsl[it_conf]=sl1;
+//		slsl[it_conf]=sl1;
 
-		if (it_conf!=0){slsl[it_conf].neighbour_set(&slsl[it_conf-1]);}
-		slsl[it_conf].initial_guess(isochrones, guess_set, lfs);
-	}
+//		if (it_conf!=0){sl1.neighbour_set(&slsl[it_conf-1]);}
+		sl1.initial_guess(isochrones, guess_set, lfs);
+	//}
 
 	clock_t start;
 	start=time(NULL);
 
-	while (slsl[0].it_num<150000)
+	while (sl1.it_num<150000)
 	{
-		for (int it_conf=0; it_conf<config_file.size(); it_conf++)
-		{
-			slsl[it_conf].update(isochrones, lfs);
-		}
+//		for (int it_conf=0; it_conf<config_file.size(); it_conf++)
+//		{
+			sl1.update(isochrones, lfs);
+//		}
 	}		
 	
 	cout << "total time: " << (time(NULL)-start) <<"s\n";
    	
 // Write results to file
 
-	for(int it_conf=0; it_conf<config_file.size(); it_conf++)
-	{
-		slsl[it_conf].mean_intervals();
-		slsl[it_conf].output_write();
-		slsl[it_conf].acl_calc();
+//	for(int it_conf=0; it_conf<config_file.size(); it_conf++)
+//	{
+		sl1.mean_intervals();
+		sl1.output_write();
+		sl1.acl_calc();
+//	}
+		
 	}
 
 
