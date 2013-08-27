@@ -3,20 +3,20 @@
 HOST=$(shell hostname)
 ifeq ($(HOST),orion)
 	RUN_DIR=../../
-	flags= -g -fopenmp
+	flags= -O3 -fopenmp
 	linking_flags= -lgsl -lgslcblas -lm -lprofiler -fopenmp -g
 	gsl_lib=/usr/lib/
 	gsl_include=/usr/include/
 else 
 	ifeq ($(HOST),newhydra.physics.ox.ac.uk)
 		RUN_DIR=../../
-		flags= -g -fopenmp
+		flags= -O3 -fopenmp
 		linking_flags= -lgsl -lgslcblas -lm -fopenmp -g
 		gsl_include=/usr/local/shared/gsl-1.12/include/
 		gsl_lib=/usr/local/shared/gsl-1.12/lib/
 	else	#defaults
 		RUN_DIR=../../
-		flags= -g -fopenmp
+		flags= -O3 -fopenmp
 		linking_flags= -lgsl -lgslcblas -lm -fopenmp -g
 		gsl_lib=/usr/lib/
 		gsl_include=/usr/include/

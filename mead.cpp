@@ -29,6 +29,8 @@ double r_min, i_min, ha_min, r_max, i_max, ha_max;
 double J_min, H_min, K_min, J_max, H_max, K_max;
 vector <vector <vector <double> > > lookup_table;
 
+string config_dir;
+
 gsl_rng* rng_handle;
 
 //--------------------------------
@@ -39,24 +41,40 @@ gsl_rng* rng_handle;
 
 int main(int argc, char* argv[]) 
 {	
-	// Initialise MPI
+	// Set up
 
-	int numprocs, rank, namelen, rc;
-	char processor_name[MPI_MAX_PROCESSOR_NAME];
-	MPI_Status Stat;
-
-	rc=MPI_Init(&argc, &argv);
-	if (rc!=MPI_SUCCESS)
+	char hostname[1024];
+	gethostname(hostname, 1023);
+	string hostname_s=hostname;
+	if (hostname_s=="orion")
 	{
-		printf ("Error starting MPI program. Terminating.\n");
-		MPI_Abort(MPI_COMM_WORLD, rc);
+		cout << "hostname is " << hostname_s << endl;
+		config_dir="/home/stuart/work/work-oxford/distance_red/config/";
+	}
+	else
+	{
+		cout << "hostname is " << hostname_s << endl;	
+		config_dir="/usersVol1/sale/distance_red/config/";
 	}
 
-	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Get_processor_name(processor_name, &namelen);
+//	// Initialise MPI
 
-	printf("Process %d on %s out of %d\n", rank, processor_name, numprocs);
+//	int numprocs, rank, namelen, rc;
+//	char processor_name[MPI_MAX_PROCESSOR_NAME];
+//	MPI_Status Stat;
+
+//	rc=MPI_Init(&argc, &argv);
+//	if (rc!=MPI_SUCCESS)
+//	{
+//		printf ("Error starting MPI program. Terminating.\n");
+//		MPI_Abort(MPI_COMM_WORLD, rc);
+//	}
+
+//	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+//	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+//	MPI_Get_processor_name(processor_name, &namelen);
+
+//	printf("Process %d on %s out of %d\n", rank, processor_name, numprocs);
 
 	//initialize up random number generator
     	//gsl_rng_env_setup ();
@@ -87,7 +105,7 @@ int main(int argc, char* argv[])
       //Reading in isochrones data into a vector
 
 	//vector<iso_obj> isochrones=iso_read("padova-iso_reg.dat");
-	vector<iso_obj> isochrones=iso_read_Tg("padova-iso_tefflogg3.dat");
+	vector<iso_obj> isochrones=iso_read_Tg(config_dir+"padova-iso_tefflogg3.dat");
 
 	vector<iso_obj> guess_set;
 //	guess_set.push_back(iso_get_Tg(0.,3.574 ,5.00 , isochrones));	//M1
@@ -114,7 +132,7 @@ int main(int argc, char* argv[])
 
 	vector <LF> lfs;
 
-	LF lfzero("config/iphas_LFs/lfp0000_r.dat");
+	LF lfzero(config_dir+"iphas_LFs/lfp0000_r.dat");
 	lfs.push_back(lfzero);
 
 //	while (1.0648*guess_set[guess_set.size()-1].Mi<2.060){guess_set.push_back(iso_get(0., 1.0648*guess_set[guess_set.size()-1].Mi, 8.5, isochrones));}
@@ -163,7 +181,7 @@ int main(int argc, char* argv[])
 	}
 
 
-	MPI_Finalize();
+//	MPI_Finalize();
 	return 0;
 }
 
