@@ -24,7 +24,7 @@ else
 
 endif
 
-COMPILER=mpic++
+COMPILER=icpc
 
 
 
