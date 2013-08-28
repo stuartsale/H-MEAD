@@ -114,6 +114,29 @@ void sl_obj::output_write(void)
 	rho_out.close();
 
 
+	ofstream samp_out;
+	dummy_string=rootname+".samp";	
+	samp_out.open(dummy_string.c_str(), ios::trunc);
+	for (int x=0; x<global_A_chain[0].size(); x++)
+	{
+		samp_out << x*100 + 50 << "\t";
+		for (int y=0; y<20; y++){samp_out << global_A_chain[int((0.70+y*0.3/20)*global_A_chain.size())][x][0] << "\t";}
+		samp_out << endl;
+	}
+	samp_out.close();
+
+	ofstream srho_out;
+	dummy_string=rootname+".srho";	
+	srho_out.open(dummy_string.c_str(), ios::trunc);
+	for (int x=0; x<global_A_chain[0].size(); x++)
+	{
+		srho_out << x*100 + 50 << "\t";
+		if (x==0){for (int y=0; y<20; y++){srho_out << global_A_chain[int((0.70+y*0.3/20)*global_A_chain.size())][x][0] << "\t";}}
+		else {for (int y=0; y<20; y++){srho_out << global_A_chain[int((0.70+y*0.3/20)*global_A_chain.size())][x][0]-
+						global_A_chain[int((0.70+y*0.3/20)*global_A_chain.size())][x-1][0]  << "\t";}}
+		srho_out << endl;
+	}
+	srho_out.close();
 }
 
 
