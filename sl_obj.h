@@ -54,7 +54,9 @@ class sl_obj
 		vector <vector <vector <float> > > global_A_chain;
 
 		vector<bin_obj2> A_mean;
-		vector<bin_obj2> backup_A_mean;				
+		vector<bin_obj2> backup_A_mean;	
+
+		vector < vector<float> > rho_final;		
 
 		float sigma_fac, accepted;
 // Set up

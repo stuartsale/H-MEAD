@@ -100,6 +100,20 @@ void sl_obj::output_write(void)
 			<< star_cat[y].ix << "\t" << star_cat[y].hax << "\n";
 	}
 	output.close();
+	
+	float sum1=0;
+	ofstream rho_out;
+	dummy_string=rootname+".rho";
+	rho_out.open(dummy_string.c_str(), ios::trunc);
+	rho_out << "#\tdist\trho\td_rho\tA\n" ;
+	for (int x=0; x<rho_final.size(); x++)
+	{
+		sum1+= rho_final[x][0];
+		rho_out << x*100 + 50 << "\t" << rho_final[x][0] << "\t" << rho_final[x][1] << "\t" << sum1 <<"\n";
+	}
+	rho_out.close();
+
+
 }
 
 
@@ -420,6 +434,43 @@ void sl_obj::mean_intervals(void)
 
 		A_mean[it].error_measure=sqrt(pow(A_mean[it].d_mean/A_mean[it].mean_A,2)+pow(A_mean[it].d_sigma/A_mean[it].sigma,2));
 	}
+	
+	rho_final.resize(150);
+	rho_final[0].resize(2);
+	vector <float> rho_diffs;
+
+	float rho_sum=0.;
+	for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)
+	{
+		rho_sum+=global_A_chain[m][0][0];
+	}
+	rho_final[0][0]=rho_sum/ceil(0.30*global_A_chain.size());
+	for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)
+	{
+		rho_diffs.push_back(abs(global_A_chain[m][0][0]-rho_final[0][0]) );
+	}
+	sort(rho_diffs.begin(),rho_diffs.end());
+	rho_final[0][1]=rho_diffs[int(0.682*rho_diffs.size())];
+
+	for (int it=1; it<150; it++)
+	{
+		rho_final[it].resize(2);
+		vector <float> rho_diffs;
+
+		float rho_sum=0.;
+		for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)
+		{
+			rho_sum+=global_A_chain[m][it][0]-global_A_chain[m][it-1][0];
+		}
+		rho_final[it][0]=rho_sum/ceil(0.30*global_A_chain.size());
+		for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)
+		{
+			rho_diffs.push_back(abs(global_A_chain[m][it][0]-global_A_chain[m][it-1][0]-rho_final[it][0]) );
+		}
+		sort(rho_diffs.begin(),rho_diffs.end());
+		rho_final[it][1]=rho_diffs[int(0.682*rho_diffs.size())];
+	}
+	
 
 }
 
