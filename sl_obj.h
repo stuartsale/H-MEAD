@@ -9,6 +9,8 @@ using namespace std;
 #define PI 3.14159265358979323846
 #endif
 
+extern string hmd_dir;
+
 class sl_obj
 {
 

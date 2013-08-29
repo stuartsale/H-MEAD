@@ -1,5 +1,6 @@
 #include <cstdlib> 
 #include <ctime>
+#include <unistd.h>
 //#include "helper.h"
 //#include "bin_obj.h"
 //#include "iso_obj.h"
@@ -30,7 +31,7 @@ double J_min, H_min, K_min, J_max, H_max, K_max;
 vector <vector <vector <double> > > lookup_table;
 
 string config_dir;
-
+string hmd_dir;
 gsl_rng* rng_handle;
 
 //--------------------------------
@@ -56,6 +57,10 @@ int main(int argc, char* argv[])
 		cout << "hostname is " << hostname_s << endl;	
 		config_dir="/usersVol1/sale/distance_red/config/";
 	}
+
+	char buff[PATH_MAX];
+	getcwd( buff, PATH_MAX );
+	std::string cwd( buff );
 
 //	// Initialise MPI
 
@@ -141,7 +146,14 @@ int main(int argc, char* argv[])
 // Read in config file
 
 	vector <vector <string> > config_file;
-	config_file=config_read(argv[1]);
+	string hmd_file_path=argv[1];
+	config_file=config_read(hmd_file_path);
+	
+	unsigned found=hmd_file_path.find_last_of("/");
+	if (found==string::npos){hmd_dir=cwd+"/";}
+	else{hmd_dir=cwd+"/"+hmd_file_path.substr(0,found+1);}
+
+	cout << "hmd_dir: " << hmd_dir  << endl;
 
 //	vector <sl_obj> slsl(config_file.size());
 
@@ -150,7 +162,7 @@ int main(int argc, char* argv[])
 
    // Read in data
 
-		sl_obj sl1( config_file[it_conf][0], atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()),
+		sl_obj sl1( hmd_dir+config_file[it_conf][0], atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()),
 			config_file[it_conf][3], atof(config_file[it_conf][4].c_str()), atof(config_file[it_conf][5].c_str()), atof(config_file[it_conf][6].c_str()) );
 		//slsl.push_back(sl1);
 //		slsl[it_conf]=sl1;

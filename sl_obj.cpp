@@ -27,7 +27,9 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype, float r
 	// Set up variables ---------------------------------------------------------------------
 	l=l_in;
 	b=b_in;
-	rootname=filename;
+	unsigned found=filename.find_last_of("/");
+	if (found==string::npos){rootname=filename;}
+	else{rootname=filename.substr(found+1);}
 	rootname.erase(rootname.size()-4);
 
 	// set default MIN vals
@@ -73,7 +75,8 @@ void sl_obj::output_write(void)
 {
 	ofstream A_out;
 	string dummy_string;
-	dummy_string=rootname+".td4";
+	dummy_string=hmd_dir+rootname+".td4";
+	cout << "out: " << dummy_string << endl;
 	A_out.open(dummy_string.c_str(), ios::trunc);
 	//A_out << "#\tdist\tA\tsigma_A\n";
 
@@ -86,7 +89,7 @@ void sl_obj::output_write(void)
 
 
 	ofstream output;
-	dummy_string=rootname+"-090.dat";
+	dummy_string=hmd_dir+rootname+"-090.dat";
 	output.open(dummy_string.c_str(), ios::trunc);
 	output << "#\tr\ti\tha\tr_i0\tdist\tA\tdistbin\td_A\td_r_i0\td_dist\td_r\td_i\td_ha\tmag_weight\tprob\tA_prob\tMi\tlogAge\tfeh\td_Mi\td_lagAge\td_feh\tlogT\tlogg\trx\tix\thax\n" ;
 	for (int y=0; y<star_cat.size(); y++)
@@ -103,7 +106,7 @@ void sl_obj::output_write(void)
 	
 	float sum1=0;
 	ofstream rho_out;
-	dummy_string=rootname+".rho";
+	dummy_string=hmd_dir+rootname+".rho";
 	rho_out.open(dummy_string.c_str(), ios::trunc);
 	rho_out << "#\tdist\trho\td_rho\tA\n" ;
 	for (int x=0; x<rho_final.size(); x++)
@@ -115,7 +118,7 @@ void sl_obj::output_write(void)
 
 
 	ofstream samp_out;
-	dummy_string=rootname+".samp";	
+	dummy_string=hmd_dir+rootname+".samp";	
 	samp_out.open(dummy_string.c_str(), ios::trunc);
 	for (int x=0; x<global_A_chain[0].size(); x++)
 	{
@@ -126,7 +129,7 @@ void sl_obj::output_write(void)
 	samp_out.close();
 
 	ofstream srho_out;
-	dummy_string=rootname+".srho";	
+	dummy_string=hmd_dir+rootname+".srho";	
 	srho_out.open(dummy_string.c_str(), ios::trunc);
 	for (int x=0; x<global_A_chain[0].size(); x++)
 	{
@@ -507,7 +510,7 @@ void sl_obj::acl_calc(void)
 {
 	ofstream acl_out;
 	string dummy_string;
-	dummy_string=rootname+".acl";
+	dummy_string=hmd_dir+rootname+".acl";
 	acl_out.open(dummy_string.c_str(), ios::trunc);
 	acl_out << "# lag acf" <<endl; 
 
