@@ -46,7 +46,7 @@ vector<iphas_obj> iphas_read(string filename,float &r_min1,float &i_min1,float &
 				iphas_colours.push_back(next_obj);																											// pushing it into the vetor
 			}
 
-			if (infromfile.size()==22 && (infromfile[6]==-1 || infromfile[6]==-2) && (infromfile[11]==-1 || infromfile[11]==-2) && (infromfile[16]==-1 || infromfile[16]==-2) && (infromfile[4]!=0) && (infromfile[9]!=0) && (infromfile[14]!=0) && (infromfile[5]!=0) && (infromfile[10]!=0) && (infromfile[15]!=0) && infromfile[18]<=1.0 && infromfile[19]<=1.0 && infromfile[20]<=1.0 && infromfile[21]<=1.0) 	//selecting only stellar or probably stellar objects and those with small RA & DEC offsets
+			else if (infromfile.size()==22 && (infromfile[6]==-1 || infromfile[6]==-2) && (infromfile[11]==-1 || infromfile[11]==-2) && (infromfile[16]==-1 || infromfile[16]==-2) && (infromfile[4]!=0) && (infromfile[9]!=0) && (infromfile[14]!=0) && (infromfile[5]!=0) && (infromfile[10]!=0) && (infromfile[15]!=0) && infromfile[18]<=1.0 && infromfile[19]<=1.0 && infromfile[20]<=1.0 && infromfile[21]<=1.0) 	//selecting only stellar or probably stellar objects and those with small RA & DEC offsets
 			{
 
 //   		        	if(infromfile[4] > r_max1) { r_max1 = infromfile[4];}
@@ -56,6 +56,13 @@ vector<iphas_obj> iphas_read(string filename,float &r_min1,float &i_min1,float &
 
 				iphas_colours.push_back(next_obj);																											// pushing it into the vetor
 			}
+
+			else if (infromfile.size()==8 && infromfile[2]>0 && infromfile[3]>0 && infromfile[4]>0 && infromfile[5]<0.16 && infromfile[6]<0.16 && infromfile[7]<0.16)
+			{
+			        iphas_obj next_obj(infromfile[2], infromfile[3], infromfile[4], sqrt(pow(infromfile[5],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[6],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[7],2)+pow(0.0016165105,2)), infromfile[0], infromfile[1]);	// making the new iphas_obj
+
+				iphas_colours.push_back(next_obj);
+			} 
 
 			else if (infromfile.size()==22)		// if sources are saturated alter bright limits
 			{
@@ -105,4 +112,6 @@ vector<iphas_obj> TWOMASS_read(string filename,float &J_min1,float &H_min1,float
 
 		}
 	}	
+	TWOMASS_data.close();
+	return  TWOMASS_colours;
 }
