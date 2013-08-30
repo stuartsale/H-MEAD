@@ -192,7 +192,7 @@ int main(int argc, char* argv[])
 //	{
 		sl1.mean_intervals();
 		sl1.output_write();
-		sl1.acl_calc();
+	//	sl1.acl_calc();
 //	}
 		
 	}
@@ -297,11 +297,11 @@ vector<iso_obj> iso_read_Tg(const string &filename)		// Function to read in cali
 
 double int_lookup(double A_max, double A_mean, double sd)
 {
-	if (A_mean>=9.95){A_mean=9.94;}
+	if (A_mean>=11.95){A_mean=11.94;}
 	if (A_mean<0.05){A_mean=0.05;}
-	if (A_max>=9.95){A_max=9.94;}
+	if (A_max>=14.95){A_max=14.94;}
 	if (A_max<-1.95){A_max=-1.95;}
-	if (sd>=1.95){sd=1.94;}
+	if (sd>=3.95){sd=3.94;}
 	if (sd<0.05){sd=0.05;}
 	return lookup_table[int(floor((A_max+2)*10.-0.5))][int(floor(A_mean*10.-0.5))][int(floor(sd*10.-0.5))];
 }
@@ -319,7 +319,7 @@ double integral_func (double *A_test, size_t dim, void *params)
 
 vector <vector <vector <double> > > lookup_creator(void)
 {
-	vector <vector <vector <double> > > dummy_table(120, vector <vector <double> > (100, vector <double> (20, 0)));
+	vector <vector <vector <double> > > dummy_table(170, vector <vector <double> > (120, vector <double> (40, 0)));
 
 	struct params_struct {double A_max; double A_mean; double sigma;};
 
@@ -332,16 +332,16 @@ vector <vector <vector <double> > > lookup_creator(void)
 
 	gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (1);
 
-	for (int A_max_it=0; A_max_it<120; A_max_it++)
+	for (int A_max_it=0; A_max_it<170; A_max_it++)
 	{
 		int_params.A_max=A_max_it*0.1+0.1-2.;
 	//	cout << A_max_it << endl;
 
-		for (int A_mean_it=0; A_mean_it<100; A_mean_it++)
+		for (int A_mean_it=0; A_mean_it<120; A_mean_it++)
 		{
 			int_params.A_mean=A_mean_it*0.1+0.1;
 
-			for (int sd_it=0; sd_it<20; sd_it++)
+			for (int sd_it=0; sd_it<40; sd_it++)
 			{
 				int_params.sigma=sd_it*0.1+0.1;
 				gsl_monte_function F={&integral_func, 1, &int_params};

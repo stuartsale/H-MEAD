@@ -3,7 +3,7 @@
 HOST=$(shell hostname)
 ifeq ($(HOST),orion)
 	RUN_DIR=../../
-	flags= -wd2196 -openmp -O3
+	flags= -wd2196 -openmp -g
 	linking_flags= -lgsl -lgslcblas -lm -lprofiler -openmp -lCCfits
 	gsl_lib=/usr/lib/
 	gsl_include=/usr/include/
