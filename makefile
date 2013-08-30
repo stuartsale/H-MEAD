@@ -12,7 +12,7 @@ ifeq ($(HOST),orion)
 else 
 	ifeq ($(HOST),newhydra.physics.ox.ac.uk)
 		RUN_DIR=../../
-		flags= -)3-fopenmp
+		flags= -03-fopenmp
 		linking_flags= -lgsl -lgslcblas -lm -fopenmp -lCCfits -g
 		gsl_include=/usr/local/shared/gsl-1.12/include/
 		gsl_lib=/usr/local/shared/gsl-1.12/lib/
@@ -21,7 +21,7 @@ else
 	else
 		ifeq ($(HOST),hydra.physics.ox.ac.uk)
 			RUN_DIR=../../
-			flags= -)3 -fopenmp
+			flags= -03 -fopenmp
 			linking_flags= -lgsl -lgslcblas -lm -fopenmp -lCCfits -g
 			gsl_include=/usr/local/shared/gsl-1.12/include/
 			gsl_lib=/usr/local/shared/gsl-1.12/lib/
