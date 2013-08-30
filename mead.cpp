@@ -166,7 +166,8 @@ int main(int argc, char* argv[])
 			config_file[it_conf][3], atof(config_file[it_conf][4].c_str()), atof(config_file[it_conf][5].c_str()), atof(config_file[it_conf][6].c_str()) );
 		//slsl.push_back(sl1);
 //		slsl[it_conf]=sl1;
-		cout << "r_max: " << sl1.r_max << " i_max: " << sl1.i_max << " ha_max: " << sl1.ha_max << endl;
+		cout << it_conf << " " << config_file[it_conf][0] ;
+		cout << " r_max: " << sl1.r_max << " i_max: " << sl1.i_max << " ha_max: " << sl1.ha_max << endl;
 
 //		if (it_conf!=0){sl1.neighbour_set(&slsl[it_conf-1]);}
 		sl1.initial_guess(isochrones, guess_set, lfs);
