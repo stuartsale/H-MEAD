@@ -335,7 +335,7 @@ vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
 	vector<bin_obj2> backup_A_mean (150);
 
 	// retrieve Schlegel et al limit
-	Sch_max=SFD_read(l_gal, b_gal)*3.1;
+	Sch_max=SFD_read(l_gal, b_gal)*3.1/1.215;
 	//cout << "Sch_max = " << Sch_max << endl;
 
 	// integrate dust density to ~infinity, used to normalise the dust distribution so that at infinity it gives the Schlegel value
