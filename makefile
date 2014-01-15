@@ -34,15 +34,28 @@ else
 			CCfits_lib=/usersVol1/sale/soft9/lib/
 			EIGEN_include=/usersVol1/sale/soft9/eigen/
 			COMPILER=icpc
-		else	#defaults
-			RUN_DIR=../../
-			flags= -g -fopenmp
-			linking_flags= -lgsl -lgslcblas -lm -fopenmp -lCCfits -g
-			gsl_lib=/usr/lib/
-			gsl_include=/usr/include/
-			CCfits_include=/usr/include/
-			CCfits_lib=/usr/lib/x86_64-linux-gnu/
-			COMPILER=icpc
+		else
+			ifeq ($(HOST),auriga)
+				RUN_DIR=../../
+				flags= -wd2196 -openmp -O3
+				linking_flags= -lgsl -lgslcblas -lm -lprofiler -openmp -lCCfits
+				gsl_lib=/usr/lib/
+				gsl_include=/usr/include/
+				CCfits_include=/usr/include/
+				CCfits_lib=/usr/lib/x86_64-linux-gnu/
+				EIGEN_include=/home/stuart/work/soft9/eigen/
+				COMPILER=icpc
+				OMPI_CXX :=icpc
+			else	#defaults
+				RUN_DIR=../../
+				flags= -g -fopenmp
+				linking_flags= -lgsl -lgslcblas -lm -fopenmp -lCCfits -g
+				gsl_lib=/usr/lib/
+				gsl_include=/usr/include/
+				CCfits_include=/usr/include/
+				CCfits_lib=/usr/lib/x86_64-linux-gnu/
+				COMPILER=icpc
+			endif
 		endif
 	endif
 

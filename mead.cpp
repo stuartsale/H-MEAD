@@ -52,6 +52,11 @@ int main(int argc, char* argv[])
 		cout << "hostname is " << hostname_s << endl;
 		config_dir="/home/stuart/work/work-oxford/distance_red/config/";
 	}
+	else if (hostname_s=="auriga")
+	{
+		cout << "hostname is " << hostname_s << endl;
+		config_dir="/home/sale/work-oxford/distance_red/config/";
+	}
 	else
 	{
 		cout << "hostname is " << hostname_s << endl;	
