@@ -41,7 +41,7 @@ vector<iphas_obj> iphas_read(string filename,float &r_min1,float &i_min1,float &
 //   		        	if(infromfile[4] > r_max1) { r_max1 = infromfile[4];}
 //            			if(infromfile[9] > i_max1) { i_max1 = infromfile[9];}
 //            			if(infromfile[14] > ha_max1) { ha_max1 = infromfile[14];}
-			        iphas_obj next_obj(infromfile[4], infromfile[9], infromfile[14], sqrt(pow(infromfile[5],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[10],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[15],2)+pow(0.0016165105,2)), infromfile[0], infromfile[1], infromfile[22], infromfile[23]*1.0857, infromfile[28], infromfile[27], infromfile[29]);	// making the new iphas_obj
+			        iphas_obj next_obj(infromfile[4], infromfile[9], infromfile[14], sqrt(pow(infromfile[5],2)+pow(0.016165105,2)), sqrt(pow(infromfile[10],2)+pow(0.016165105,2)), sqrt(pow(infromfile[15],2)+pow(0.016165105,2)), infromfile[0], infromfile[1], infromfile[22], infromfile[23]*1.0857, infromfile[28], infromfile[27], infromfile[29]);	// making the new iphas_obj
 
 				iphas_colours.push_back(next_obj);																											// pushing it into the vetor
 			}
@@ -52,14 +52,14 @@ vector<iphas_obj> iphas_read(string filename,float &r_min1,float &i_min1,float &
 //   		        	if(infromfile[4] > r_max1) { r_max1 = infromfile[4];}
 //            			if(infromfile[9] > i_max1) { i_max1 = infromfile[9];}
 //            			if(infromfile[14] > ha_max1) { ha_max1 = infromfile[14];}
-			        iphas_obj next_obj(infromfile[4], infromfile[9], infromfile[14], sqrt(pow(infromfile[5],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[10],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[15],2)+pow(0.0016165105,2)), infromfile[0], infromfile[1]);	// making the new iphas_obj
+			        iphas_obj next_obj(infromfile[4], infromfile[9], infromfile[14], sqrt(pow(infromfile[5],2)+pow(0.016165105,2)), sqrt(pow(infromfile[10],2)+pow(0.016165105,2)), sqrt(pow(infromfile[15],2)+pow(0.016165105,2)), infromfile[0], infromfile[1]);	// making the new iphas_obj
 
 				iphas_colours.push_back(next_obj);																											// pushing it into the vetor
 			}
 
 			else if (infromfile.size()==8 && infromfile[2]>0 && infromfile[3]>0 && infromfile[4]>0 && infromfile[5]<0.16 && infromfile[6]<0.16 && infromfile[7]<0.16)
 			{
-			        iphas_obj next_obj(infromfile[2], infromfile[3], infromfile[4], sqrt(pow(infromfile[5],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[6],2)+pow(0.0016165105,2)), sqrt(pow(infromfile[7],2)+pow(0.0016165105,2)), infromfile[0], infromfile[1]);	// making the new iphas_obj
+			        iphas_obj next_obj(infromfile[2], infromfile[3], infromfile[4], sqrt(pow(infromfile[5],2)+pow(0.016165105,2)), sqrt(pow(infromfile[6],2)+pow(0.016165105,2)), sqrt(pow(infromfile[7],2)+pow(0.016165105,2)), infromfile[0], infromfile[1]);	// making the new iphas_obj
 
 				iphas_colours.push_back(next_obj);
 			} 
