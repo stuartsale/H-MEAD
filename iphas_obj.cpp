@@ -364,7 +364,7 @@ void iphas_obj::mean_intervals(void)
 	logg=logg_sum/ceil(0.5*iso_obj_chain.size());
 
 	d_A=sqrt(A_sum2_in/ceil(0.5*A_chain.size()) - pow(A_sum_in/ceil(0.5*A_chain.size()),2));
-	d_dist=1.*no_accept2/(1.*no_accept);//(last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)+last_dist_mod+last_iso.r0;//sqrt(d_sum2_in/ceil(0.5*A_chain.size()) - pow(d_sum_in/ceil(0.5*dist_mod_chain.size()),2));
+	d_dist=sqrt(d_sum2_in/ceil(0.5*A_chain.size()) - pow(d_sum_in/ceil(0.5*dist_mod_chain.size()),2));
 	d_r_i0 =sqrt(r_i0_sum2_in/ceil(0.5*A_chain.size()) - pow(r_i0_sum_in/ceil(0.5*A_chain.size()),2));
 
 	d_Mi=sqrt(Mi_sum2/ceil(0.5*iso_obj_chain.size())-pow(Mi,2));
@@ -379,6 +379,8 @@ void iphas_obj::mean_intervals(void)
 	rx=rx_sum/ceil(0.5*rx_chain.size());
 	ix=ix_sum/ceil(0.5*ix_chain.size());
 	hax=hax_sum/ceil(0.5*hax_chain.size());
+
+	update_prop=1.*no_accept2/(1.*no_accept);
 }
 
 
