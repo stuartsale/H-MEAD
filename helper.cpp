@@ -175,45 +175,48 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 	double logg_weight, feh_weight, logT_weight;
 	double r1=0, i1=0, ha1=0, Jac1=0, Mi1=0, logAge1=0;
 
-	if (targ_feh<-0.914 || targ_feh>0.417 || targ_logT<3.5 || targ_logT>4.495 || targ_logg<-0.5 || targ_logg>5.495)
+	if (targ_feh<-0.914 || targ_feh>0.870 || targ_logT<3.5 || targ_logT>4.495 || targ_logg<-0.5 || targ_logg>5.495)
 	{
 		throw (5);
 	}
 
 
-	if (targ_feh>=-0.914 && targ_feh<-0.778){feh_line1=0; feh_line2=240000;feh_weight=(targ_feh+0.914)/0.136;}
-	else if (targ_feh>=-0.778 && targ_feh<-0.652){feh_line1=240000; feh_line2=480000;feh_weight=(targ_feh+0.778)/0.126;}
-	else if (targ_feh>=-0.652 && targ_feh<-0.472){feh_line1=480000; feh_line2=720000;feh_weight=(targ_feh+0.652)/0.180;}
-	else if (targ_feh>=-0.472 && targ_feh<-0.343){feh_line1=720000; feh_line2=960000;feh_weight=(targ_feh+0.472)/0.129;}
-	else if (targ_feh>=-0.343 && targ_feh<-0.243){feh_line1=1200000; feh_line2=1440000;feh_weight=(targ_feh+0.343)/0.100;}
-	else if (targ_feh>=-0.243 && targ_feh<-0.160){feh_line1=1440000; feh_line2=1680000;feh_weight=(targ_feh+0.243)/0.083;}
-	else if (targ_feh>=-0.160 && targ_feh<-0.090){feh_line1=1680000; feh_line2=1920000;feh_weight=(targ_feh+0.160)/0.070;}
-	else if (targ_feh>=-0.090 && targ_feh<0.000){feh_line1=1920000; feh_line2=2160000;feh_weight=(targ_feh+0.090)/0.090;}
-	else if (targ_feh>=0.000 && targ_feh<0.077){feh_line1=2160000; feh_line2=2400000;feh_weight=(targ_feh)/0.077;}
-	else if (targ_feh>=0.077 && targ_feh<0.202){feh_line1=2400000; feh_line2=2640000;feh_weight=(targ_feh-0.077)/0.125;}
-	else if (targ_feh>=0.202 && targ_feh<0.363){feh_line1=2640000; feh_line2=2880000;feh_weight=(targ_feh-0.202)/0.161;}
-	else if (targ_feh>=0.363 && targ_feh<0.417){feh_line1=288000; feh_line2=3120000;feh_weight=(targ_feh-0.363)/0.054;}
+	if (targ_feh>=-0.914 && targ_feh<-0.778){feh_line1=0;}
+	else if (targ_feh>=-0.778 && targ_feh<-0.646){feh_line1=60701;}
+	else if (targ_feh>=-0.646 && targ_feh<-0.493){feh_line1=121402;}
+	else if (targ_feh>=-0.493 && targ_feh<-0.340){feh_line1=182103;}
+	else if (targ_feh>=-0.340 && targ_feh<-0.226){feh_line1=242804;}
+	else if (targ_feh>=-0.226 && targ_feh<-0.134){feh_line1=303505;}
+	else if (targ_feh>=-0.134 && targ_feh<-0.058){feh_line1=364206;}
+	else if (targ_feh>=-0.058 && targ_feh<0.022){feh_line1=424907;}
+	else if (targ_feh>=0.022 && targ_feh<0.104){feh_line1=485608;}
+	else if (targ_feh>=0.104 && targ_feh<0.205){feh_line1=546309;}
+	else if (targ_feh>=0.205 && targ_feh<0.348){feh_line1=607010;}
+	else if (targ_feh>=0.348 && targ_feh<0.455){feh_line1=667711;}
+	else if (targ_feh>=0.455 && targ_feh<0.512){feh_line1=728412;}
+	else if (targ_feh>=0.512 && targ_feh<0.570){feh_line1=789113;}
+	else if (targ_feh>=0.570 && targ_feh<0.688){feh_line1=849814;}
+	else if (targ_feh>=0.688 && targ_feh<0.870){feh_line1=910515;}
 	else {throw(5);}
 
-	logT_line1=int((targ_logT-3.5)/0.005)*1200;
-	logg_line=int((targ_logg+0.5)/0.005);
+	logT_line1=int((targ_logT-3.5)/0.01)*601;
+	logg_line=int((targ_logg+0.5)/0.01);
 
-	Mi1+=(1-feh_weight)* isochrones[feh_line1+logT_line1+logg_line].Mi
-	  + (feh_weight)* isochrones[feh_line2+logT_line1+logg_line].Mi;
-	logAge1+=(1-feh_weight) * isochrones[feh_line1+logT_line1+logg_line].logAge
-	  + (feh_weight) * isochrones[feh_line2+logT_line1+logg_line].logAge;
-	r1+=(1-feh_weight) * isochrones[feh_line1+logT_line1+logg_line].r0
-	  + (feh_weight) * isochrones[feh_line2+logT_line1+logg_line].r0;
-	i1+=(1-feh_weight) * isochrones[feh_line1+logT_line1+logg_line].i0
-	  + (feh_weight) * isochrones[feh_line2+logT_line1+logg_line].i0;
-	ha1+=(1-feh_weight) * isochrones[feh_line1+logT_line1+logg_line].ha0
-	  + (feh_weight) * isochrones[feh_line2+logT_line1+logg_line].ha0;
-	Jac1+=(1-feh_weight) * isochrones[feh_line1+logT_line1+logg_line].Jac
-	  + (feh_weight) * isochrones[feh_line2+logT_line1+logg_line].Jac;
+//	Mi1+=isochrones[feh_line1+logT_line1+logg_line].Mi;
+//	logAge1+=isochrones[feh_line1+logT_line1+logg_line].logAge;
+//	r1+=isochrones[feh_line1+logT_line1+logg_line].r0;
+//	i1+=isochrones[feh_line1+logT_line1+logg_line].i0;
+//	ha1+=isochrones[feh_line1+logT_line1+logg_line].ha0;
+//	Jac1+=isochrones[feh_line1+logT_line1+logg_line].Jac;
 
-	if (r1<-10||i1<-10||ha1<-10||isochrones[feh_line1+logT_line1+logg_line].Jac==0.||
-		isochrones[feh_line1+logT_line1+logg_line+1].Jac==0.||isochrones[feh_line1+logT_line1+logg_line].Mi<0 ||
-		isochrones[feh_line1+logT_line1+logg_line+1].Mi<0){throw(7);}
+
+	if (isochrones[feh_line1+logT_line1+logg_line].r0<-10
+		||isochrones[feh_line1+logT_line1+logg_line].i0<-10
+		||isochrones[feh_line1+logT_line1+logg_line].ha0<-10
+		||isochrones[feh_line1+logT_line1+logg_line].Jac==0.
+		||isochrones[feh_line1+logT_line1+logg_line].Mi<0.){throw(7);}
+
+	return isochrones[feh_line1+logT_line1+logg_line];
 
 
 //	logT_line1=floor((targ_logT-3.5)/0.005)*1200;
@@ -300,12 +303,12 @@ iso_obj iso_get_Tg(double targ_feh, double targ_logT, double targ_logg, vector<i
 //	isochrones[feh_line2+logT_line2+logg_line+1].Jac==0.||isochrones[feh_line2+logT_line2+logg_line].Mi<0 ||
 //		isochrones[feh_line2+logT_line2+logg_line+1].Mi<0){throw(7);}
 
-	iso_obj new_iso(targ_feh, Mi1, logAge1, targ_logT, targ_logg, r1, i1, ha1, Jac1);
+//	iso_obj new_iso(targ_feh, Mi1, logAge1, targ_logT, targ_logg, r1, i1, ha1, Jac1);
 
 //*/
 	//if ((r1>15||i1>15||ha1>15)){cout <<targ_feh << " " << targ_Mi << " " << targ_logAge << " "<<feh_weight << " " <<(targ_feh+0.914)/0.136 << " " << age_weight  << " " << r1 << " " << i1 << " " << ha1 << endl;}
 //	iso_obj new_iso(0., 1., 9., 3.76, 4.5, 4.5, 4.15, 4.28);	
-	return new_iso;
+//	return new_iso;
 }
 
 

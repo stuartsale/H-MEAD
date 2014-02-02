@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
       //Reading in isochrones data into a vector
 
 	//vector<iso_obj> isochrones=iso_read("padova-iso_reg.dat");
-	vector<iso_obj> isochrones=iso_read_Tg(config_dir+"padova-iso_tefflogg3.dat");
+	vector<iso_obj> isochrones=iso_read_Tg(config_dir+"padova-iso_tefflogg_0214.txt");
 
 	vector<iso_obj> guess_set;
 //	guess_set.push_back(iso_get_Tg(0.,3.574 ,5.00 , isochrones));	//M1
@@ -221,7 +221,7 @@ vector<iso_obj> iso_read(const string &filename)		// Function to read in calibra
 	ifstream input1;
 	input1.open(filename.c_str());
 	if(!input1) { //output file couldn't be opened
-		cerr << "Error: file could not be opened" << endl;
+		cerr << "Error: Isochrone file could not be opened" << endl;
 		exit(1);
 	}
 
@@ -260,7 +260,7 @@ vector<iso_obj> iso_read_Tg(const string &filename)		// Function to read in cali
 	ifstream input1;
 	input1.open(filename.c_str());
 	if(!input1) { //output file couldn't be opened
-		cerr << "Error: file could not be opened" << endl;
+		cerr << "Error: Isochrone_Tg file could not be opened" << endl;
 		exit(1);
 	}
 
@@ -268,7 +268,7 @@ vector<iso_obj> iso_read_Tg(const string &filename)		// Function to read in cali
 	
 	while (!input1.eof())				// Running down file - reading it in
 	{
-		double jac;
+//		double jac;
 		string str; 	
 		getline(input1, str);			// grab a line
 		string temp;
@@ -284,14 +284,9 @@ vector<iso_obj> iso_read_Tg(const string &filename)		// Function to read in cali
 			while (ss>>buf){			// Includes implicit conversion from string to double
 				fromfile.push_back(buf);	
 			}
-			if (fromfile.size()==14)		// check there's something in the line
+			if (fromfile.size()==11)		// check there's something in the line
 			{
-				if (fromfile[5]!=0 && fromfile[6]!=0 && fromfile[7]!=0 && fromfile[8]!=0)
-				{
-					jac=abs(fromfile[5]*fromfile[8]-fromfile[6]*fromfile[7]);
-				}
-				else {jac=0;}
-         			iso_obj objnew(fromfile[0], fromfile[1], fromfile[2], fromfile[3], fromfile[4], fromfile[9], fromfile[10], fromfile[11], jac);
+         			iso_obj objnew(fromfile[0], fromfile[1], fromfile[2], fromfile[3], fromfile[4], fromfile[6], fromfile[7], fromfile[8], fromfile[5]);
 				totalfile.push_back(objnew);
 			}		
 		}
