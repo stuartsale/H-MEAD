@@ -124,13 +124,13 @@ float iphas_obj::likelihood_eval(iso_obj test_iso, float test_A, float test_dist
 
 	// Find p(y|x,sigma_y) 
 
-		if (r>-98){current_prob1+=	-pow(pow(10,r-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_dist_mod-test_iso.r0)-1,2)/(5*d_r*d_r) ;}
-		if (i>-98){current_prob1+=	-pow(pow(10,i-(test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A+test_iso.w_i)-test_dist_mod-test_iso.i0)-1,2)/(5*d_i*d_i) ;}
-		if (ha>-98){current_prob1+=	-pow(pow(10,ha-(test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A+test_iso.w_ha)-test_dist_mod-test_iso.ha0)-1,2)/(5*d_ha*d_ha);}
+		if (r>-98){current_prob1+=	-pow(pow(10,r-(test_iso.u*pow(test_A,2)+test_iso.v*test_A)-test_dist_mod-test_iso.r0)-1,2)/(5*d_r*d_r) ;}
+		if (i>-98){current_prob1+=	-pow(pow(10,i-(test_iso.u_i*pow(test_A,2)+test_iso.v_i*test_A)-test_dist_mod-test_iso.i0)-1,2)/(5*d_i*d_i) ;}
+		if (ha>-98){current_prob1+=	-pow(pow(10,ha-(test_iso.u_ha*pow(test_A,2)+test_iso.v_ha*test_A)-test_dist_mod-test_iso.ha0)-1,2)/(5*d_ha*d_ha);}
 
-		if (J>-98){current_prob1+=	-pow(J-(test_iso.u_J*pow(test_A,2)+test_iso.v_J*test_A+test_iso.w_J)-test_dist_mod-test_iso.J0,2)/(2*d_J*d_K) ;}
-		if (H>-98){current_prob1+=	-pow(H-(test_iso.u_H*pow(test_A,2)+test_iso.v_H*test_A+test_iso.w_H)-test_dist_mod-test_iso.H0,2)/(2*d_H*d_H) ;}
-		if (K>-98){current_prob1+=	-pow(K-(test_iso.u_K*pow(test_A,2)+test_iso.v_K*test_A+test_iso.w_K)-test_dist_mod-test_iso.K0,2)/(2*d_K*d_K) ;}
+		if (J>-98){current_prob1+=	-pow(J-(test_iso.u_J*pow(test_A,2)+test_iso.v_J*test_A)-test_dist_mod-test_iso.J0,2)/(2*d_J*d_K) ;}
+		if (H>-98){current_prob1+=	-pow(H-(test_iso.u_H*pow(test_A,2)+test_iso.v_H*test_A)-test_dist_mod-test_iso.H0,2)/(2*d_H*d_H) ;}
+		if (K>-98){current_prob1+=	-pow(K-(test_iso.u_K*pow(test_A,2)+test_iso.v_K*test_A)-test_dist_mod-test_iso.K0,2)/(2*d_K*d_K) ;}
 
 
 		// IMF - Scalo type?
@@ -183,8 +183,8 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 			break;
 		}
 	}
-	last_A=quadratic(last_iso.u-last_iso.u_i, last_iso.v-last_iso.v_i, (last_iso.w-last_iso.w_i)+(last_iso.r0-last_iso.i0)-(r-i), +1);
-	last_dist_mod=r-(last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)-last_iso.r0;
+	last_A=quadratic(last_iso.u-last_iso.u_i, last_iso.v-last_iso.v_i, (last_iso.r0-last_iso.i0)-(r-i), +1);
+	last_dist_mod=r-(last_iso.u*pow(last_A,2)+last_iso.v*last_A)-last_iso.r0;
 //	last_dist=pow(10,last_dist_mod/5+1);
 
 //	last_iso=iso_get(0.,real_Mi, 7.08, isochrones);
@@ -192,7 +192,7 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 //	last_dist_mod=5*log10(real_dist/10);
 
 	last_rmag=r;
-	last_ri=(last_iso.r0-last_iso.i0)+(last_iso.u-last_iso.u_i)*pow(last_A,2) + (last_iso.v-last_iso.v_i)*last_A + (last_iso.w-last_iso.w_i);
+	last_ri=(last_iso.r0-last_iso.i0)+(last_iso.u-last_iso.u_i)*pow(last_A,2) + (last_iso.v-last_iso.v_i)*last_A ;
 
 	if (last_A<0){last_A=0.02;}
 
@@ -236,9 +236,9 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 	test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,rmag_sd);//Z.Next()*d_r/2;
 	test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
 
-	test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.w-test_iso.w_i)+(test_iso.r0-test_iso.i0)-test_ri, +1);
+	test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.r0-test_iso.i0)-test_ri, +1);
 	if (test_A<0){no_accept++; return;}
-	test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A+test_iso.w)-test_iso.r0;
+	test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A)-test_iso.r0;
 
 
 	current_prob=likelihood_eval(test_iso, test_A, test_dist_mod, A_mean);
@@ -306,9 +306,9 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		prob_chain.push_back(last_prob);
 		A_prob_chain.push_back(get_A_prob(last_iso, last_A, last_dist_mod, A_mean));
 
-		rx_chain.push_back((last_iso.u*pow(last_A,2)+last_iso.v*last_A+last_iso.w)+last_dist_mod+last_iso.r0);
-		ix_chain.push_back((last_iso.u_i*pow(last_A,2)+last_iso.v_i*last_A+last_iso.w_i)+last_dist_mod+last_iso.i0);
-		hax_chain.push_back((last_iso.u_ha*pow(last_A,2)+last_iso.v_ha*last_A+last_iso.w_ha)+last_dist_mod+last_iso.ha0);
+		rx_chain.push_back((last_iso.u*pow(last_A,2)+last_iso.v*last_A)+last_dist_mod+last_iso.r0);
+		ix_chain.push_back((last_iso.u_i*pow(last_A,2)+last_iso.v_i*last_A)+last_dist_mod+last_iso.i0);
+		hax_chain.push_back((last_iso.u_ha*pow(last_A,2)+last_iso.v_ha*last_A)+last_dist_mod+last_iso.ha0);
 	}
 
 

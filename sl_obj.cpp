@@ -288,7 +288,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 	//	cout << star_cat[161].last_A << " " << star_cat[161].last_dist_mod << " " << star_cat[161].last_prob << " " << star_cat[161].last_iso.logT << " " << star_cat[161].last_iso.logg << " " << star_cat[161].last_iso.r0-star_cat[161].last_iso.i0 << " " << star_cat[161].last_iso.r0-star_cat[161].last_iso.ha0 << " " << it_num  << " " << star_cat[161].last_iso.Mi << " " << log(star_cat[161].last_iso.Jac) << " " << log(star_cat[161].last_iso.IMF())  << " " 
 //<< star_cat[161].last_iso.r0+star_cat[161].last_iso.u*pow(star_cat[161].last_A,2)+star_cat[161].last_iso.v*star_cat[161].last_A+star_cat[161].last_iso.w+star_cat[161].last_dist_mod  << " " 
-//<< star_cat[161].last_iso.i0+star_cat[161].last_iso.u_i*pow(star_cat[161].last_A,2)+star_cat[161].last_iso.v_i*star_cat[161].last_A+star_cat[161].last_iso.w_i+star_cat[161].last_dist_mod  << " " << star_cat[161].last_iso.ha0+star_cat[161].last_iso.u_ha*pow(star_cat[161].last_A,2)+star_cat[161].last_iso.v_ha*star_cat[161].last_A+star_cat[161].last_iso.w_ha+star_cat[161].last_dist_mod << endl;
+//<< star_cat[161].last_iso.i0+star_cat[161].last_iso.u_i*pow(star_cat[161].last_A,2)+star_cat[161].last_iso.v_i*star_cat[161].last_A+star_cat[161].last_iso.w_i+star_cat[161].last_dist_mod  << " " << star_cat[161].last_iso.ha0+star_cat[161].last_iso.u_ha*pow(star_cat[161].last_A,2)+star_cat[161].last_iso.v_ha*star_cat[161].last_A+star_cat[161].last_dist_mod << endl;
 
 // Now vary hyper-parameters
 

@@ -65,9 +65,9 @@ float LF::LF_prob(vector < vector <float> > A_rel)
 		//norm+=prior;
 		for (int it2=0; it2<LF_vec.size(); it2++)
 		{
-			if (LF_vec[it2][0]+dist_mod_lf+1.02*A_rel[it][0]>=r_min)
+			if (LF_vec[it2][0]+dist_mod_lf+0.838*A_rel[it][0]>=r_min)
 			{
-				A_max=(r_max-dist_mod_lf-LF_vec[it2][0])/1.02;
+				A_max=(r_max-dist_mod_lf-LF_vec[it2][0])/0.838;
 				//if (LF_vec[it2][0]+5*log10(it*100.+50.)-5.+1.02*A_rel[it][0]<r_max)
 				if (A_max>12)
 				{

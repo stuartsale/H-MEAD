@@ -37,7 +37,7 @@ class iso_obj		// This is a class for holding isochrone points
 	float r0, i0, ha0;
 	float J0, H0, K0;
 
-	double a,b,c, l,m,n, u,v,w, u_i,v_i,w_i, u_ha,v_ha,w_ha;	// terms governing response to extinction
+	double a,b,c, l,m,n, u,v, u_i,v_i, u_ha,v_ha;	// terms governing response to extinction
 	double u_J,v_J,w_J, u_H,v_H,w_H, u_K,v_K,w_K;
 
 	
