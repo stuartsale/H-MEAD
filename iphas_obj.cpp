@@ -182,6 +182,12 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 			last_iso=iso_get_Tg(0.,last_logT, last_logg, isochrones);
 			break;
 		}
+		if (it==guess_set.size()-1)
+		{
+			last_logT=guess_set[it].logT;
+			last_logg=guess_set[it].logT;
+			last_iso=iso_get_Tg(0.,last_logT, last_logg, isochrones);
+		}
 	}
 	last_A=quadratic(last_iso.u-last_iso.u_i, last_iso.v-last_iso.v_i, (last_iso.r0-last_iso.i0)-(r-i), +1);
 	last_dist_mod=r-(last_iso.u*pow(last_A,2)+last_iso.v*last_A)-last_iso.r0;
