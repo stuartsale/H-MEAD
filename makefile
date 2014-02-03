@@ -38,7 +38,7 @@ else
 			ifeq ($(HOST),auriga)
 				RUN_DIR=../../
 				flags= -wd2196 -openmp -O3
-				linking_flags= -lgsl -lgslcblas -lm -lprofiler -openmp -lCCfits
+				linking_flags= -lgsl -lgslcblas -lm -openmp -lCCfits
 				gsl_lib=/usr/lib/
 				gsl_include=/usr/include/
 				CCfits_include=/usr/include/
