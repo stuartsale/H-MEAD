@@ -83,7 +83,7 @@ void sl_obj::output_write(void)
 	for (int x=0; x<A_mean.size(); x++)
 	{
 		A_out << x*100 + 50 << "\t" << A_mean[x].mean_A << "\t" << A_mean[x].sigma <<"\t"<<A_mean[x].d_mean<<"\t"<<A_mean[x].d_sigma<<"\t"
-			<<A_mean[x].size<<"\t"<<A_mean[x].error_measure<<"\t"<<A_mean[x].sum<<"\t"<<A_mean[x].diff<<"\t"<<A_mean[x].d_diff<<"\n";
+			<<A_mean[x].size<<"\t"<<A_mean[x].error_measure<<"\t"<<A_mean[x].sum<<"\t"<<A_mean[x].diff<<"\t"<<A_mean[x].d_diff<<"\t"<<A_mean[x].median_A<<"\t"<<A_mean[x].median_sigma<<"\n";
 	}
 	A_out.close();
 
@@ -201,6 +201,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
                 previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0],log(previous_internal_rel[i][0]),3.5));
                 previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][1],log(0.4)-pow(1.5,2)/2.,1.5));
 		previous_hyperprior_prob+=-log(previous_internal_rel[i][1]);
+		previous_hyperprior_prob+=-log(previous_internal_rel[i][0]);
 
 	//	previous_hyperprior_prob+=-1*log(previous_internal_rel[i][0]);//-log(previous_internal_rel[i][0]);//
 	//	previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(sqrt(pow(previous_internal_rel[i][1]/previous_internal_rel[i-1][1],2)*(i+1)/i-1.)*previous_rel[i-1][0]/previous_internal_rel[i][0],1.38629, 1.6651));
@@ -312,6 +313,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
                         current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0]),3.5));
                         current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][1],log(0.4)-pow(1.5,2)/2.,1.5));
 			current_hyperprior_prob+=-log(previous_internal_rel[it][1]);
+			current_hyperprior_prob+=-log(previous_internal_rel[it][0]);
 
 
 		}
@@ -454,14 +456,23 @@ void sl_obj::mean_intervals(void)
 	//#pragma omp parallel for  num_threads(3)
 	for (int it=0; it<150; it++)
 	{
+		vector <float> unburnt_A, unburnt_sigma;
+
 		float A_sum=0., sigma_sum=0.;
 		for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)
 		{
 			A_sum+=global_A_chain[m][it][0];
 			sigma_sum+=log(global_A_chain[m][it][1]);
+			unburnt_A.push_back(global_A_chain[m][it][0]);
+			unburnt_sigma.push_back(global_A_chain[m][it][1]);
 		}
 		A_mean[it].mean_A=A_sum/ceil(0.30*global_A_chain.size());
 		A_mean[it].sigma=exp(sigma_sum/ceil(0.30*global_A_chain.size()));
+
+		sort(unburnt_A.begin(), unburnt_A.end());
+		sort(unburnt_sigma.begin(), unburnt_sigma.end());
+		A_mean[it].median_A=unburnt_A[int(0.5*unburnt_A.size())];
+		A_mean[it].median_sigma=unburnt_sigma[int(0.5*unburnt_sigma.size())];
 
 		vector <float> A_diffs, sigma_diffs;
 		for (int m=floor(0.70*global_A_chain.size()); m<global_A_chain.size(); m++)
