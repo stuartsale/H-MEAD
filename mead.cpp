@@ -145,8 +145,6 @@ int main(int argc, char* argv[])
 	LF lfzero(config_dir+"iphas_LFs/lfp0000_r.dat");
 	lfs.push_back(lfzero);
 
-//	while (1.0648*guess_set[guess_set.size()-1].Mi<2.060){guess_set.push_back(iso_get(0., 1.0648*guess_set[guess_set.size()-1].Mi, 8.5, isochrones));}
-//	guess_set.push_back(iso_get(0., 2.060, 8.5, isochrones));
 
 // Read in config file
 
