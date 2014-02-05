@@ -175,8 +175,8 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	//previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[0][0],log(previous_internal_rel[0][0])-0.75,1.5));
 //        previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[0][0],log(previous_internal_rel[0][0]),3.5));
         previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[0][1],log(0.4)-pow(1.5,2)/2.,1.5));
-	previous_hyperprior_prob+=-log(previous_internal_rel[0][1]);
-	previous_hyperprior_prob+=-log(previous_internal_rel[0][0]);
+//	previous_hyperprior_prob+=-log(previous_internal_rel[0][1]);
+//	previous_hyperprior_prob+=-log(previous_internal_rel[0][0]);
 
 		
 
@@ -191,10 +191,11 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 //                previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0],log(previous_internal_rel[i][0]),3.5));
                 previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][1],log(0.4)-pow(1.5,2)/2.,1.5));
 		previous_hyperprior_prob+=-log(previous_internal_rel[i][1]);
-		previous_hyperprior_prob+=-log(previous_internal_rel[i][0]);
+//		previous_hyperprior_prob+=-log(previous_internal_rel[i][0]);
 	}
 
 	first_internal_rel=previous_internal_rel;
+	first_rel=previous_rel;
 
 	global_A_chain.push_back(previous_rel);
 
@@ -213,6 +214,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 // Make initial guess
 
 	it_stars=0;
+	
 	while (it_stars<star_cat.size())
 	{
 		star_cat[it_stars].initial_guess(isochrones, guess_set, previous_rel);
@@ -237,7 +239,6 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 
 void sl_obj::dist_redMCMC(vector<iso_obj> &isochrones, vector <LF> &LFs)
 {
-
 	while (it_num<150000 )
 	{
 		update(isochrones, LFs);
@@ -250,17 +251,30 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		global_transition_prob=0;
 		global_previous_prob=0;
 		current_hyperprior_prob=0;
+		last_part_prior=0;
+		test_part_prior=0;
 
 // First vary parameters for each star
 
 		float dummy=0;
+		int max_dist_bin1=0;
+		int max_dist_bin2=0;
+		vector <int> dist_bin_vec;
 //		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
 		for (int it=0; it<star_cat.size(); it++)
 		{
 			/*if (gsl_ran_flat(rng_handle, 0, 1)>0.){*/star_cat[it].star_try1(isochrones, l, b, previous_rel);//};
 			dummy+=star_cat[it].last_A_prob;
+//			if (int(pow(10,star_cat[it].last_dist_mod/5+1)/100.)>max_dist_bin){max_dist_bin=int(pow(10,star_cat[it].last_dist_mod/5+1)/100.);}
+			dist_bin_vec.push_back(int(pow(10,star_cat[it].last_dist_mod/5+1)/100.));
 		}
 		global_previous_prob=dummy;
+//		max_dist_bin=min(150, max_dist_bin);
+		sort(dist_bin_vec.begin(), dist_bin_vec.end());
+//		cout << dist_bin_vec.back() << " " <<dist_bin_vec.back()*0.75 << " " << dist_bin_vec[int(0.9*dist_bin_vec.size())] << " " << dist_bin_vec[int(0.9*dist_bin_vec.size())] << " " << dist_bin_vec[int(0.75*dist_bin_vec.size())]  << endl;
+
+		max_dist_bin1=dist_bin_vec[int(0.75*dist_bin_vec.size())];
+		max_dist_bin2=dist_bin_vec[int(0.9*dist_bin_vec.size())];
 
 // Now vary hyper-parameters
 
@@ -273,7 +287,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		}
 		
 
-		for (int it=0; it<rel_length; it++)
+		for (int it=0; it<max_dist_bin1; it++)
 		{	
 			internal_rel[it][0]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);
 			internal_rel[it][1]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2,proposal_sd[it][1]);
@@ -282,33 +296,49 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			//current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0])-0.75,1.5));
 //                        current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0]),3.5));
                         current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][1],log(0.4)-pow(1.5,2)/2.,1.5));
-			current_hyperprior_prob+=-log(previous_internal_rel[it][1]);
-			current_hyperprior_prob+=-log(previous_internal_rel[it][0]);
-
-
+//			current_hyperprior_prob+=-log(internal_rel[it][0]);
 		}
 
 		new_rel[0][0]=internal_rel[0][0];
 		new_rel[0][1]=sqrt(internal_rel[0][1]*internal_rel[0][0]);//internal_rel[0][1];//*internal_rel[0][0];
 		new_rel[0][3]=sqrt(log(1+pow(new_rel[0][1]/new_rel[0][0],2)));
 		new_rel[0][2]=log(new_rel[0][0])-pow(new_rel[0][3],2)/2;
-	//	current_hyperprior_prob+=+log(new_rel[0][1]/(exp(pow(new_rel[0][3],2))*pow(new_rel[0][0],3)*new_rel[0][3]))- 2*log(new_rel[0][3]);
 		
-		for (int it=1; it<rel_length; it++)
+		for (int it=1; it<max_dist_bin1; it++)
 		{			
-
-			new_rel[it][0]=internal_rel[it][0]+new_rel[it-1][0];//exp(internal_rel[it][0])+new_rel[it-1][0];//
-		//	new_rel[it][1]=sqrt(pow(internal_rel[it][1]*internal_rel[it][0],2)+pow(new_rel[it-1][1],2));//internal_rel[it][1];//sqrt(pow(internal_rel[it][1]*internal_rel[it][0],2)+pow(new_rel[it-1][1],2));
+			new_rel[it][0]=internal_rel[it][0]+new_rel[it-1][0];
 			new_rel[it][1]=sqrt(pow(new_rel[it-1][1],2)+internal_rel[it][0]*internal_rel[it][1]);
 			new_rel[it][3]=sqrt(log(1+pow(new_rel[it][1]/new_rel[it][0],2)));
 			new_rel[it][2]=log(new_rel[it][0])-pow(new_rel[it][3],2)/2;
 
-			//if (new_rel[it][1]>2*new_rel[it][0]){current_hyperprior_prob-=1E6;}
+			current_hyperprior_prob+=-log(internal_rel[it][1]);
+		}
 
-			//current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][1],0.34657359,  0.832554611));
-	//		current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0]/internal_rel[it-1][0], log(first_internal_rel[it][0]/first_internal_rel[it-1][0])-0.0002, 0.02));
-	//		current_hyperprior_prob+=+log(new_rel[it][1]/(exp(pow(new_rel[it][3],2))*pow(new_rel[it][0],3)*new_rel[it][3]))- 2*log(new_rel[it][3]);
+		for (int it=max_dist_bin1; it<rel_length; it++)
+		{	
+			internal_rel[it][0]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);
+			internal_rel[it][1]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2,proposal_sd[it][1]);
 
+			
+                        test_part_prior+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0]*new_rel[max_dist_bin1-1][0]/first_rel[max_dist_bin1-1][0])-0.375,.75));
+                        last_part_prior+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][0],log(first_internal_rel[it][0]*previous_rel[max_dist_bin1-1][0]/first_rel[max_dist_bin1-1][0])-0.375,.75));
+                        current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][1],log(0.4)-pow(1.5,2)/2.,1.5));
+			current_hyperprior_prob+=-log(internal_rel[it][1]);
+//			current_hyperprior_prob+=-log(internal_rel[it][0]);
+		}
+
+		last_part_prior*=rel_length/(rel_length-max_dist_bin1);
+		test_part_prior*=rel_length/(rel_length-max_dist_bin1);
+
+	
+		for (int it=max_dist_bin1; it<rel_length; it++)
+		{			
+			new_rel[it][0]=internal_rel[it][0]+new_rel[it-1][0];
+			new_rel[it][1]=sqrt(pow(new_rel[it-1][1],2)+internal_rel[it][0]*internal_rel[it][1]);
+			new_rel[it][3]=sqrt(log(1+pow(new_rel[it][1]/new_rel[it][0],2)));
+			new_rel[it][2]=log(new_rel[it][0])-pow(new_rel[it][3],2)/2;
+
+			current_hyperprior_prob+=-log(internal_rel[it][1]);
 		}
 
 // Find probability of this parameter set
@@ -353,7 +383,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 	
 	
 		if (global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
-			 + current_norm_prob-previous_norm_prob>0)		// New parameter set better => Accept
+			 + current_norm_prob-previous_norm_prob+test_part_prior-last_part_prior>0)		// New parameter set better => Accept
 		{
 			previous_rel=new_rel;
 			previous_internal_rel=internal_rel;
@@ -370,7 +400,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		}
 
 		else if (exp(global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
-			+ current_norm_prob-previous_norm_prob)>gsl_ran_flat(rng_handle, 0, 1))	// New set worse => accept with P=P(new)/P(old)
+			+ current_norm_prob-previous_norm_prob+test_part_prior-last_part_prior)>gsl_ran_flat(rng_handle, 0, 1))	// New set worse => accept with P=P(new)/P(old)
 		{
 			previous_rel=new_rel;
 			previous_internal_rel=internal_rel;
@@ -390,7 +420,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 		}
 		if (neighbour_sl){if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << " " << neighbour_sl->previous_rel[rel_length-1][0] << endl;}}
-		else {if (it_num/10000.==floor(it_num/10000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << exp(-previous_norm_prob/(star_cat.size()+1)) << " " << accepted << " " << accepted/it_num << endl;}}
+		else {if (it_num/149999.==floor(it_num/149999.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << max_dist_bin1 << " " << max_dist_bin2 << " " << accepted << " " << accepted/it_num << endl;}}
 
 		if (floor(it_num/100.)==it_num/100){global_A_chain.push_back(previous_rel);}
 		it_num++;

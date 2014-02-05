@@ -45,9 +45,11 @@ class sl_obj
 		vector < vector <float> > internal_rel; //(150, vector <float> (2));
 		vector < vector <float> > previous_internal_rel; //(150, vector <float> (2));
 		vector < vector <float> > first_internal_rel; //(150, vector <float> (2));
+		vector < vector <float> > first_rel; //(150, vector <float> (2));
 
 		float global_previous_prob;
 		float previous_hyperprior_prob, current_hyperprior_prob;
+		float last_part_prior, test_part_prior;
 		float previous_norm_prob, current_norm_prob;
 		float global_current_prob, global_transition_prob;
 		float previous_xsl_prob, current_xsl_prob;
