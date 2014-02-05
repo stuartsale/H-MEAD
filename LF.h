@@ -6,6 +6,7 @@ class LF		// A class for holding LFs
 	public:
 	LF(string filename);
 	float LF_prob(vector < vector <float> > new_rel);
+	float LF_prob2(vector < vector <float> > new_rel);
 	float feh;
 	float metal_prob;
 

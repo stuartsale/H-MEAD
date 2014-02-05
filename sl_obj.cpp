@@ -173,9 +173,10 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	previous_internal_rel[0][1]=0.5;//previous_rel[0][1]/previous_internal_rel[0][0];
 
 	//previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[0][0],log(previous_internal_rel[0][0])-0.75,1.5));
-        previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[0][0],log(previous_internal_rel[0][0]),3.5));
+//        previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[0][0],log(previous_internal_rel[0][0]),3.5));
         previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[0][1],log(0.4)-pow(1.5,2)/2.,1.5));
 	previous_hyperprior_prob+=-log(previous_internal_rel[0][1]);
+	previous_hyperprior_prob+=-log(previous_internal_rel[0][0]);
 
 		
 
@@ -187,7 +188,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	
 
 
-                previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0],log(previous_internal_rel[i][0]),3.5));
+//                previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][0],log(previous_internal_rel[i][0]),3.5));
                 previous_hyperprior_prob+=log(gsl_ran_lognormal_pdf(previous_internal_rel[i][1],log(0.4)-pow(1.5,2)/2.,1.5));
 		previous_hyperprior_prob+=-log(previous_internal_rel[i][1]);
 		previous_hyperprior_prob+=-log(previous_internal_rel[i][0]);
@@ -227,7 +228,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	previous_norm_prob=0;
 	for (int it_LF=0; it_LF<LFs.size(); it_LF++)
 	{
-		previous_norm_prob+=-LFs[it_LF].LF_prob(previous_rel)*(star_cat.size()+1);
+		previous_norm_prob+=-LFs[it_LF].LF_prob2(previous_rel)*(star_cat.size()+1);
 	}
 
 }
@@ -279,7 +280,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 			
 			//current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0])-0.75,1.5));
-                        current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0]),3.5));
+//                        current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0]),3.5));
                         current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][1],log(0.4)-pow(1.5,2)/2.,1.5));
 			current_hyperprior_prob+=-log(previous_internal_rel[it][1]);
 			current_hyperprior_prob+=-log(previous_internal_rel[it][0]);
@@ -326,7 +327,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		current_norm_prob=0;
 		for (int it_LF=0; it_LF<LFs.size(); it_LF++)
 		{
-			current_norm_prob+=-LFs[it_LF].LF_prob(new_rel)*(star_cat.size()+1);
+			current_norm_prob+=-LFs[it_LF].LF_prob2(new_rel)*(star_cat.size()+1);
 		}
 
 // Metropolis-Hastings algorithm step
@@ -389,7 +390,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 		}
 		if (neighbour_sl){if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << " " << neighbour_sl->previous_rel[rel_length-1][0] << endl;}}
-		else {if (it_num/149999.==floor(it_num/149999.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << accepted << " " << accepted/it_num << endl;}}
+		else {if (it_num/10000.==floor(it_num/10000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[rel_length-1][0] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << exp(-previous_norm_prob/(star_cat.size()+1)) << " " << accepted << " " << accepted/it_num << endl;}}
 
 		if (floor(it_num/100.)==it_num/100){global_A_chain.push_back(previous_rel);}
 		it_num++;

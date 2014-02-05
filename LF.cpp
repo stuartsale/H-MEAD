@@ -49,37 +49,73 @@ LF::LF(string filename)
 
 }
 
-float LF::LF_prob(vector < vector <float> > A_rel)
+//float LF::LF_prob(vector < vector <float> > A_rel)
+//{
+//	float prob=0;
+//	//float norm=0;
+//	//float prior;
+//	float A_max;
+
+//	float dist_mod_lf;
+
+//	for (int it=0; it<A_rel.size(); it++)	// run though A(d)
+//	{
+//		dist_mod_lf=5*log10(it*100.+50.)-5;
+//		//prior=exp(log_prior(5*log10(it*100.+50.)-5., feh, PI, 0.));
+//		//norm+=prior;
+//		float prob1=0;
+//		for (int it2=0; it2<LF_vec.size(); it2++)
+//		{
+//			if (LF_vec[it2][0]+dist_mod_lf+0.838*A_rel[it][0]>=r_min)
+//			{
+//				A_max=(r_max-dist_mod_lf-LF_vec[it2][0])/0.838;
+//				//if (LF_vec[it2][0]+5*log10(it*100.+50.)-5.+1.02*A_rel[it][0]<r_max)
+//				if (A_max>12)
+//				{
+//					prob+=prior_lf[it]/*lookup_table[0][0][0]*/*LF_vec[it2][1];
+//				}
+//				else if (A_max>0)
+//				{
+//					//prob+=prior_lf[it]*lookup_table[int(A_max*10.)][int(A_rel[it][0]*10.)][int(A_rel[it][1]*10.)]*LF_vec[it2][1];
+//					prob+=prior_lf[it]*int_lookup(A_max,A_rel[it][0],A_rel[it][1])*LF_vec[it2][1];
+//					prob1+=int_lookup(A_max,A_rel[it][0],A_rel[it][1])*LF_vec[it2][1];
+//				}
+//				else {break;}
+//			}
+//	
+//		}
+//		cout << it << " " << prob1 << endl;
+//	}
+//	//cout << log(prob/norm_lf) << " " << prob << " " << norm_lf << " " << prior_lf[10] << " " << A_rel.size() << endl;
+
+//	return log(prob/norm_lf);
+
+
+//}
+
+float LF::LF_prob2(vector < vector <float> > A_rel)
 {
 	float prob=0;
-	//float norm=0;
-	//float prior;
-	float A_max;
+	float A_max, A_min;
 
 	float dist_mod_lf;
 
 	for (int it=0; it<A_rel.size(); it++)	// run though A(d)
 	{
 		dist_mod_lf=5*log10(it*100.+50.)-5;
-		//prior=exp(log_prior(5*log10(it*100.+50.)-5., feh, PI, 0.));
-		//norm+=prior;
-		for (int it2=0; it2<LF_vec.size(); it2++)
+		for (int it2=0; it2<LF_vec.size(); it2+=2)
 		{
-			if (LF_vec[it2][0]+dist_mod_lf+0.838*A_rel[it][0]>=r_min)
+			A_max=(r_max-dist_mod_lf-LF_vec[it2][0])/0.838;
+			A_min=(r_min-dist_mod_lf-LF_vec[it2][0])/0.838;
+			if (A_max>0 && A_min>0)
 			{
-				A_max=(r_max-dist_mod_lf-LF_vec[it2][0])/0.838;
-				//if (LF_vec[it2][0]+5*log10(it*100.+50.)-5.+1.02*A_rel[it][0]<r_max)
-				if (A_max>12)
-				{
-					prob+=prior_lf[it]/*lookup_table[0][0][0]*/*LF_vec[it2][1];
-				}
-				else if (A_max>0)
-				{
-					//prob+=prior_lf[it]*lookup_table[int(A_max*10.)][int(A_rel[it][0]*10.)][int(A_rel[it][1]*10.)]*LF_vec[it2][1];
-					prob+=prior_lf[it]*int_lookup(A_max,A_rel[it][0],A_rel[it][1])*LF_vec[it2][1];
-				}
-				else {break;}
+				prob+=2*prior_lf[it]*(gsl_cdf_lognormal_P(A_max, A_rel[it][2], A_rel[it][3])-gsl_cdf_lognormal_P(A_min, A_rel[it][2], A_rel[it][3]))*LF_vec[it2][1];
 			}
+			else if (A_max>0)
+			{
+				prob+=2*prior_lf[it]*gsl_cdf_lognormal_P(A_max, A_rel[it][2], A_rel[it][3])*LF_vec[it2][1];
+			}
+			else {break;}
 	
 		}
 	}

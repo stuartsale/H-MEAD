@@ -28,7 +28,6 @@ vector<iso_obj> iso_read_Tg(const string &filename);
 
 double r_min, i_min, ha_min, r_max, i_max, ha_max;
 double J_min, H_min, K_min, J_max, H_max, K_max;
-vector <vector <vector <double> > > lookup_table;
 
 string config_dir;
 string hmd_dir;
@@ -100,8 +99,6 @@ int main(int argc, char* argv[])
 
 	//seed the random no generator
 	//gsl_rng_set(rng_handle, time(0));
-
-	lookup_table=lookup_creator();
 
 // set default MIN vals
 	r_min=13.5; 
@@ -293,67 +290,67 @@ vector<iso_obj> iso_read_Tg(const string &filename)		// Function to read in cali
 	input1.close();
 }
 
-double int_lookup(double A_max, double A_mean, double sd)
-{
-	if (A_mean>=11.95){A_mean=11.94;}
-	if (A_mean<0.05){A_mean=0.05;}
-	if (A_max>=14.95){A_max=14.94;}
-	if (A_max<-1.95){A_max=-1.95;}
-	if (sd>=3.95){sd=3.94;}
-	if (sd<0.05){sd=0.05;}
-	return lookup_table[int(floor((A_max+2)*10.-0.5))][int(floor(A_mean*10.-0.5))][int(floor(sd*10.-0.5))];
-}
+//double int_lookup(double A_max, double A_mean, double sd)
+//{
+//	if (A_mean>=11.95){A_mean=11.94;}
+//	if (A_mean<0.05){A_mean=0.05;}
+//	if (A_max>=14.95){A_max=14.94;}
+//	if (A_max<-1.95){A_max=-1.95;}
+//	if (sd>=3.95){sd=3.94;}
+//	if (sd<0.05){sd=0.05;}
+//	return lookup_table[int(floor((A_max+2)*10.-0.5))][int(floor(A_mean*10.-0.5))][int(floor(sd*10.-0.5))];
+//}
 
-double integral_func (double *A_test, size_t dim, void *params)
-{
-	params_struct *p;
-	p=(params_struct *)params;
-	double xi=sqrt(log(1+pow(p->sigma/(p->A_mean),2)));
-	double mu= log(p->A_mean)-xi/2;
-	//double cdf= gsl_cdf_lognormal_P(p->A_max, (mu), xi);
-	return gsl_ran_lognormal_pdf(*A_test, (mu),  xi) / (1 + exp(4*(*A_test-p->A_max)))  ;
-}
+//double integral_func (double *A_test, size_t dim, void *params)
+//{
+//	params_struct *p;
+//	p=(params_struct *)params;
+//	double xi=sqrt(log(1+pow(p->sigma/(p->A_mean),2)));
+//	double mu= log(p->A_mean)-xi/2;
+//	//double cdf= gsl_cdf_lognormal_P(p->A_max, (mu), xi);
+//	return gsl_ran_lognormal_pdf(*A_test, (mu),  xi) / (1 + exp(4*(*A_test-p->A_max)))  ;
+//}
 
 
-vector <vector <vector <double> > > lookup_creator(void)
-{
-	vector <vector <vector <double> > > dummy_table(170, vector <vector <double> > (120, vector <double> (40, 0)));
+//vector <vector <vector <double> > > lookup_creator(void)
+//{
+//	vector <vector <vector <double> > > dummy_table(170, vector <vector <double> > (120, vector <double> (40, 0)));
 
-	struct params_struct {double A_max; double A_mean; double sigma;};
+//	struct params_struct {double A_max; double A_mean; double sigma;};
 
-	double res=1, err;
+//	double res=1, err;
 
-	double low[1]={0.};
-	double hi[1]={10.};
+//	double low[1]={0.};
+//	double hi[1]={10.};
 
-	params_struct int_params;
+//	params_struct int_params;
 
-	gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (1);
+//	gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (1);
 
-	for (int A_max_it=0; A_max_it<170; A_max_it++)
-	{
-		int_params.A_max=A_max_it*0.1+0.1-2.;
-	//	cout << A_max_it << endl;
+//	for (int A_max_it=0; A_max_it<170; A_max_it++)
+//	{
+//		int_params.A_max=A_max_it*0.1+0.1-2.;
+//	//	cout << A_max_it << endl;
 
-		for (int A_mean_it=0; A_mean_it<120; A_mean_it++)
-		{
-			int_params.A_mean=A_mean_it*0.1+0.1;
+//		for (int A_mean_it=0; A_mean_it<120; A_mean_it++)
+//		{
+//			int_params.A_mean=A_mean_it*0.1+0.1;
 
-			for (int sd_it=0; sd_it<40; sd_it++)
-			{
-				int_params.sigma=sd_it*0.1+0.1;
-				gsl_monte_function F={&integral_func, 1, &int_params};
-				gsl_monte_vegas_init(s);
+//			for (int sd_it=0; sd_it<40; sd_it++)
+//			{
+//				int_params.sigma=sd_it*0.1+0.1;
+//				gsl_monte_function F={&integral_func, 1, &int_params};
+//				gsl_monte_vegas_init(s);
 
-				gsl_monte_vegas_integrate (&F, low, hi, 1, 100, rng_handle, s, &res, &err);
-			
-				dummy_table[A_max_it][A_mean_it][sd_it]=res;
-			}
-		}
-	}
+//				gsl_monte_vegas_integrate (&F, low, hi, 1, 100, rng_handle, s, &res, &err);
+//			
+//				dummy_table[A_max_it][A_mean_it][sd_it]=res;
+//			}
+//		}
+//	}
 
-	gsl_monte_vegas_free(s);
+//	gsl_monte_vegas_free(s);
 
-	return dummy_table;
-}
+//	return dummy_table;
+//}
 
