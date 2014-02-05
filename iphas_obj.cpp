@@ -16,7 +16,7 @@ iphas_obj::iphas_obj(float r_input, float i_input, float ha_input, float d_r_inp
 	l=l_input * PI/180.;
 	b=b_input* PI/180.;
 
-	feh_sd=0.008;
+	feh_sd=0.0008;
 	logT_sd=0.003;
 	logg_sd=0.008;
 	A_sd=sqrt(d_r*d_r+d_i*d_i)/4;
@@ -44,7 +44,7 @@ iphas_obj::iphas_obj(float r_input, float i_input, float ha_input, float d_r_inp
 	l=180* PI/180.;//l_input;
 	b=0* PI/180.;//b_input;
 
-	feh_sd=0.008;
+	feh_sd=0.0008;
 	logT_sd=0.003*4.;
 	logg_sd=0.008*4.;
 	A_sd=sqrt(d_r*d_r+d_i*d_i)/4;
@@ -87,7 +87,7 @@ iphas_obj::iphas_obj(float P1_input, float P2_input, float P3_input, float d_P1_
 		l=l_input * PI/180.;
 		b=b_input* PI/180.;
 	
-		feh_sd=0.008;
+		feh_sd=0.0008;
 		logT_sd=0.003;
 		logg_sd=0.008;
 		A_sd=sqrt(d_r*d_r+d_i*d_i)/4;
@@ -230,22 +230,40 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 
 //-----------------------------------------------------------------------------------------------------------
 // First isochrone posn.
+	if (gsl_ran_flat(rng_handle,0.,1.)<0.9)
+	{
+		test_feh=last_iso.feh+gsl_ran_gaussian_ziggurat(rng_handle,feh_sd);//Z.Next()*feh_sd;
+		test_logT=last_iso.logT+gsl_ran_gaussian_ziggurat(rng_handle,logT_sd);//Z.Next()*logT_sd;
+		test_logg=last_iso.logg+gsl_ran_gaussian_ziggurat(rng_handle,logg_sd);//Z.Next()*logg_sd;
+		try {test_iso=iso_get_Tg(test_feh, test_logT, test_logg, isochrones);}
+		catch (int e){no_accept++; return;}
+		//test_A=last_A;//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
+		//test_dist_mod=last_dist_mod ;//+ Z.Next()*dist_mod_sd;
 
-	test_feh=last_iso.feh;//+gsl_ran_gaussian_ziggurat(rng_handle,feh_sd);//Z.Next()*feh_sd;
-	test_logT=last_iso.logT+gsl_ran_gaussian_ziggurat(rng_handle,logT_sd);//Z.Next()*logT_sd;
-	test_logg=last_iso.logg+gsl_ran_gaussian_ziggurat(rng_handle,logg_sd);//Z.Next()*logg_sd;
-	try {test_iso=iso_get_Tg(test_feh, test_logT, test_logg, isochrones);}
-	catch (int e){no_accept++; return;}
-	//test_A=last_A;//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
-	//test_dist_mod=last_dist_mod ;//+ Z.Next()*dist_mod_sd;
+		test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,rmag_sd);//Z.Next()*d_r/2;
+		test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
 
-	test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,rmag_sd);//Z.Next()*d_r/2;
-	test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
+		test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.r0-test_iso.i0)-test_ri, +1);
+		if (test_A<0){no_accept++; return;}
+		test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A)-test_iso.r0;
+	}
+	else
+	{
+		test_feh=last_iso.feh+gsl_ran_gaussian_ziggurat(rng_handle,10*feh_sd);//Z.Next()*feh_sd;
+		test_logT=last_iso.logT+gsl_ran_gaussian_ziggurat(rng_handle,10*logT_sd);//Z.Next()*logT_sd;
+		test_logg=last_iso.logg+gsl_ran_gaussian_ziggurat(rng_handle,10*logg_sd);//Z.Next()*logg_sd;
+		try {test_iso=iso_get_Tg(test_feh, test_logT, test_logg, isochrones);}
+		catch (int e){no_accept++; return;}
+		//test_A=last_A;//VLN.Next(last_A, A_sd);//A_chain.back()+Z.Next()*A_sd;//
+		//test_dist_mod=last_dist_mod ;//+ Z.Next()*dist_mod_sd;
 
-	test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.r0-test_iso.i0)-test_ri, +1);
-	if (test_A<0){no_accept++; return;}
-	test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A)-test_iso.r0;
+		test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,10*rmag_sd);//Z.Next()*d_r/2;
+		test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,10*ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
 
+		test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.r0-test_iso.i0)-test_ri, +1);
+		if (test_A<0){no_accept++; return;}
+		test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A)-test_iso.r0;
+	}
 
 	current_prob=likelihood_eval(test_iso, test_A, test_dist_mod, A_mean);
 	current_A_prob=get_A_prob(test_iso, test_A, test_dist_mod, A_mean);
@@ -425,8 +443,8 @@ float log_prior(float test_dist_mod, float test_feh, float l, float b)
 	else {current_prob+=-R_gal/1200 +5.6333 -test_dist*sin(b)/300;} 		
 
 	// metallicity profile
-	//current_prob+=-pow(test_feh-(R_gal-8000.)*0.00007,2)/(2*0.5);
-	//	current_prob1+=-pow(test_iso.feh,2)/(2*pow(0.05,2));
+		current_prob+=-pow(test_feh+(R_gal-8000.)*0.00007,2)/(2*0.06125);
+		//current_prob1+=-pow(test_iso.feh,2)/(2*pow(0.05,2));
 
 	//	// dist^2 term 
 	current_prob+=2*log(test_dist);
