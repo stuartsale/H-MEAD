@@ -100,7 +100,7 @@ float LF::LF_prob2(vector < vector <float> > A_rel)
 
 	float dist_mod_lf;
 
-	for (int it=0; it<A_rel.size(); it++)	// run though A(d)
+	for (int it=0; it<A_rel[0].size(); it++)	// run though A(d)
 	{
 		dist_mod_lf=5*log10(it*100.+50.)-5;
 		for (int it2=0; it2<LF_vec.size(); it2+=2)
@@ -109,11 +109,11 @@ float LF::LF_prob2(vector < vector <float> > A_rel)
 			A_min=(r_min-dist_mod_lf-LF_vec[it2][0])/0.838;
 			if (A_max>0 && A_min>0)
 			{
-				prob+=2*prior_lf[it]*(gsl_cdf_lognormal_P(A_max, A_rel[it][2], A_rel[it][3])-gsl_cdf_lognormal_P(A_min, A_rel[it][2], A_rel[it][3]))*LF_vec[it2][1];
+				prob+=2*prior_lf[it]*(gsl_cdf_lognormal_P(A_max, A_rel[2][it], A_rel[3][it])-gsl_cdf_lognormal_P(A_min, A_rel[2][it], A_rel[3][it]))*LF_vec[it2][1];
 			}
 			else if (A_max>0)
 			{
-				prob+=2*prior_lf[it]*gsl_cdf_lognormal_P(A_max, A_rel[it][2], A_rel[it][3])*LF_vec[it2][1];
+				prob+=2*prior_lf[it]*gsl_cdf_lognormal_P(A_max, A_rel[2][it], A_rel[3][it])*LF_vec[it2][1];
 			}
 			else {break;}
 	

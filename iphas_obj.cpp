@@ -156,14 +156,14 @@ float iphas_obj::get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod,
 
 	// Also the the contribution to p(x) from the distance-reddening relationship
 
-	if (floor(test_dist*1.0/100)<A_mean.size())
+	if (floor(test_dist*1.0/100)<A_mean[0].size())
 	{
-		current_prob1+=-log(A_mean[floor(test_dist*1.0/100)][3]*test_A) - pow(log(test_A)-A_mean[floor(test_dist*1.0/100)][2],2)/(2*pow(A_mean[floor(test_dist*1.0/100)][3],2));
+		current_prob1+=-log(A_mean[3][floor(test_dist*1.0/100)]*test_A) - pow(log(test_A)-A_mean[2][floor(test_dist*1.0/100)],2)/(2*pow(A_mean[3][floor(test_dist*1.0/100)],2));
 
 	}
 	else
 	{
-		current_prob1+=(-log(A_mean[A_mean.size()-1][3]*test_A) - pow(log(test_A)-A_mean[A_mean.size()-1][2],2)/(2*pow(A_mean[A_mean.size()-1][3],2)));
+		current_prob1+=(-log(A_mean[3][A_mean.size()-1]*test_A) - pow(log(test_A)-A_mean[2][A_mean.size()-1],2)/(2*pow(A_mean[3][A_mean.size()-1],2)));
 	}
 
 	if (current_prob1!=current_prob1){/*cout<< test_dist/100<< " " << " " << A_prob<< " " << current_prob1 << "" "" << A_max <<endl;*/ current_prob1=-1E6;}
