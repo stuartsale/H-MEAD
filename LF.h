@@ -5,13 +5,15 @@
 class LF		// A class for holding LFs
 {
 	public:
-	LF(string filename);
+	LF(string filename, float feh);
 	float LF_prob2(vector < vector <float> > new_rel);
+	void set_prior_lf(float l_in, float b_in);
 	float feh;
 	float metal_prob;
 	void precompute_Aminmax(void);
 
 	private:
+	float l,b;
 	vector <vector <float> > LF_vec;
 	void metal_prob_set(void);
 	vector <float> prior_lf;

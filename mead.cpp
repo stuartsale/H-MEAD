@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
 
 	vector <LF> lfs;
 
-	LF lfzero(config_dir+"iphas_LFs/lfp0000_r.dat");
+	LF lfzero(config_dir+"iphas_LFs/lfp0000_r.dat", 0.);
 	lfs.push_back(lfzero);
 
 
@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
 		sl_obj sl1( hmd_dir+config_file[it_conf][0], atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()),
 			config_file[it_conf][3], atof(config_file[it_conf][4].c_str()), atof(config_file[it_conf][5].c_str()), atof(config_file[it_conf][6].c_str()) );
 
-		for (int lf_it=0; lf_it<lfs.size(); lf_it++){lfs[lf_it].precompute_Aminmax();}
+		for (int lf_it=0; lf_it<lfs.size(); lf_it++){lfs[lf_it].set_prior_lf(sl1.l,sl1.b); lfs[lf_it].precompute_Aminmax();}
 
 		cout << it_conf << " " << config_file[it_conf][0] ;
 		cout << " r_max: " << sl1.r_max << " i_max: " << sl1.i_max << " ha_max: " << sl1.ha_max << endl;

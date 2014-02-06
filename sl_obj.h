@@ -27,10 +27,12 @@ class sl_obj
 		float it_num;
 		float r_max, i_max, ha_max;
 
+		float l, b;
+
 	private:
 		vector <iphas_obj> star_cat;
 
-		float l, b;
+
 
 		float r_min, i_min, ha_min;	// iphas min & maxes
 

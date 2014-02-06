@@ -1,9 +1,9 @@
 #include "LF.h"
 
 
-LF::LF(string filename)
+LF::LF(string filename, float feh_in)
 {
-
+	feh=feh_in;
 	ifstream input1;
 	input1.open(filename.c_str());
 	if(!input1) { //output file couldn't be opened
@@ -35,14 +35,20 @@ LF::LF(string filename)
 			}
 		}
 	}
-
+	l=PI;
+	b=0;
 	metal_prob=1;
-	feh=0;
-	
+}
+
+void LF::set_prior_lf(float l_in, float b_in)
+{	
+	l=l_in;
+	b=b_in;
+	cout << l << " " << b << endl;
 	norm_lf=0;
 	for (int it=0; it<150; it++)
 	{
-		prior_lf.push_back(exp(log_prior(5*log10(it*100.+50.)-5., feh, PI, 0.)));
+		prior_lf.push_back(exp(log_prior(5*log10(it*100.+50.)-5., feh, l, b)));
 		norm_lf+=prior_lf[it];
 	}
 }
