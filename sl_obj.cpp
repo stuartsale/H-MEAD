@@ -233,6 +233,12 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 		previous_norm_prob+=-LFs[it_LF].LF_prob2(previous_rel)*(star_cat.size()+1);
 	}
 
+	for (int it=0; it<rel_length; it++)
+	{
+		proposal_sd[it][0]=2*sigma_fac;
+		proposal_sd[it][1]=sigma_fac/2;
+	}
+
 }
 
 
@@ -279,13 +285,6 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 // Now vary hyper-parameters
 
 		vector < vector <float> > new_rel(4,vector <float> (rel_length));
-
-		for (int it=0; it<rel_length; it++)
-		{
-			proposal_sd[it][0]=2*sigma_fac;
-			proposal_sd[it][1]=sigma_fac/2;
-		}
-		
 
 		for (int it=0; it<max_dist_bin1; it++)
 		{	
