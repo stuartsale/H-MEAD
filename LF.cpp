@@ -38,6 +38,13 @@ LF::LF(string filename, float feh_in)
 	l=PI;
 	b=0;
 	metal_prob=1;
+
+	gauss_table[0]=0.;
+	gauss_table[800]=1.;
+	for (int it_g=1; it_g<800;it_g++)
+	{
+		gauss_table[it_g]=gsl_cdf_gaussian_P(it_g/100.-4.,1.);
+	}
 }
 
 void LF::set_prior_lf(float l_in, float b_in)
@@ -136,11 +143,13 @@ float LF::LF_prob2(vector < vector <float> > A_rel)
 	{
 		vsSub(rel_length, &A_max[it2][0], &A_rel[2][0], part_array2_max);
 		vsDiv(rel_length, part_array2_max, &A_rel[3][0], part_array3_max);
-		vsCdfNorm(rel_length, part_array3_max, part_array4_max);
+//		vsCdfNorm(rel_length, part_array3_max, part_array4_max);
+		for (int it=0; it<rel_length; it++){part_array4_max[it]=gauss_table[max(min(800, int((part_array3_max[it]+4)*100)),0)];}
 
 		vsSub(rel_length, &A_min[it2][0], &A_rel[2][0], part_array2_min);
 		vsDiv(rel_length, part_array2_min, &A_rel[3][0], part_array3_min);
-		vsCdfNorm(rel_length, part_array3_min, part_array4_min);
+//		vsCdfNorm(rel_length, part_array3_min, part_array4_min);
+		for (int it=0; it<rel_length; it++){part_array4_min[it]=gauss_table[max(min(800, int((part_array3_min[it]+4)*100)),0)];}
 
 		vsSub(rel_length, part_array4_max, part_array4_min, part_array5);
 		vsMul(rel_length, part_array5, &prior_lf[0], prob_array);

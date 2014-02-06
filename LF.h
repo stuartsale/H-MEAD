@@ -20,4 +20,7 @@ class LF		// A class for holding LFs
 	float norm_lf;
 	vector < vector <float> > A_min;
 	vector < vector <float> > A_max;
+
+	float gauss_table[801];
+
 };

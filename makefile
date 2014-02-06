@@ -95,7 +95,7 @@ LF.o: LF.cpp LF.h helper.h iphas_obj.h bin_obj.h iso_obj.h SFD_read.h
 sl_obj.o: sl_obj.cpp sl_obj.h helper.h iphas_obj.h cat_read.h bin_obj.h iso_obj.h LF.h SFD_read.h
 	$(COMPILER) -c $(flags) sl_obj.cpp  -I$(gsl_include) -L$(gsl_lib) -I$(CCfits_include) -L$(CCfits_lib)
 
-mead.o: mead.cpp bin_obj.h iso_obj.h helper.h iphas_obj.h sl_obj.h SFD_read.h
+mead.o: mead.cpp bin_obj.h iso_obj.h helper.h iphas_obj.h sl_obj.h SFD_read.h LF.h 
 	$(COMPILER) -c $(flags) mead.cpp -I$(gsl_include) -L$(gsl_lib) -I$(CCfits_include) -L$(CCfits_lib)
 
 SFD_read.o: SFD_read.cpp SFD_read.h
