@@ -16,4 +16,6 @@ class LF		// A class for holding LFs
 	void metal_prob_set(void);
 	vector <float> prior_lf;
 	float norm_lf;
+	vector < vector <float> > A_min;
+	vector < vector <float> > A_max;
 };
