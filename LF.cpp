@@ -27,7 +27,7 @@ LF::LF(string filename)
 		
 			while (ss>>buf)
 			{			// Includes implicit conversion from string to float
-				fromfile.push_back(buf);	
+				fromfile.push_back(buf);
 			}
 			if (fromfile.size()==2)		// check there's something in the line
 			{
@@ -37,6 +37,7 @@ LF::LF(string filename)
 	}
 
 	metal_prob=1;
+	feh=0;
 	
 	norm_lf=0;
 	for (int it=0; it<150; it++)
@@ -44,9 +45,6 @@ LF::LF(string filename)
 		prior_lf.push_back(exp(log_prior(5*log10(it*100.+50.)-5., feh, PI, 0.)));
 		norm_lf+=prior_lf[it];
 	}
-	cout << prior_lf.size() << " " << prior_lf[10] << " " << norm_lf << endl;
-	
-
 }
 
 void LF::precompute_Aminmax(void)
