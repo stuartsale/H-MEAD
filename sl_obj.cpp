@@ -295,6 +295,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			//current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0])-0.75,1.5));
 //                        current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0]),3.5));
                         current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][1],log(0.4)-pow(1.5,2)/2.,1.5));
+			current_hyperprior_prob+=-log(internal_rel[it][1]);
 //			current_hyperprior_prob+=-log(internal_rel[it][0]);
 		}
 
@@ -310,7 +311,6 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			new_rel[3][it]=sqrt(log(1+pow(new_rel[1][it]/new_rel[0][it],2)));
 			new_rel[2][it]=log(new_rel[0][it])-pow(new_rel[3][it],2)/2;
 
-			current_hyperprior_prob+=-log(internal_rel[it][1]);
 		}
 
 		for (int it=max_dist_bin1; it<rel_length; it++)
@@ -336,8 +336,6 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			new_rel[1][it]=sqrt(pow(new_rel[1][it-1],2)+internal_rel[it][0]*internal_rel[it][1]);
 			new_rel[3][it]=sqrt(log(1+pow(new_rel[1][it]/new_rel[0][it],2)));
 			new_rel[2][it]=log(new_rel[0][it])-pow(new_rel[3][it],2)/2;
-
-			current_hyperprior_prob+=-log(internal_rel[it][1]);
 		}
 
 // Find probability of this parameter set
@@ -415,7 +413,9 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		else 
 		{
 			without_change++;
-//			cout << "fail " << global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << star_cat.size() << " " << new_rel[50][1] << " " << previous_rel[50][1] << endl;//*/
+//			cout << "fail " << exp(global_current_prob+current_hyperprior_prob-global_previous_prob-previous_hyperprior_prob+global_transition_prob+current_xsl_prob-previous_xsl_prob
+//			+ current_norm_prob-previous_norm_prob+test_part_prior-last_part_prior) << " " <<
+// global_current_prob << " " << global_previous_prob << " " << global_transition_prob << " " << current_hyperprior_prob << " " << previous_hyperprior_prob << " " << star_cat.size() << " " << new_rel[1][50] << " " << previous_rel[1][50] << endl;//*/
 
 		}
 		if (neighbour_sl){if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[0][rel_length-1] << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << " " << neighbour_sl->previous_rel[0][rel_length-1] << endl;}}
