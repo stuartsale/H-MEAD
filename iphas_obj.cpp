@@ -189,7 +189,8 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 			last_iso=iso_get_Tg(0.,last_logT, last_logg, isochrones);
 		}
 	}
-	last_A=quadratic(last_iso.u-last_iso.u_i, last_iso.v-last_iso.v_i, (last_iso.r0-last_iso.i0)-(r-i), +1);
+	try {last_A=quadratic(last_iso.u-last_iso.u_i, last_iso.v-last_iso.v_i, (last_iso.r0-last_iso.i0)-(r-i), +1);}
+	catch (int e){last_A=0.1;}
 	last_dist_mod=r-(last_iso.u*pow(last_A,2)+last_iso.v*last_A)-last_iso.r0;
 //	last_dist=pow(10,last_dist_mod/5+1);
 
@@ -243,7 +244,8 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,rmag_sd);//Z.Next()*d_r/2;
 		test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
 
-		test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.r0-test_iso.i0)-test_ri, +1);
+		try {test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.r0-test_iso.i0)-test_ri, +1);}
+		catch (int e){no_accept++; return;}
 		if (test_A<0){no_accept++; return;}
 		test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A)-test_iso.r0;
 	}
@@ -260,7 +262,8 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,10*rmag_sd);//Z.Next()*d_r/2;
 		test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,10*ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
 
-		test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.r0-test_iso.i0)-test_ri, +1);
+		try {test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.r0-test_iso.i0)-test_ri, +1);}
+		catch (int e){no_accept++; return;}
 		if (test_A<0){no_accept++; return;}
 		test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A)-test_iso.r0;
 	}
