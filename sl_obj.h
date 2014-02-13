@@ -51,7 +51,8 @@ class sl_obj
 
 		float global_previous_prob;
 		float previous_hyperprior_prob, current_hyperprior_prob;
-		float last_part_prior, test_part_prior;
+		float last_part_prior2, test_part_prior2;
+		float last_part_prior1, test_part_prior1;
 		float previous_norm_prob, current_norm_prob;
 		float global_current_prob, global_transition_prob;
 		float previous_xsl_prob, current_xsl_prob;
