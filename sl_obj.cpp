@@ -13,6 +13,7 @@ sl_obj::sl_obj(void)
 
 	sigma_fac=0.05;
 	accepted=0;
+	batch_accepted=0;
 	without_change=0;
 	thin=200;
 	rel_length=150;
@@ -61,6 +62,7 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype, float r
 
 	sigma_fac=0.025;
 	accepted=0;
+	batch_accepted=0;
 	without_change=0;
 	thin=200;
 	rel_length=150;
@@ -243,8 +245,8 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 
 	for (int it=0; it<rel_length; it++)
 	{
-		proposal_sd[it][0]=2*sigma_fac/(star_cat.size()/120);
-		proposal_sd[it][1]=sigma_fac/2/(star_cat.size()/120);
+		proposal_sd[it][0]=2*sigma_fac/(star_cat.size()/200.);
+		proposal_sd[it][1]=sigma_fac/2/(star_cat.size()/200.);
 	}
 
 }
@@ -408,6 +410,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			previous_norm_prob=current_norm_prob;
 			without_change=0;
 			accepted++;
+			batch_accepted++;
 
 			for (int stars_it=0; stars_it<star_cat.size(); stars_it++){star_cat[stars_it].last_A_prob=proposed_probs[stars_it];}
 		
@@ -425,6 +428,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			previous_norm_prob=current_norm_prob;
 			without_change=0;
 			accepted++;
+			batch_accepted++;
 
 		//	cout << global_A_chain.size() << " " << global_current_prob << " " << internal_rel[50][0] << " " << new_rel[rel_length-1][0] << " " << current_hyperprior_prob << " " << accepted/global_A_chain.size() <<  endl;
 		}
@@ -441,6 +445,32 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 		if (floor(it_num/100.)==it_num/100){global_A_chain.push_back(previous_rel);}
 		it_num++;
+
+
+	// Adaptive step
+
+	if (it_num/1000.==floor(it_num/1000.) && it_num<75000)
+	{
+		if (batch_accepted/1000.>0.234)
+		{
+			for (int it=0; it<rel_length; it++)
+			{
+				proposal_sd[it][0]*=1.1;
+				proposal_sd[it][1]*=1.1;
+			}
+		}
+		else
+		{
+			for (int it=0; it<rel_length; it++)
+			{
+				proposal_sd[it][0]/=1.1;
+				proposal_sd[it][1]/=1.1;
+			}
+		}
+	batch_accepted=0;
+	}
+
+
 }
 
 

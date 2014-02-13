@@ -65,7 +65,8 @@ class sl_obj
 
 		vector < vector<float> > rho_final;		
 
-		float sigma_fac, accepted;
+		float sigma_fac;
+		float accepted, batch_accepted;
 // Set up
 
 		int without_change;
