@@ -240,7 +240,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	previous_norm_prob=0;
 	for (int it_LF=0; it_LF<LFs.size(); it_LF++)
 	{
-		previous_norm_prob+=0;//-LFs[it_LF].LF_prob2(previous_rel)*(star_cat.size()+1);
+		previous_norm_prob+=-LFs[it_LF].LF_prob2(previous_rel)*(star_cat.size()+1);
 	}
 
 	for (int it=0; it<rel_length; it++)
@@ -304,14 +304,14 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			internal_rel[it][1]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2,proposal_sd[it][1]);
 
 			
-                        test_part_prior1+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0])-0.125,.5));
-                        last_part_prior1+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][0],log(first_internal_rel[it][0])-0.125,.5));
+//                        test_part_prior1+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0])-0.125,.5));
+//                        last_part_prior1+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][0],log(first_internal_rel[it][0])-0.125,.5));
                         current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][1],log(0.4)-pow(1.5,2)/2.,1.5));
 		//	current_hyperprior_prob+=-log(internal_rel[it][1]);
 //			current_hyperprior_prob+=-log(internal_rel[it][0]);
 		}
-		last_part_prior1*=0*rel_length/(max_dist_bin1);
-		test_part_prior1*=0*rel_length/(max_dist_bin1);
+//		last_part_prior1*=0*rel_length/(max_dist_bin1);
+//		test_part_prior1*=0*rel_length/(max_dist_bin1);
 
 		new_rel[0][0]=internal_rel[0][0];
 		new_rel[1][0]=sqrt(internal_rel[0][1]*internal_rel[0][0]);//internal_rel[0][1];//*internal_rel[0][0];
@@ -374,7 +374,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		current_norm_prob=0;
 		for (int it_LF=0; it_LF<LFs.size(); it_LF++)
 		{
-			current_norm_prob+=0;//-LFs[it_LF].LF_prob2(new_rel)*(star_cat.size()+1);
+			current_norm_prob+=-LFs[it_LF].LF_prob2(new_rel)*(star_cat.size()+1);
 		}
 
 // Metropolis-Hastings algorithm step
@@ -383,7 +383,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 		dummy=0;
 //		#pragma omp parallel for  num_threads(3) reduction(+:dummy)
-		for (int it=1; it<150; it++)
+		for (int it=0; it<150; it++)
 		{
 		// From new to old
 		// mean_A

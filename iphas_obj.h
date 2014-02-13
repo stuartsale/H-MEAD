@@ -125,5 +125,6 @@ class iphas_obj
 };
 
 float log_prior(float test_dist_mod, float test_feh, float l, float b);
+float log_prior_LF(float test_dist_mod, float test_feh, float l, float b);
 
 #endif
