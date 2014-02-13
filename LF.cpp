@@ -55,7 +55,7 @@ void LF::set_prior_lf(float l_in, float b_in)
 	norm_lf=0;
 	for (int it=0; it<150; it++)
 	{
-		prior_lf.push_back(exp(log_prior(5*log10(it*100.+50.)-5., feh, l, b)));
+		prior_lf.push_back(exp(log_prior_LF(5*log10(it*100.+50.)-5., feh, l*PI/180, b*PI/180)));
 		norm_lf+=prior_lf[it];
 	}
 }
@@ -120,23 +120,30 @@ float LF::LF_prob2(vector < vector <float> > A_rel)
 
 //	vsLn(150, aa, dA);
 //	cout << dA[0] << endl;
+//	float p1=0;
 
 //	for (int it=0; it<A_rel[0].size(); it++)	// run though A(d)
 //	{
+//		p1=0;
 //		for (int it2=0; it2<LF_vec.size(); it2+=1)
 //		{
 //			if (A_max[it2][it]>0 && A_min[it2][it]>0)
 //			{
 //				prob+=1*prior_lf[it]*(gsl_cdf_lognormal_P(A_max[it2][it], A_rel[2][it], A_rel[3][it])-gsl_cdf_lognormal_P(A_min[it2][it], A_rel[2][it], A_rel[3][it]))*LF_vec[it2][1];
+//				p1+=prior_lf[it]*(gsl_cdf_lognormal_P(A_max[it2][it], A_rel[2][it], A_rel[3][it])-gsl_cdf_lognormal_P(A_min[it2][it], A_rel[2][it], A_rel[3][it]))*LF_vec[it2][1];
 //			}
 //			else if (A_max[it2][it]>0)
 //			{
 //				prob+=1*prior_lf[it]*gsl_cdf_lognormal_P(A_max[it2][it], A_rel[2][it], A_rel[3][it])*LF_vec[it2][1];
+//				p1+=prior_lf[it]*gsl_cdf_lognormal_P(A_max[it2][it], A_rel[2][it], A_rel[3][it])*LF_vec[it2][1];
 //			}
 //			else {break;}
-//	
+
 //		}
+//		cout << it*100.+50 << " "  << prob << " " << p1 << endl;
 //	}
+
+//	exit(1);
 
 
 	for (int it2=0; it2<LF_vec.size(); it2+=1)
