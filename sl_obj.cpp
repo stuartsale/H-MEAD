@@ -468,6 +468,8 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			}
 		}
 	batch_accepted=0;
+
+	for (int it=0; it<star_cat.size(); it++){star_cat[it].adaptive_proposal_update(1000);}
 	}
 
 

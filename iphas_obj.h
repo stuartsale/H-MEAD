@@ -57,6 +57,7 @@ class iphas_obj
 		void star_try1(vector<iso_obj> &isochrones, float &l, float &b, vector<vector <float> > &A_mean);
 		void mean_intervals(void);
 		float get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod, vector<vector <float> > &A_mean);
+		void adaptive_proposal_update(int batch_len);
 	//
 	   
       // Returns abs mag or colour of an object given its r-i colour and luminosity class
@@ -83,7 +84,7 @@ class iphas_obj
 	vector <float> dist_mod_chain;
 	vector <float> A_chain;
 	vector <float> prob_chain, A_prob_chain;
-	int no_accept, no_accept2;
+	float no_accept, no_accept2, batch_accept;
 
 	float mean_prob, mean_A_prob;
 

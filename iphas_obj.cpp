@@ -290,6 +290,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		last_A_prob=current_A_prob;
 		no_accept++;
 		no_accept2++;
+		batch_accept++;
 
 
 
@@ -317,6 +318,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 
 		no_accept++;
 		no_accept2++;
+		batch_accept++;
 
 
 	}
@@ -338,6 +340,29 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		hax_chain.push_back((last_iso.u_ha*pow(last_A,2)+last_iso.v_ha*last_A)+last_dist_mod+last_iso.ha0);
 	}
 
+
+}
+
+void iphas_obj::adaptive_proposal_update(int batch_len)
+{
+	if (batch_accept/batch_len>0.27)
+	{
+		feh_sd*=1.1;
+		logT_sd*=1.1;
+		logg_sd*=1.1;
+		rmag_sd*=1.1;
+		ri_sd*=1.1;
+	}
+	else
+	{
+		feh_sd/=1.1;
+		logT_sd/=1.1;
+		logg_sd/=1.1;
+		rmag_sd/=1.1;
+		ri_sd/=1.1;
+
+	}
+	batch_accept=0;
 
 }
 
