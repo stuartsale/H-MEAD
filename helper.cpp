@@ -123,7 +123,7 @@ vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
 	double dust_inf=0;
 	for (double d=0; d<50000; d+=10)
 	{
-		dust_inf+=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8080.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/2500 - fabs(d*sin(b_gal*PI/180.)+17)/125)*10;	// Dust scale height and lengh from Marshall et al 2006
+		dust_inf+=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8000.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/2500 - fabs(d*sin(b_gal*PI/180.)+17)/125)*10;	// Dust scale height and lengh from Marshall et al 2006
 	}
 
 	double const_term=Sch_max/dust_inf;
@@ -131,7 +131,7 @@ vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
 	A_6250=0;
 	for (double d=0.0; d<=15001.0; d+=10.0)
 	{
-		density_dust=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8080.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/2500 - fabs(d*sin(b_gal*PI/180.)+17)/125);
+		density_dust=exp(-sqrt(pow(8080.,2)+pow(d*cos(b_gal*PI/180.),2)-2.*8000.*d*cos(b_gal*PI/180.)*cos(l_gal*PI/180.))/2500 - fabs(d*sin(b_gal*PI/180.)+17)/125);
 		A_6250+=const_term*10*density_dust;		// max/total_int * delta_d * rho(d)
 
 		if (d/100!=int(d/100) && d/50==int(d/50))				
