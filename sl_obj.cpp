@@ -334,8 +334,8 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			internal_rel[it][0]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][0])-pow(proposal_sd[it][0],2)/2,proposal_sd[it][0]);
 			internal_rel[it][1]=gsl_ran_lognormal(rng_handle,log(previous_internal_rel[it][1])-pow(proposal_sd[it][1],2)/2,proposal_sd[it][1]);
 
-			ratio_fac1=(new_rel[0][max_dist_bin1-1]-new_rel[0][max_dist_bin1-10])/(first_rel[0][max_dist_bin1-1]-first_rel[0][max_dist_bin1-10]);
-			ratio_fac2=(previous_rel[0][max_dist_bin1-1]-previous_rel[0][max_dist_bin1-10])/(first_rel[0][max_dist_bin1-1]-first_rel[0][max_dist_bin1-10]);
+			ratio_fac1=(new_rel[0][max_dist_bin1-1]-new_rel[0][max(max_dist_bin1-20,0)])/(first_rel[0][max_dist_bin1-1]-first_rel[0][max(max_dist_bin1-20,0)]);
+			ratio_fac2=(previous_rel[0][max_dist_bin1-1]-previous_rel[0][max(max_dist_bin1-20,0)])/(first_rel[0][max_dist_bin1-1]-first_rel[0][max(max_dist_bin1-20,0)]);
 //                        test_part_prior2+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0]*ratio_fac1)-0.125/ratio_fac1,.5/ratio_fac1));
 //                        last_part_prior2+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][0],log(first_internal_rel[it][0]*ratio_fac2)-0.125/ratio_fac2,.5/ratio_fac2));
 			test_part_prior2+=-pow(internal_rel[it][0]-first_internal_rel[it][0]*ratio_fac1,2)/(2.5*first_internal_rel[it][0]);
