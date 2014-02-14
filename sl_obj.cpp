@@ -338,16 +338,15 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 			ratio_fac2=(previous_rel[0][max_dist_bin1-1]-previous_rel[0][max(max_dist_bin1-20,0)])/(first_rel[0][max_dist_bin1-1]-first_rel[0][max(max_dist_bin1-20,0)]);
 //                        test_part_prior2+=log(gsl_ran_lognormal_pdf(internal_rel[it][0],log(first_internal_rel[it][0]*ratio_fac1)-0.125/ratio_fac1,.5/ratio_fac1));
 //                        last_part_prior2+=log(gsl_ran_lognormal_pdf(previous_internal_rel[it][0],log(first_internal_rel[it][0]*ratio_fac2)-0.125/ratio_fac2,.5/ratio_fac2));
-			test_part_prior2+=-pow(internal_rel[it][0]-first_internal_rel[it][0]*ratio_fac1,2)/(2.5*first_internal_rel[it][0]);
-			last_part_prior2+=-pow(previous_internal_rel[it][0]-first_internal_rel[it][0]*ratio_fac2,2)/(2.5*first_internal_rel[it][0]);
+			test_part_prior2+=-pow(internal_rel[it][0]-first_internal_rel[it][0]*ratio_fac1,2)/(2.5*first_internal_rel[it][0]+1E-9);
+			last_part_prior2+=-pow(previous_internal_rel[it][0]-first_internal_rel[it][0]*ratio_fac2,2)/(2.5*first_internal_rel[it][0]+1E-9);
                         current_hyperprior_prob+=log(gsl_ran_lognormal_pdf(internal_rel[it][1],log(0.4)-pow(1.5,2)/2.,1.5));
 	//		current_hyperprior_prob+=-log(internal_rel[it][1]);
 //			current_hyperprior_prob+=-log(internal_rel[it][0]);
 		}
-
 		last_part_prior2*=(star_cat.size()*1.)*rel_length/(rel_length-max_dist_bin1);
 		test_part_prior2*=(star_cat.size()*1.)*rel_length/(rel_length-max_dist_bin1);
-//		cout << last_part_prior2 << " " << test_part_prior2 << endl;
+
 
 	
 		for (int it=max_dist_bin1; it<rel_length; it++)

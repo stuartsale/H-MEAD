@@ -138,6 +138,7 @@ vector<bin_obj2> backup_A_mean_find(double l_gal, double b_gal)
 		{
          		//cout << "d/100=" << d/100 << " A=" << A_6250 << " " << backup_A_mean.size() << endl; 
 										// also make backup_A_mean at this point
+			A_6250+=1E-6;
 			backup_A_mean[int((d-50)/100)].mean_A=A_6250;
 			backup_A_mean[int((d-50)/100)].sigma=0.1*A_6250;
 			backup_A_mean[int((d-50)/100)].d_mean=0.1;

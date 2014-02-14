@@ -467,8 +467,8 @@ float log_prior(float test_dist_mod, float test_feh, float l, float b)
 	R_gal=sqrt(test_dist*test_dist*cos(b)*cos(b) + 64000000 - 16000*test_dist*cos(l)*cos(b));
 
 	// density profile
-	if (R_gal<13000){current_prob+=-R_gal/3000 -test_dist*sin(abs(b))/300;}	
-	else {current_prob+=-R_gal/1200 +6.5 -test_dist*sin(abs(b))/300;} 		
+	if (R_gal<13000){current_prob+=-R_gal/2500 -test_dist*sin(abs(b))/300;}	
+	else {current_prob+=-R_gal/1200 +5.6333 -test_dist*sin(abs(b))/300;} 		
 
 	// metallicity profile
 		current_prob+=-pow(test_feh+(R_gal-8000.)*0.00007,2)/(2*0.06125);
@@ -489,8 +489,8 @@ float log_prior_LF(float test_dist_mod, float test_feh, float l, float b)
 	R_gal=sqrt(test_dist*test_dist*cos(b)*cos(b) + 64000000 - 16000*test_dist*cos(l)*cos(b));
 
 	// density profile
-	if (R_gal<13000){current_prob+=-R_gal/3000 -test_dist*sin(abs(b))/300;}	
-	else {current_prob+=-R_gal/1200 +6.5 -test_dist*sin(abs(b))/300;} 		
+	if (R_gal<13000){current_prob+=-R_gal/2500 -test_dist*sin(abs(b))/300;}	
+	else {current_prob+=-R_gal/1200 +5.63333 -test_dist*sin(abs(b))/300;} 		
 
 	// metallicity profile
 //		current_prob+=-pow(test_feh+(R_gal-8000.)*0.00007,2)/(2*0.06125);
