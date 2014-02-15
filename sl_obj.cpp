@@ -52,6 +52,9 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype, float r
 	else if (datatype=="2MASS" || datatype=="2mass"){star_cat=TWOMASS_read(filename,J_min, H_min, K_min,J_max,H_max,K_max);}
 	else {cout << "Unrecognised datatype: " << datatype << endl;}
 
+	dl=0.25;
+	db=0.25;
+
 	// Find expected A(d) -------------------------------------------------------------------
 
 	//vector<bin_obj2> backup_A_mean (150);
@@ -147,7 +150,7 @@ void sl_obj::output_write(void)
 
 void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector <LF> &LFs)
 {
-	for (int lf_it=0; lf_it<LFs.size(); lf_it++){LFs[lf_it].set_prior_lf(l,b); LFs[lf_it].precompute_Aminmax();}
+	for (int lf_it=0; lf_it<LFs.size(); lf_it++){LFs[lf_it].set_prior_lf(l,b, dl, db); LFs[lf_it].precompute_Aminmax();}
 
 	global_previous_prob=0;
 	previous_hyperprior_prob=0;

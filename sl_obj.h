@@ -28,6 +28,7 @@ class sl_obj
 		float r_max, i_max, ha_max;
 
 		float l, b;
+		float dl, db;
 
 	private:
 		vector <iphas_obj> star_cat;

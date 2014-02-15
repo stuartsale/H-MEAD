@@ -49,16 +49,14 @@ LF::LF(string filename, float feh_in)
 	}
 }
 
-void LF::set_prior_lf(float l_in, float b_in)
+void LF::set_prior_lf(float l_in, float b_in, float dl, float db)
 {
-	float dl=0.25;
-	float db=0.25;
-	
 	l=l_in;
 	b=b_in;
 
 	cout << l << " " << b << endl;
 	norm_lf=0;
+	prior_lf.clear();
 	for (int it=0; it<150; it++)
 	{
 		prior_lf.push_back(exp(log_prior_LF(5*log10(it*100.+50.)-5., feh, l*PI/180, b*PI/180))*100*sin(dl*PI/180.)*sin(db*PI/180.)*0.00679);	// 0.00679 = K$ or earlier stars pc^-3

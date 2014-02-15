@@ -7,7 +7,7 @@ class LF		// A class for holding LFs
 	public:
 	LF(string filename, float feh);
 	float LF_prob2(vector < vector <float> > new_rel);
-	void set_prior_lf(float l_in, float b_in);
+	void set_prior_lf(float l_in, float b_in, float dl, float db);
 	float feh;
 	float metal_prob;
 	void precompute_Aminmax(void);
