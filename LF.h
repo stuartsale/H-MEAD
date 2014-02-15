@@ -11,6 +11,7 @@ class LF		// A class for holding LFs
 	float feh;
 	float metal_prob;
 	void precompute_Aminmax(void);
+	float alpha, beta;
 
 	private:
 	float l,b;

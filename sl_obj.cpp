@@ -240,7 +240,7 @@ void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_s
 	previous_norm_prob=0;
 	for (int it_LF=0; it_LF<LFs.size(); it_LF++)
 	{
-		previous_norm_prob+=-LFs[it_LF].LF_prob2(previous_rel)*(star_cat.size()+1);
+		previous_norm_prob+=-log(LFs[it_LF].LF_prob2(previous_rel)+LFs[it_LF].beta)*(star_cat.size()+LFs[it_LF].alpha);
 	}
 
 	for (int it=0; it<rel_length; it++)
@@ -344,6 +344,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 	//		current_hyperprior_prob+=-log(internal_rel[it][1]);
 //			current_hyperprior_prob+=-log(internal_rel[it][0]);
 		}
+
 		last_part_prior2*=(star_cat.size()*1.)*rel_length/(rel_length-max_dist_bin1);
 		test_part_prior2*=(star_cat.size()*1.)*rel_length/(rel_length-max_dist_bin1);
 
@@ -373,7 +374,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		current_norm_prob=0;
 		for (int it_LF=0; it_LF<LFs.size(); it_LF++)
 		{
-			current_norm_prob+=-LFs[it_LF].LF_prob2(new_rel)*(star_cat.size()+1);
+			current_norm_prob+=-log(LFs[it_LF].LF_prob2(new_rel)+LFs[it_LF].beta)*(star_cat.size()+LFs[it_LF].alpha);
 		}
 
 // Metropolis-Hastings algorithm step

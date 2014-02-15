@@ -3,6 +3,8 @@
 
 LF::LF(string filename, float feh_in)
 {
+	beta=1.;
+
 	feh=feh_in;
 	ifstream input1;
 	input1.open(filename.c_str());
@@ -48,16 +50,22 @@ LF::LF(string filename, float feh_in)
 }
 
 void LF::set_prior_lf(float l_in, float b_in)
-{	
+{
+	float dl=0.25;
+	float db=0.25;
+	
 	l=l_in;
 	b=b_in;
+
 	cout << l << " " << b << endl;
 	norm_lf=0;
 	for (int it=0; it<150; it++)
 	{
-		prior_lf.push_back(exp(log_prior_LF(5*log10(it*100.+50.)-5., feh, l*PI/180, b*PI/180)));
+		prior_lf.push_back(exp(log_prior_LF(5*log10(it*100.+50.)-5., feh, l*PI/180, b*PI/180))*100*sin(dl*PI/180.)*sin(db*PI/180.)*0.00679);	// 0.00679 = K$ or earlier stars pc^-3
 		norm_lf+=prior_lf[it];
 	}
+	
+	alpha=norm_lf/beta;
 }
 
 void LF::precompute_Aminmax(void)
@@ -140,7 +148,7 @@ float LF::LF_prob2(vector < vector <float> > A_rel)
 //			else {break;}
 
 //		}
-//		cout << it*100.+50 << " "  << prob << " " << p1 << endl;
+//		cout << it*100.+50 << " "  << prob << " " << p1 << " " << prior_lf[it] << endl;
 //	}
 
 //	exit(1);
@@ -167,7 +175,7 @@ float LF::LF_prob2(vector < vector <float> > A_rel)
 	}	
 
 
-	return log(prob1/norm_lf);
+	return prob1/norm_lf;
 
 
 }	
