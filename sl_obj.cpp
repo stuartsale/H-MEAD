@@ -147,6 +147,8 @@ void sl_obj::output_write(void)
 
 void sl_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &guess_set, vector <LF> &LFs)
 {
+	for (int lf_it=0; lf_it<LFs.size(); lf_it++){LFs[lf_it].set_prior_lf(l,b); LFs[lf_it].precompute_Aminmax();}
+
 	global_previous_prob=0;
 	previous_hyperprior_prob=0;
 	current_hyperprior_prob=0;
