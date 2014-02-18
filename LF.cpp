@@ -103,54 +103,7 @@ void LF::precompute_Aminmax(void)
 
 float LF::LF_prob2(vector < vector <float> > A_rel)
 {
-	float prob=0;
 	float prob1=0;
-	float prob2=0;
-
-	size_t rel_length=A_rel[0].size();
-	float prob_array[rel_length];
-	float part_array1_max[rel_length];
-	float part_array2_max[rel_length];
-	float part_array3_max[rel_length];
-	float part_array4_max[rel_length];
-	float part_array1_min[rel_length];
-	float part_array2_min[rel_length];
-	float part_array3_min[rel_length];
-	float part_array4_min[rel_length];
-	float part_array5[rel_length];
-
-	float dist_mod_lf;
-//	float dA[150];
-//	float aa[150];
-//	for (int i=0; i<150; i++){aa[i]=A_rel[0][i]-10.;}
-
-//	vsLn(150, aa, dA);
-//	cout << dA[0] << endl;
-//	float p1=0;
-
-//	for (int it=0; it<A_rel[0].size(); it++)	// run though A(d)
-//	{
-//		p1=0;
-//		for (int it2=0; it2<LF_vec.size(); it2+=1)
-//		{
-//			if (A_max[it2][it]>0 && A_min[it2][it]>0)
-//			{
-//				prob+=1*prior_lf[it]*(gsl_cdf_lognormal_P(A_max[it2][it], A_rel[2][it], A_rel[3][it])-gsl_cdf_lognormal_P(A_min[it2][it], A_rel[2][it], A_rel[3][it]))*LF_vec[it2][1];
-//				p1+=prior_lf[it]*(gsl_cdf_lognormal_P(A_max[it2][it], A_rel[2][it], A_rel[3][it])-gsl_cdf_lognormal_P(A_min[it2][it], A_rel[2][it], A_rel[3][it]))*LF_vec[it2][1];
-//			}
-//			else if (A_max[it2][it]>0)
-//			{
-//				prob+=1*prior_lf[it]*gsl_cdf_lognormal_P(A_max[it2][it], A_rel[2][it], A_rel[3][it])*LF_vec[it2][1];
-//				p1+=prior_lf[it]*gsl_cdf_lognormal_P(A_max[it2][it], A_rel[2][it], A_rel[3][it])*LF_vec[it2][1];
-//			}
-//			else {break;}
-
-//		}
-//		cout << it*100.+50 << " "  << prob << " " << p1 << " " << prior_lf[it] << endl;
-//	}
-
-//	exit(1);
-
 
 	for (int it2=0; it2<LF_vec.size(); it2+=1)
 	{
@@ -158,23 +111,6 @@ float LF::LF_prob2(vector < vector <float> > A_rel)
 		{
 			prob1+=(gauss_table[max(min(800, int(((A_max[it2][it]-A_rel[2][it])/A_rel[3][it] +4)*100)),0)] 
 				- gauss_table[max(min(800, int(((A_min[it2][it]-A_rel[2][it])/A_rel[3][it] +4)*100)),0)])*prior_lf[it]*LF_vec[it2][1] ;
-
-//			vsSub(rel_length, &A_max[it2][0], &A_rel[2][0], part_array2_max);
-//			vsDiv(rel_length, part_array2_max, &A_rel[3][0], part_array3_max);
-//	//		vsCdfNorm(rel_length, part_array3_max, part_array4_max);
-//			for (int it=0; it<rel_length; it++){part_array4_max[it]=gauss_table[max(min(800, int((part_array3_max[it]+4)*100)),0)];}
-
-//			vsSub(rel_length, &A_min[it2][0], &A_rel[2][0], part_array2_min);
-//			vsDiv(rel_length, part_array2_min, &A_rel[3][0], part_array3_min);
-//	//		vsCdfNorm(rel_length, part_array3_min, part_array4_min);
-//			for (int it=0; it<rel_length; it++){part_array4_min[it]=gauss_table[max(min(800, int((part_array3_min[it]+4)*100)),0)];}
-
-//			vsSub(rel_length, part_array4_max, part_array4_min, part_array5);
-//			vsMul(rel_length, part_array5, &prior_lf[0], prob_array);
-
-//			for (int i =0; i<rel_length; i++){prob2+=prob_array[i];}
-//			prob2*=LF_vec[it2][1];
-//			prob1+=prob2;
 		}
 	}	
 
