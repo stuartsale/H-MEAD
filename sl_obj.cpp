@@ -296,8 +296,8 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 		sort(dist_bin_vec.begin(), dist_bin_vec.end());
 //		cout << dist_bin_vec.back() << " " <<dist_bin_vec.back()*0.75 << " " << dist_bin_vec[int(0.9*dist_bin_vec.size())] << " " << dist_bin_vec[int(0.9*dist_bin_vec.size())] << " " << dist_bin_vec[int(0.75*dist_bin_vec.size())]  << endl;
 
-		max_dist_bin1=dist_bin_vec[int(0.75*dist_bin_vec.size())];
-		max_dist_bin2=dist_bin_vec[int(0.9*dist_bin_vec.size())];
+		max_dist_bin1=min(dist_bin_vec[int(0.9*dist_bin_vec.size())],150);
+		max_dist_bin2=min(dist_bin_vec[int(0.95*dist_bin_vec.size())],150);
 
 // Now vary hyper-parameters
 
@@ -350,8 +350,8 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 //			current_hyperprior_prob+=-log(internal_rel[it][0]);
 		}
 
-		last_part_prior2*=(star_cat.size()*1.)*rel_length/(rel_length-max_dist_bin1);
-		test_part_prior2*=(star_cat.size()*1.)*rel_length/(rel_length-max_dist_bin1);
+		last_part_prior2*=(star_cat.size()*1.)*rel_length/max(rel_length-max_dist_bin1,1);
+		test_part_prior2*=(star_cat.size()*1.)*rel_length/max(rel_length-max_dist_bin1,1);
 
 
 	
@@ -446,7 +446,7 @@ void sl_obj::update(vector<iso_obj> &isochrones, vector <LF> &LFs)
 
 		}
 		if (neighbour_sl){if (it_num/1000.==floor(it_num/1000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[0][rel_length-1] << " " << previous_hyperprior_prob << " " << accepted << " " << accepted/it_num << " " << neighbour_sl->previous_rel[0][rel_length-1] << endl;}}
-		else {if (it_num/10000.==floor(it_num/10000.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[0][rel_length-1] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << max_dist_bin1 << " " << max_dist_bin2 << " " << last_part_prior2 << " " << accepted << " " << accepted/it_num << endl;}}
+		else {if (it_num/149999.==floor(it_num/149999.)){cout << it_num << " " << global_previous_prob << " " << internal_rel[50][0] << " " << previous_rel[0][rel_length-1] << " " << previous_hyperprior_prob << " " << previous_norm_prob << " " << max_dist_bin1 << " " << max_dist_bin2 << " " << last_part_prior2 << " " << accepted << " " << accepted/it_num << endl;}}
 
 		if (floor(it_num/100.)==it_num/100){global_A_chain.push_back(previous_rel);}
 		it_num++;

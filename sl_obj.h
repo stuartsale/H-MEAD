@@ -75,7 +75,7 @@ class sl_obj
 
 		float sigma2_LN, mu_LN;
 		vector <float> proposed_probs;
-		size_t rel_length;
+		int rel_length;
 
 
 
