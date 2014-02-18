@@ -1,6 +1,5 @@
 #include "iphas_obj.h"
 #include <sstream>
-#include <mkl_vml.h>
 
 class LF		// A class for holding LFs
 {

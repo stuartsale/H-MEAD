@@ -154,22 +154,28 @@ float LF::LF_prob2(vector < vector <float> > A_rel)
 
 	for (int it2=0; it2<LF_vec.size(); it2+=1)
 	{
-		vsSub(rel_length, &A_max[it2][0], &A_rel[2][0], part_array2_max);
-		vsDiv(rel_length, part_array2_max, &A_rel[3][0], part_array3_max);
-//		vsCdfNorm(rel_length, part_array3_max, part_array4_max);
-		for (int it=0; it<rel_length; it++){part_array4_max[it]=gauss_table[max(min(800, int((part_array3_max[it]+4)*100)),0)];}
+		for (int it=0; it<A_rel[0].size(); it++)	// run though A(d)
+		{
+			prob1+=(gauss_table[max(min(800, int(((A_max[it2][it]-A_rel[2][it])/A_rel[3][it] +4)*100)),0)] 
+				- gauss_table[max(min(800, int(((A_min[it2][it]-A_rel[2][it])/A_rel[3][it] +4)*100)),0)])*prior_lf[it]*LF_vec[it2][1] ;
 
-		vsSub(rel_length, &A_min[it2][0], &A_rel[2][0], part_array2_min);
-		vsDiv(rel_length, part_array2_min, &A_rel[3][0], part_array3_min);
-//		vsCdfNorm(rel_length, part_array3_min, part_array4_min);
-		for (int it=0; it<rel_length; it++){part_array4_min[it]=gauss_table[max(min(800, int((part_array3_min[it]+4)*100)),0)];}
+//			vsSub(rel_length, &A_max[it2][0], &A_rel[2][0], part_array2_max);
+//			vsDiv(rel_length, part_array2_max, &A_rel[3][0], part_array3_max);
+//	//		vsCdfNorm(rel_length, part_array3_max, part_array4_max);
+//			for (int it=0; it<rel_length; it++){part_array4_max[it]=gauss_table[max(min(800, int((part_array3_max[it]+4)*100)),0)];}
 
-		vsSub(rel_length, part_array4_max, part_array4_min, part_array5);
-		vsMul(rel_length, part_array5, &prior_lf[0], prob_array);
+//			vsSub(rel_length, &A_min[it2][0], &A_rel[2][0], part_array2_min);
+//			vsDiv(rel_length, part_array2_min, &A_rel[3][0], part_array3_min);
+//	//		vsCdfNorm(rel_length, part_array3_min, part_array4_min);
+//			for (int it=0; it<rel_length; it++){part_array4_min[it]=gauss_table[max(min(800, int((part_array3_min[it]+4)*100)),0)];}
 
-		for (int i =0; i<rel_length; i++){prob2+=prob_array[i];}
-		prob2*=LF_vec[it2][1];
-		prob1+=prob2;
+//			vsSub(rel_length, part_array4_max, part_array4_min, part_array5);
+//			vsMul(rel_length, part_array5, &prior_lf[0], prob_array);
+
+//			for (int i =0; i<rel_length; i++){prob2+=prob_array[i];}
+//			prob2*=LF_vec[it2][1];
+//			prob1+=prob2;
+		}
 	}	
 
 
