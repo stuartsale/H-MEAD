@@ -52,8 +52,21 @@ sl_obj::sl_obj(string filename, float l_in, float b_in, string datatype, float r
 	else if (datatype=="2MASS" || datatype=="2mass"){star_cat=TWOMASS_read(filename,J_min, H_min, K_min,J_max,H_max,K_max);}
 	else {cout << "Unrecognised datatype: " << datatype << endl;}
 
-	dl=0.25;
-	db=0.25;
+	float l_min=361;
+	float l_max=-1;
+	float b_max=-181;
+	float b_min=181;
+
+	for (int it=0; it<star_cat.size(); it++)
+	{
+		if (star_cat[it].l>l_max){l_max=star_cat[it].l;}
+		if (star_cat[it].l<l_min){l_min=star_cat[it].l;}
+		if (star_cat[it].b>b_max){b_max=star_cat[it].b;}
+		if (star_cat[it].b<b_min){b_min=star_cat[it].b;}
+	}
+
+	dl=(l_max-l_min)*180./PI;
+	db=(b_max-b_min)*180./PI;
 
 	// Find expected A(d) -------------------------------------------------------------------
 
