@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
 
 	vector <LF> lfs;
 
-	LF lfzero(config_dir+"iphas_LFs/lfp0000_r.dat");
+	LF lfzero(config_dir+"iphas_LFs/lfp0000_r.dat", 0.);
 	lfs.push_back(lfzero);
 
 
@@ -164,37 +164,26 @@ int main(int argc, char* argv[])
 
 		sl_obj sl1( hmd_dir+config_file[it_conf][0], atof(config_file[it_conf][1].c_str()), atof(config_file[it_conf][2].c_str()),
 			config_file[it_conf][3], atof(config_file[it_conf][4].c_str()), atof(config_file[it_conf][5].c_str()), atof(config_file[it_conf][6].c_str()) );
-		//slsl.push_back(sl1);
-//		slsl[it_conf]=sl1;
+
 		cout << it_conf << " " << config_file[it_conf][0] ;
 		cout << " r_max: " << sl1.r_max << " i_max: " << sl1.i_max << " ha_max: " << sl1.ha_max << endl;
 
-//		if (it_conf!=0){sl1.neighbour_set(&slsl[it_conf-1]);}
 		sl1.initial_guess(isochrones, guess_set, lfs);
-	//}
 
-	clock_t start;
-	start=time(NULL);
+		clock_t start;
+		start=time(NULL);
 
-	while (sl1.it_num<150000)
-	{
-//		for (int it_conf=0; it_conf<config_file.size(); it_conf++)
-//		{
-			sl1.update(isochrones, lfs);
-//		}
-	}		
+		while (sl1.it_num<150000)
+		{
+				sl1.update(isochrones, lfs);
+		}		
 	
-	cout << "total time: " << (time(NULL)-start) <<"s\n";
+		cout << "total time: " << (time(NULL)-start) <<"s\n";
    	
 // Write results to file
 
-//	for(int it_conf=0; it_conf<config_file.size(); it_conf++)
-//	{
 		sl1.mean_intervals();
 		sl1.output_write();
-	//	sl1.acl_calc();
-//	}
-		
 	}
 
 

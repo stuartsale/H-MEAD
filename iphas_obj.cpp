@@ -156,14 +156,14 @@ float iphas_obj::get_A_prob(iso_obj test_iso, float test_A, float test_dist_mod,
 
 	// Also the the contribution to p(x) from the distance-reddening relationship
 
-	if (floor(test_dist*1.0/100)<A_mean.size())
+	if (floor(test_dist*1.0/100)<A_mean[0].size())
 	{
-		current_prob1+=-log(A_mean[floor(test_dist*1.0/100)][3]*test_A) - pow(log(test_A)-A_mean[floor(test_dist*1.0/100)][2],2)/(2*pow(A_mean[floor(test_dist*1.0/100)][3],2));
+		current_prob1+=-log(A_mean[3][floor(test_dist*1.0/100)]*test_A) - pow(log(test_A)-A_mean[2][floor(test_dist*1.0/100)],2)/(2*pow(A_mean[3][floor(test_dist*1.0/100)],2));
 
 	}
 	else
 	{
-		current_prob1+=(-log(A_mean[A_mean.size()-1][3]*test_A) - pow(log(test_A)-A_mean[A_mean.size()-1][2],2)/(2*pow(A_mean[A_mean.size()-1][3],2)));
+		current_prob1+=(-log(A_mean[3][A_mean.size()-1]*test_A) - pow(log(test_A)-A_mean[2][A_mean.size()-1],2)/(2*pow(A_mean[3][A_mean.size()-1],2)));
 	}
 
 	if (current_prob1!=current_prob1){/*cout<< test_dist/100<< " " << " " << A_prob<< " " << current_prob1 << "" "" << A_max <<endl;*/ current_prob1=-1E6;}
@@ -189,7 +189,8 @@ void iphas_obj::initial_guess(vector<iso_obj> &isochrones, vector<iso_obj> &gues
 			last_iso=iso_get_Tg(0.,last_logT, last_logg, isochrones);
 		}
 	}
-	last_A=quadratic(last_iso.u-last_iso.u_i, last_iso.v-last_iso.v_i, (last_iso.r0-last_iso.i0)-(r-i), +1);
+	try {last_A=quadratic(last_iso.u-last_iso.u_i, last_iso.v-last_iso.v_i, (last_iso.r0-last_iso.i0)-(r-i), +1);}
+	catch (int e){last_A=0.1;}
 	last_dist_mod=r-(last_iso.u*pow(last_A,2)+last_iso.v*last_A)-last_iso.r0;
 //	last_dist=pow(10,last_dist_mod/5+1);
 
@@ -243,7 +244,8 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,rmag_sd);//Z.Next()*d_r/2;
 		test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
 
-		test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.r0-test_iso.i0)-test_ri, +1);
+		try {test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.r0-test_iso.i0)-test_ri, +1);}
+		catch (int e){no_accept++; return;}
 		if (test_A<0){no_accept++; return;}
 		test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A)-test_iso.r0;
 	}
@@ -260,7 +262,8 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		test_rmag=last_rmag+gsl_ran_gaussian_ziggurat(rng_handle,10*rmag_sd);//Z.Next()*d_r/2;
 		test_ri=last_ri+gsl_ran_gaussian_ziggurat(rng_handle,10*ri_sd);//Z.Next()*(d_r*d_r+d_i*d_i)/2;
 
-		test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.r0-test_iso.i0)-test_ri, +1);
+		try {test_A=quadratic(test_iso.u-test_iso.u_i, test_iso.v-test_iso.v_i, (test_iso.r0-test_iso.i0)-test_ri, +1);}
+		catch (int e){no_accept++; return;}
 		if (test_A<0){no_accept++; return;}
 		test_dist_mod=test_rmag-(test_iso.u*pow(test_A,2)+test_iso.v*test_A)-test_iso.r0;
 	}
@@ -287,6 +290,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		last_A_prob=current_A_prob;
 		no_accept++;
 		no_accept2++;
+		batch_accept++;
 
 
 
@@ -314,6 +318,7 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 
 		no_accept++;
 		no_accept2++;
+		batch_accept++;
 
 
 	}
@@ -335,6 +340,29 @@ void iphas_obj::star_try1(vector<iso_obj> &isochrones, float &l, float &b, vecto
 		hax_chain.push_back((last_iso.u_ha*pow(last_A,2)+last_iso.v_ha*last_A)+last_dist_mod+last_iso.ha0);
 	}
 
+
+}
+
+void iphas_obj::adaptive_proposal_update(int batch_len)
+{
+	if (batch_accept/batch_len>0.27)
+	{
+		feh_sd*=1.1;
+		logT_sd*=1.1;
+		logg_sd*=1.1;
+		rmag_sd*=1.1;
+		ri_sd*=1.1;
+	}
+	else
+	{
+		feh_sd/=1.1;
+		logT_sd/=1.1;
+		logg_sd/=1.1;
+		rmag_sd/=1.1;
+		ri_sd/=1.1;
+
+	}
+	batch_accept=0;
 
 }
 
@@ -436,18 +464,40 @@ float log_prior(float test_dist_mod, float test_feh, float l, float b)
 	float test_dist=pow(10,test_dist_mod/5+1);
 
 	float /*cosb=1, sinb=0, cosl=-1,*/ R_gal;
-	R_gal=sqrt(test_dist*test_dist*cos(b)*cos(b) + 64000000-16000*test_dist*cos(l)*cos(b));
+	R_gal=sqrt(test_dist*test_dist*cos(b)*cos(b) + 64000000 - 16000*test_dist*cos(l)*cos(b));
 
 	// density profile
-	if (R_gal<13000){current_prob+=-R_gal/2500 -test_dist*sin(b)/300;}	
-	else {current_prob+=-R_gal/1200 +5.6333 -test_dist*sin(b)/300;} 		
+	if (R_gal<13000){current_prob+=-R_gal/2500 -test_dist*sin(abs(b))/300;}	
+	else {current_prob+=-R_gal/1200 +5.6333 -test_dist*sin(abs(b))/300;} 		
 
 	// metallicity profile
 		current_prob+=-pow(test_feh+(R_gal-8000.)*0.00007,2)/(2*0.06125);
 		//current_prob1+=-pow(test_iso.feh,2)/(2*pow(0.05,2));
 
-	//	// dist^2 term 
+		// dist^2 term 
 	current_prob+=2*log(test_dist);
+
+	return current_prob;
+}
+
+float log_prior_LF(float test_dist_mod, float test_feh, float l, float b)
+{
+	float current_prob=0;
+	float test_dist=pow(10.,test_dist_mod/5.+1.);
+
+	float /*cosb=1, sinb=0, cosl=-1,*/ R_gal;
+	R_gal=sqrt(test_dist*test_dist*cos(b)*cos(b) + 64000000. - 16000.*test_dist*cos(l)*cos(b));
+
+	// density profile
+	if (R_gal<13000){current_prob+=-R_gal/2500. -test_dist*sin(abs(b))/300.;}	
+	else {current_prob+=-R_gal/1200. +5.63333 -test_dist*sin(abs(b))/300.;} 		
+
+	// metallicity profile
+//		current_prob+=-pow(test_feh+(R_gal-8000.)*0.00007,2)/(2*0.06125);
+		//current_prob1+=-pow(test_iso.feh,2)/(2*pow(0.05,2));
+
+		// dist^2 term 
+	current_prob+=2.*log(test_dist);
 
 	return current_prob;
 }

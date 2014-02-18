@@ -27,10 +27,13 @@ class sl_obj
 		float it_num;
 		float r_max, i_max, ha_max;
 
+		float l, b;
+		float dl, db;
+
 	private:
 		vector <iphas_obj> star_cat;
 
-		float l, b;
+
 
 		float r_min, i_min, ha_min;	// iphas min & maxes
 
@@ -49,7 +52,8 @@ class sl_obj
 
 		float global_previous_prob;
 		float previous_hyperprior_prob, current_hyperprior_prob;
-		float last_part_prior, test_part_prior;
+		float last_part_prior2, test_part_prior2;
+		float last_part_prior1, test_part_prior1;
 		float previous_norm_prob, current_norm_prob;
 		float global_current_prob, global_transition_prob;
 		float previous_xsl_prob, current_xsl_prob;
@@ -62,7 +66,8 @@ class sl_obj
 
 		vector < vector<float> > rho_final;		
 
-		float sigma_fac, accepted;
+		float sigma_fac;
+		float accepted, batch_accepted;
 // Set up
 
 		int without_change;
@@ -70,7 +75,7 @@ class sl_obj
 
 		float sigma2_LN, mu_LN;
 		vector <float> proposed_probs;
-		float rel_length;
+		int rel_length;
 
 
 
