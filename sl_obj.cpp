@@ -109,7 +109,7 @@ void sl_obj::output_write(void)
 	ofstream output;
 	dummy_string=hmd_dir+rootname+"-090.dat";
 	output.open(dummy_string.c_str(), ios::trunc);
-	output << "#\tr\ti\tha\tr_i0\tdist\tA\tdistbin\td_A\td_r_i0\td_dist\td_r\td_i\td_ha\tmag_weight\tprob\tA_prob\tMi\tlogAge\tfeh\td_Mi\td_lagAge\td_feh\tlogT\tlogg\trx\tix\thax\tupdate_prop\n" ;
+	output << "#\tr\ti\tha\tr_i0\tdist\tA\tdistbin\td_A\td_r_i0\td_dist\td_r\td_i\td_ha\tmag_weight\tprob\tA_prob\tMi\tlogAge\tfeh\td_Mi\td_lagAge\td_feh\tlogT\tlogg\td_logT\td_logg\trx\tix\thax\tupdate_prop\n" ;
 	for (int y=0; y<star_cat.size(); y++)
 	{
 		
@@ -117,7 +117,8 @@ void sl_obj::output_write(void)
 			<< star_cat[y].distbin << "\t" << star_cat[y].d_A << "\t" << star_cat[y].d_r_i0 << "\t" << star_cat[y].d_dist << "\t" << star_cat[y].d_r << "\t"
 			<< star_cat[y].d_i << "\t" << star_cat[y].d_ha << "\t" << star_cat[y].last_iso.Mi  << "\t" << star_cat[y].mean_prob  << "\t" 
 			<< star_cat[y].mean_A_prob  << "\t" << star_cat[y].Mi  << "\t" << star_cat[y].logAge  << "\t" << star_cat[y].feh  << "\t" << star_cat[y].d_Mi  << "\t" 
-			<< star_cat[y].d_logAge  << "\t" << star_cat[y].d_feh << "\t" << star_cat[y].logT << "\t" << star_cat[y].logg << "\t" << star_cat[y].rx << "\t" 
+			<< star_cat[y].d_logAge  << "\t" << star_cat[y].d_feh << "\t" << star_cat[y].logT << "\t" << star_cat[y].logg << "\t" << star_cat[y].d_logT << "\t" 
+			<< star_cat[y].d_logg  << "\t" << star_cat[y].rx << "\t" 
 			<< star_cat[y].ix << "\t" << star_cat[y].hax << "\t" << star_cat[y].update_prop << "\n";
 	}
 	output.close();

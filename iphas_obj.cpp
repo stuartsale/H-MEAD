@@ -422,6 +422,9 @@ void iphas_obj::mean_intervals(void)
 	d_Mi=sqrt(Mi_sum2/ceil(0.5*iso_obj_chain.size())-pow(Mi,2));
 	d_logAge=sqrt(logAge_sum2/ceil(0.5*iso_obj_chain.size())-pow(logAge,2));
 	d_feh=sqrt(feh_sum2/ceil(0.5*iso_obj_chain.size())-pow(feh,2));
+
+	d_logT=sqrt(logT_sum2/ceil(0.5*iso_obj_chain.size())-pow(logT,2));
+	d_logg=sqrt(logg_sum2/ceil(0.5*iso_obj_chain.size())-pow(logg,2));
 	
 	distbin=floor(dist/100);
 
