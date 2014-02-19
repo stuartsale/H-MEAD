@@ -92,11 +92,13 @@ void LF::precompute_Aminmax(void)
 			else {A_min2[it2][it]=1E-9;}
 		}
 	}
-	vmlSetMode( VML_EP );
 	for (int it2=0; it2<LF_vec.size(); it2+=1)
 	{
-		vsLn(150, &A_min2[it2][0], &A_min[it2][0]);
-		vsLn(150, &A_max2[it2][0], &A_max[it2][0]);
+		for (int it=0; it<150; it++)	// run though A(d)
+		{
+			A_min[it2][it]=log(A_min2[it2][it]);
+			A_max[it2][it]=log(A_max2[it2][it]);
+		}
 	}
 }
 
